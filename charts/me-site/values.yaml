@@ -1,7 +1,7 @@
 replicaCount: 1
 image:
   repository: ghcr.io/lexfrei/me-site
-  tag: sha-7cb10cc
+  tag: latest
   pullPolicy: Always
 resources:
   limits:
