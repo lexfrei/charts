@@ -1,0 +1,25 @@
+replicaCount: 1
+image:
+  repository: ghcr.io/lexfrei/me-site
+  tag: sha-7cb10cc
+  pullPolicy: Always
+resources:
+  limits:
+    cpu: 100m
+    memory: 50Mi
+containerPort: 8080
+servicePort: 8080
+onionService:
+  enabled: true
+  backends: 1
+  privateKeySecretName: me-site-onion-secret
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []

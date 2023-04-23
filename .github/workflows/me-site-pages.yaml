@@ -1,0 +1,33 @@
+name: Publish Helm Chart
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  publish-chart:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Helm
+      uses: azure/setup-helm@v1
+
+    - name: Add Helm repository
+      run: |
+        git config --global user.email "f@lex.la"
+        git config --global user.name "Aleksei Sviridkin"
+        helm repo add lexfrei-charts https://lexfrei.github.io/charts
+
+    - name: Package and publish Helm chart
+      run: |
+        helm package me-site
+        helm repo index . --url https://lexfrei.github.io/charts
+        git checkout --orphan gh-pages
+        git add *.tgz
+        git add index.yaml
+        git commit -m "Publish Helm chart"
+        git push -f origin gh-pages

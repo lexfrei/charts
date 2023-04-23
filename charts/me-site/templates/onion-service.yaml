@@ -1,0 +1,22 @@
+{{- if .Values.onionService.enabled }}
+apiVersion: tor.k8s.torproject.org/v1alpha2
+kind: OnionBalancedService
+metadata:
+  name: me-site-onion-service
+  namespace: default
+spec:
+  version: {{ .Values.onionService.version }}
+  backends: {{ .Values.onionService.backends }}
+  template:
+    spec:
+      rules:
+        - port:
+            number: 80
+          backend:
+            service:
+              name: me-site
+              port:
+                number: {{ .Values.servicePort }}
+      privateKeySecret:
+        name: {{ .Values.onionService.privateKeySecretName }}
+{{- end }}
