@@ -3,12 +3,12 @@ entries:
   me-site:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2023-04-23T23:00:45.686022525Z"
+    created: "2023-04-25T08:32:39.428334488Z"
     description: A Helm chart for the Me-Site application
-    digest: f514e54f8dae75ccdc9ff55a1640978c4f55a6a20d38312b902aaf7c680373dc
+    digest: 72fd2d87cf556e38140afef1bed2e79a798c1d6e4f29d49575661c4454245539
     name: me-site
     type: application
     urls:
     - https://lexfrei.github.io/charts/me-site-0.1.0.tgz
     version: 0.1.0
-generated: "2023-04-23T23:00:45.685392216Z"
+generated: "2023-04-25T08:32:39.427468983Z"
