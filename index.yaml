@@ -3,12 +3,23 @@ entries:
   me-site:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2023-05-29T07:48:08.775766953Z"
+    created: "2023-08-30T11:36:19.742234989Z"
     description: A Helm chart for the Me-Site application
-    digest: 24d293e421043110a9c529e53d4083bb59582fb23bf2138134d289b8098a95ba
+    digest: d20baa382bddb2222d5f46f54b9c9f983075d0acfc91666138d34f4372b401f0
     name: me-site
     type: application
     urls:
     - https://lexfrei.github.io/charts/me-site-0.1.0.tgz
     version: 0.1.0
-generated: "2023-05-29T07:48:08.775242347Z"
+  prometheus-ipmi-exporter:
+  - apiVersion: v2
+    appVersion: 1.6.1
+    created: "2023-08-30T11:36:19.742962396Z"
+    description: This is an IPMI exporter for Prometheus.
+    digest: c714e0f4449cab0f1352fdd9f22b2c2c5a49348ce7c8303216590bc72de9536f
+    name: prometheus-ipmi-exporter
+    type: application
+    urls:
+    - https://lexfrei.github.io/charts/prometheus-ipmi-exporter-0.1.0.tgz
+    version: 0.1.0
+generated: "2023-08-30T11:36:19.741662983Z"
