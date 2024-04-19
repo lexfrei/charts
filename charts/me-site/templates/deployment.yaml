@@ -19,11 +19,14 @@ spec:
       containers:
         - name: me-site
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          imagePullPolicy: {{ default "Always" ((.Values.image).pullPolicy) }}
           resources:
+            requests:
+              cpu: {{ default "100m" ((.Values.resources).requests).cpu }}
+              memory: {{ default "50Mi" ((.Values.resources).requests).memory }}
             limits:
-              cpu: {{ .Values.resources.limits.cpu }}
-              memory: {{ .Values.resources.limits.memory }}
+              cpu: {{ default "100m" ((.Values.resources).limits).cpu }}
+              memory: {{ default "50Mi" ((.Values.resources).limits).memory }}
           securityContext:
             allowPrivilegeEscalation: false
             runAsNonRoot: true

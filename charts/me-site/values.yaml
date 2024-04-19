@@ -4,6 +4,9 @@ image:
   tag: latest
   pullPolicy: Always
 resources:
+  requests:
+    cpu: 100m
+    memory: 20Mi
   limits:
     cpu: 100m
     memory: 50Mi
