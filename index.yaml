@@ -1,6 +1,24 @@
 apiVersion: v1
 entries:
   cloudflare-tunnel:
+  - annotations:
+      artifacthub.io/changes: |
+        - kind: changed
+          description: Bump app version to 2024.4.0
+    apiVersion: v2
+    appVersion: 2024.4.0
+    created: "2024-04-22T21:26:00.047868307Z"
+    description: Creation of a cloudflared deployment - a reverse tunnel for an environment
+    digest: b01fd556dee63fcc0a6e3c4881b062913eae6015333718164ec3ef6cc4f526cd
+    icon: https://developers.cloudflare.com/cloudflare-one/favicon-32x32.png
+    maintainers:
+    - email: f@lex.la
+      name: Aleksei Sviridkin
+    name: cloudflare-tunnel
+    type: application
+    urls:
+    - https://lexfrei.github.io/charts/cloudflare-tunnel-0.4.2.tgz
+    version: 0.4.2
   - apiVersion: v2
     appVersion: 2024.3.0
     created: "2024-04-19T09:56:53.516074251Z"
@@ -26,9 +44,9 @@ entries:
   me-site:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-04-19T09:56:53.516364624Z"
+    created: "2024-04-22T21:26:00.048224649Z"
     description: A Helm chart for the Me-Site application
-    digest: 377779f02951088091f7e8e324357bb2010e599be0221c15682a3f44346c0816
+    digest: ac29e5704a4ea05dad9730eb289f9ccdd851e300008f72b896ed6ed2e0179421
     name: me-site
     type: application
     urls:
@@ -47,12 +65,12 @@ entries:
   prometheus-ipmi-exporter:
   - apiVersion: v2
     appVersion: 1.6.1
-    created: "2024-04-19T09:56:53.516808493Z"
+    created: "2024-04-22T21:26:00.048677059Z"
     description: This is an IPMI exporter for Prometheus.
-    digest: cd4c185af83d480e36223cfb7ade9991757f50872c2b799580a188cf3860068e
+    digest: 9b93a979c1cb736fa125ccea43f7cfe4584a5cb46654503914743fccd8a5087e
     name: prometheus-ipmi-exporter
     type: application
     urls:
     - https://lexfrei.github.io/charts/prometheus-ipmi-exporter-0.1.0.tgz
     version: 0.1.0
-generated: "2024-04-19T09:56:53.515306219Z"
+generated: "2024-04-22T21:26:00.047305252Z"
