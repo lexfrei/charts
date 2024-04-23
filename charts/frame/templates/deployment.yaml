@@ -38,7 +38,6 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
-          {{- if .Values.livenessProbe.enabled }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
@@ -47,7 +46,7 @@ spec:
             - name: {{ .name }}
               mountPath: {{ .path }}
             {{- end }}
-        {{- end }}
+            {{- end }}
       volumes:
         {{- if .Values.pvcs.enabled }}
         {{- range .Values.pvcs.list }}

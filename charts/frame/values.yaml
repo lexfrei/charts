@@ -103,14 +103,14 @@ affinity: {}
 
 pvcs:
   enabled: false
-  # list:
-  #   - name: my-pvc-1
-  #     storageClassName: my-storage-class-1
-  #     accessMode: ReadWriteOnce
-  #     size: 1Gi
-  #     path: /path/to/mount/1
-  #   - name: my-pvc-2
-  #     storageClassName: my-storage-class-2
-  #     accessMode: ReadWriteOnce
-  #     size: 2Gi
-  #     path: /path/to/mount/2
+  list:
+    - name: my-pvc-1
+      storageClassName: my-storage-class-1
+      accessMode: ReadWriteOnce
+      size: 1Gi
+      path: /path/to/mount/1
+    - name: my-pvc-2
+      storageClassName: my-storage-class-2
+      accessMode: ReadWriteOnce
+      size: 2Gi
+      path: /path/to/mount/2
