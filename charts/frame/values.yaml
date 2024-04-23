@@ -42,6 +42,7 @@ securityContext:
   # runAsUser: 1000
 
 service:
+  enabled: false
   type: ClusterIP
   port: 80
 
@@ -101,7 +102,10 @@ tolerations: []
 
 affinity: {}
 
-env: {}
+env:
+  {}
+  # MY_ENV_VAR: myValue
+  # ANOTHER_ENV_VAR: anotherValue
 
 pvcs:
   enabled: false
