@@ -1,0 +1,16 @@
+{{- if .Values.pvcs.enabled }}
+{{- range .Values.pvcs.list }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .name }}
+spec:
+  storageClassName: {{ .storageClassName }}
+  accessModes:
+    - {{ .accessMode }}
+  resources:
+    requests:
+      storage: {{ .size }}
+---
+{{- end }}
+{{- end }}
