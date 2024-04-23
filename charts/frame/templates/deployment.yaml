@@ -28,26 +28,25 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "frame.serviceAccountName" . }}
-      securityContext:
-        {{- toYaml .Values.securityContext | nindent 12 }}
-      image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-      imagePullPolicy: {{ .Values.image.pullPolicy }}
-      ports:
-        - name: http
-          containerPort: {{ .Values.service.port }}
-          protocol: TCP
-      livenessProbe:
-        {{- toYaml .Values.livenessProbe | nindent 12 }}
-      readinessProbe:
-        {{- toYaml .Values.readinessProbe | nindent 12 }}
-      resources:
-        {{- toYaml .Values.resources | nindent 12 }}
-      volumeMounts:
-        {{- if .Values.pvcs.enabled }}
-        {{- range .Values.pvcs.list }}
-        - name: {{ .name }}
-          mountPath: {{ .path }}
-        {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          {{- if .Values.livenessProbe.enabled }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            {{- if .Values.pvcs.enabled }}
+            {{- range .Values.pvcs.list }}
+            - name: {{ .name }}
+              mountPath: {{ .path }}
+            {{- end }}
         {{- end }}
       volumes:
         {{- if .Values.pvcs.enabled }}
