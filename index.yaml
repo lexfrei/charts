@@ -7,9 +7,9 @@ entries:
           description: Bump app version to 2024.4.0
     apiVersion: v2
     appVersion: 2024.4.0
-    created: "2024-04-22T21:26:00.047868307Z"
+    created: "2024-04-23T16:39:35.710748521Z"
     description: Creation of a cloudflared deployment - a reverse tunnel for an environment
-    digest: b01fd556dee63fcc0a6e3c4881b062913eae6015333718164ec3ef6cc4f526cd
+    digest: 3c0055e88821cc71628299ac04f67d418edb54ab22942036753fad98ddfa76d9
     icon: https://developers.cloudflare.com/cloudflare-one/favicon-32x32.png
     maintainers:
     - email: f@lex.la
@@ -41,12 +41,23 @@ entries:
     urls:
     - https://lexfrei.github.io/charts/cloudflare-tunnel-0.4.0.tgz
     version: 0.4.0
+  frame:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2024-04-23T16:39:35.711145787Z"
+    description: A Helm chart for Kubernetes
+    digest: f721b9f2701c6220606dc832cb3320ad855515d2bf6b145f833253cb65be2b8a
+    name: frame
+    type: application
+    urls:
+    - https://lexfrei.github.io/charts/frame-0.1.0.tgz
+    version: 0.1.0
   me-site:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-04-22T21:26:00.048224649Z"
+    created: "2024-04-23T16:39:35.711426324Z"
     description: A Helm chart for the Me-Site application
-    digest: ac29e5704a4ea05dad9730eb289f9ccdd851e300008f72b896ed6ed2e0179421
+    digest: 9a6a4342d14114c64ac60bd02e7e0bf325d0f88864e9c8268754553663cae3dd
     name: me-site
     type: application
     urls:
@@ -65,12 +76,12 @@ entries:
   prometheus-ipmi-exporter:
   - apiVersion: v2
     appVersion: 1.6.1
-    created: "2024-04-22T21:26:00.048677059Z"
+    created: "2024-04-23T16:39:35.71186634Z"
     description: This is an IPMI exporter for Prometheus.
-    digest: 9b93a979c1cb736fa125ccea43f7cfe4584a5cb46654503914743fccd8a5087e
+    digest: 9b4bdb25f4f9315c7fe06d80beeb3db5a1e0d1b83ce86d4b1d08dac848fd04d1
     name: prometheus-ipmi-exporter
     type: application
     urls:
     - https://lexfrei.github.io/charts/prometheus-ipmi-exporter-0.1.0.tgz
     version: 0.1.0
-generated: "2024-04-22T21:26:00.047305252Z"
+generated: "2024-04-23T16:39:35.709949721Z"
