@@ -7,9 +7,9 @@ entries:
           description: Bump app version to 2024.4.0
     apiVersion: v2
     appVersion: 2024.4.0
-    created: "2024-04-23T17:17:32.311067338Z"
+    created: "2024-04-23T18:12:48.659326053Z"
     description: Creation of a cloudflared deployment - a reverse tunnel for an environment
-    digest: 3a1768f664960f822563b3e66e0b2497943509f5639b02d0cfb20d31962cde83
+    digest: 86ca331426eaf4b112e93db76ba27e79be4b39ee9f83e370217e53348c138b1d
     icon: https://developers.cloudflare.com/cloudflare-one/favicon-32x32.png
     maintainers:
     - email: f@lex.la
@@ -44,6 +44,16 @@ entries:
   frame:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2024-04-23T18:12:48.659790716Z"
+    description: A Helm chart for Kubernetes
+    digest: f8d5f93055814655505a9b426dfb1a7db36b1b0c34c034f3c304008ddc168f9c
+    name: frame
+    type: application
+    urls:
+    - https://lexfrei.github.io/charts/frame-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2024-04-23T17:17:32.311493508Z"
     description: A Helm chart for Kubernetes
     digest: 2528cf0ba6d68416a4df1141ba05f7106bca8dd0d6932d75ffaf44daefed708a
@@ -65,9 +75,9 @@ entries:
   me-site:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-04-23T17:17:32.311773523Z"
+    created: "2024-04-23T18:12:48.660073026Z"
     description: A Helm chart for the Me-Site application
-    digest: dd834c94448302b9dbefe1cc84aaedc38b1628d3d9becaa4260d643b53780658
+    digest: b061456b9d59e42d2d36197004cf1b4f56f40cb66e0d09a79015d585736c45b3
     name: me-site
     type: application
     urls:
@@ -86,12 +96,12 @@ entries:
   prometheus-ipmi-exporter:
   - apiVersion: v2
     appVersion: 1.6.1
-    created: "2024-04-23T17:17:32.312311172Z"
+    created: "2024-04-23T18:12:48.660529773Z"
     description: This is an IPMI exporter for Prometheus.
-    digest: 4e9488f87cd7688ba53878426c5880b13d6ee87f6fcafc6a4a867c8249ba61d5
+    digest: 273e34afb1482119aa2f58896de159dbc3350474eb33dddb7c14e9d1bd8ee3bf
     name: prometheus-ipmi-exporter
     type: application
     urls:
     - https://lexfrei.github.io/charts/prometheus-ipmi-exporter-0.1.0.tgz
     version: 0.1.0
-generated: "2024-04-23T17:17:32.310494453Z"
+generated: "2024-04-23T18:12:48.658587947Z"
