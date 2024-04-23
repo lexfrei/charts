@@ -101,6 +101,8 @@ tolerations: []
 
 affinity: {}
 
+env: {}
+
 pvcs:
   enabled: false
   list:
