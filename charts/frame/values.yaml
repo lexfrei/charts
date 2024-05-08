@@ -83,6 +83,10 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
+verticalPodAutoscaler:
+  enabled: false
+  updateMode: "Auto"
+
 # Additional volumes on the output Deployment definition.
 volumes: []
 # - name: foo

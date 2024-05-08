@@ -26,3 +26,5 @@ ingress:
         - path: /
           pathType: ImplementationSpecific
   tls: []
+vpa:
+  enabled: true
