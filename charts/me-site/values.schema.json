@@ -140,6 +140,17 @@
         "hosts",
         "tls"
       ]
+    },
+    "vpa": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "enabled"
+      ]
     }
   },
   "required": [
@@ -147,6 +158,7 @@
     "image",
     "containerPort",
     "servicePort",
-    "ingress"
+    "ingress",
+    "vpa"
   ]
 }
