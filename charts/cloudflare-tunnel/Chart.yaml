@@ -17,4 +17,4 @@ maintainers:
 annotations:
   artifacthub.io/changes: |
     - kind: changed
-      description: Bump app version to 2024.11.1
+      description: Bump app version to 2024.12.1
