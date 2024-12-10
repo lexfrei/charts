@@ -6,7 +6,7 @@ type: application
 
 version: 0.4.3
 
-appVersion: "2024.11.1"
+appVersion: "2024.12.1"
 
 icon: https://developers.cloudflare.com/cloudflare-one/favicon-32x32.png
 
