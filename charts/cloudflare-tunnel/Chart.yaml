@@ -2,6 +2,23 @@ apiVersion: v2
 name: cloudflare-tunnel
 description: Creation of a cloudflared deployment - a reverse tunnel for an environment
 
+sources:
+  - https://github.com/lexfrei/charts/
+  - https://github.com/cloudflare/cloudflared/
+
+keywords:
+  - cloudflare
+  - cloudflared
+  - reverse-tunnel
+  - tunnel
+  - helm-chart
+  - kubernetes
+  - devops
+  - networking
+  - zero-trust
+  - proxy
+  - vpn
+
 type: application
 
 version: 0.4.4
