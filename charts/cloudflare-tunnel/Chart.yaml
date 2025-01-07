@@ -1,11 +1,11 @@
+annotations:
+  artifacthub.io/changes: |
+    - kind: changed
+      description: Bump app version to 2025.1.0
 apiVersion: v2
-name: cloudflare-tunnel
+appVersion: 2025.1.0
 description: Creation of a cloudflared deployment - a reverse tunnel for an environment
-
-sources:
-  - https://github.com/lexfrei/charts/
-  - https://github.com/cloudflare/cloudflared/
-
+icon: https://developers.cloudflare.com/cloudflare-one/favicon-32x32.png
 keywords:
   - cloudflare
   - cloudflared
@@ -18,20 +18,12 @@ keywords:
   - zero-trust
   - proxy
   - vpn
-
-type: application
-
-version: 0.4.4
-
-appVersion: "2024.12.1"
-
-icon: https://developers.cloudflare.com/cloudflare-one/favicon-32x32.png
-
 maintainers:
-  - name: Aleksei Sviridkin
-    email: f@lex.la
-
-annotations:
-  artifacthub.io/changes: |
-    - kind: changed
-      description: Bump app version to 2024.12.1
+  - email: f@lex.la
+    name: Aleksei Sviridkin
+name: cloudflare-tunnel
+sources:
+  - https://github.com/lexfrei/charts/
+  - https://github.com/cloudflare/cloudflared/
+type: application
+version: "0.5"
