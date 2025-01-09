@@ -3,14 +3,16 @@ entries:
   cloudflare-tunnel:
   - annotations:
       artifacthub.io/changes: |
-        - kind: changed
-          description: Bump app version to 2025.1.0
+        - kind: added
+          description: "Added JSON schema validation for values.yaml to improve parameter validation."
+        - kind: added
+          description: "Added README.md file with usage instructions and chart documentation."
     apiVersion: v2
     appVersion: 2025.1.0
-    created: "2025-01-07T23:49:12.693003213Z"
+    created: "2025-01-09T00:55:39.719336971Z"
     description: Creation of a cloudflared deployment - a reverse tunnel for an environment
-    digest: d150d4dbae84f89901225ba2c91d6aeb07a4a0a7ac695077f66778a0f7f86b57
-    icon: https://developers.cloudflare.com/cloudflare-one/favicon-32x32.png
+    digest: 02da9034fff2cd1e9055e534467b28a91beca1bb03c796f9c27f1b209c09d5e3
+    icon: https://avatars.githubusercontent.com/u/314135
     keywords:
     - cloudflare
     - cloudflared
@@ -26,14 +28,15 @@ entries:
     maintainers:
     - email: f@lex.la
       name: Aleksei Sviridkin
+      url: https://me.lex.la
     name: cloudflare-tunnel
     sources:
     - https://github.com/lexfrei/charts/
     - https://github.com/cloudflare/cloudflared/
     type: application
     urls:
-    - https://lexfrei.github.io/charts/cloudflare-tunnel-0.5.tgz
-    version: "0.5"
+    - https://lexfrei.github.io/charts/cloudflare-tunnel-0.5.1.tgz
+    version: 0.5.1
   - annotations:
       artifacthub.io/changes: |
         - kind: changed
@@ -128,9 +131,9 @@ entries:
   frame:
   - apiVersion: v2
     appVersion: 0.0.0
-    created: "2025-01-07T23:49:12.693857464Z"
+    created: "2025-01-09T00:55:39.72059083Z"
     description: A Helm chart for Kubernetes
-    digest: 6b00538e0286cdea4e276adb419b427e9a7ab5da8027537646c186a2f8768353
+    digest: b4a1b02b7dfa86e835874a4e2a4b08cb0007aa84d9961c688d61242a701ba6cd
     name: frame
     type: application
     urls:
@@ -189,9 +192,9 @@ entries:
   me-site:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2025-01-07T23:49:12.694360181Z"
+    created: "2025-01-09T00:55:39.720916717Z"
     description: A Helm chart for the Me-Site application
-    digest: 1372dfd9a813ff228bc24bb08e670954ab534b5b4da7baee3ec2135f8c49a957
+    digest: 9a1c1d7f1f0e19276db4d73af21cd75884dd1fab6cf39325e621cf8061cd996e
     name: me-site
     type: application
     urls:
@@ -220,12 +223,12 @@ entries:
   prometheus-ipmi-exporter:
   - apiVersion: v2
     appVersion: 1.6.1
-    created: "2025-01-07T23:49:12.695225012Z"
+    created: "2025-01-09T00:55:39.721377384Z"
     description: This is an IPMI exporter for Prometheus.
-    digest: 202fc2d15737c30dbf839dcbd23dab8647e59991583090311f9a6730fca0d4f4
+    digest: 5b412eb25bf581657b74351397f6e58f95a62022b5abdfcb1e2825695ecacc42
     name: prometheus-ipmi-exporter
     type: application
     urls:
     - https://lexfrei.github.io/charts/prometheus-ipmi-exporter-0.1.0.tgz
     version: 0.1.0
-generated: "2025-01-07T23:49:12.691995055Z"
+generated: "2025-01-09T00:55:39.718653869Z"
