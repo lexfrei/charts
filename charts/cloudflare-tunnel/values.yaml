@@ -1,22 +1,23 @@
 # Default values for cloudflare-tunnel.
 
-# Cloudflare parameters.
+# -- Cloudflare parameters
 cloudflare:
-  # Your Cloudflare account number.
+  # -- Your Cloudflare account number
   account: ""
-  # The name of the tunnel this instance will serve
+  # -- The name of the tunnel this instance will serve
   tunnelName: ""
-  # The ID of the above tunnel.
+  # -- The ID of the above tunnel
   tunnelId: ""
-  # The secret for the tunnel.
+  # -- The secret for the tunnel
   secret: ""
-  # If defined, no secret is created for the credentials, and instead, the secret referenced is used
+  # -- If defined, no secret is created for the credentials, and instead, the secret referenced is used
   secretName: null
-  # If true, turn on WARP routing for TCP
+  # -- If true, turn on WARP routing for TCP
   enableWarp: false
-  # Define ingress rules for the tunnel. See
-  # https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress
-  ingress: []
+  # -- Define ingress rules for the tunnel
+  # See https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress
+  ingress:
+    []
     # The first rule proxies traffic to the httpbin sample service named web-server at port 80
     # - hostname: tunnel.example.com
     #  service: http://web-service:80
@@ -25,15 +26,17 @@ cloudflare:
     # in the connection from cloudflared to your local service, not from the internet to cloudflared.
     # - hostname: hello.example.com
     #   service: hello_world
-  # If true, enable the default 404 page. Needs to be false if you want to use a '*' wildcard rule.
+  # -- If true, enable the default 404 page. Needs to be false if you want to use a '*' wildcard rule.
   enableDefault404: true
 
+# -- The image to use
 image:
   repository: cloudflare/cloudflared
   pullPolicy: IfNotPresent
-  # If supplied, this overrides "appVersion"
+  # -- If supplied, this overrides "appVersion"
   tag: ""
 
+# -- The version of the image to use
 replicaCount: 2
 
 imagePullSecrets: []
@@ -41,21 +44,20 @@ nameOverride: ""
 fullnameOverride: ""
 
 serviceAccount:
-  # Annotations to add to the service account
+  # -- Annotations to add to the service account
   annotations: {}
-  # The name of the service account to use.
+  # -- The name of the service account to use
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
 podAnnotations: {}
 
-# Security items common to everything in the pod.  Here we require that it
-# does not run as the user defined in the image, literally named "nonroot".
+# -- Security items common to everything in the pod.  Here we require that it does not run as the user defined in the image, literally named "nonroot"
 podSecurityContext:
   runAsNonRoot: true
   runAsUser: 65532
 
-# Security items for one container. We lock it down.
+# -- Security items for one container. We lock it down
 securityContext:
   allowPrivilegeEscalation: false
   capabilities:
@@ -63,11 +65,12 @@ securityContext:
       - ALL
   readOnlyRootFilesystem: true
 
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+resources:
+  {}
+  # -- We usually recommend not to specify default resources and to leave this as a conscious
+  # -- choice for the user. This also increases chances charts run on environments with little
+  # -- resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # -- lines, adjust them as necessary, and remove the curly braces after 'resources:'.
   # limits:
   #   cpu: 100m
   #   memory: 128Mi
@@ -79,5 +82,5 @@ nodeSelector: {}
 
 tolerations: []
 
-# Default affinity is to spread out over nodes; use this to override.
+# -- Default affinity is to spread out over nodes; use this to override
 affinity: {}
