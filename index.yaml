@@ -9,9 +9,9 @@ entries:
           description: "Added README.md file with usage instructions and chart documentation."
     apiVersion: v2
     appVersion: 2025.1.0
-    created: "2025-01-09T00:55:39.719336971Z"
+    created: "2025-01-09T01:08:15.889592804Z"
     description: Creation of a cloudflared deployment - a reverse tunnel for an environment
-    digest: 02da9034fff2cd1e9055e534467b28a91beca1bb03c796f9c27f1b209c09d5e3
+    digest: 37eff74c576f89032c2a1f8a7bd9b830fa7f69bdec64a6c5bb6a0590aef59735
     icon: https://avatars.githubusercontent.com/u/314135
     keywords:
     - cloudflare
@@ -131,9 +131,9 @@ entries:
   frame:
   - apiVersion: v2
     appVersion: 0.0.0
-    created: "2025-01-09T00:55:39.72059083Z"
+    created: "2025-01-09T01:08:15.890113596Z"
     description: A Helm chart for Kubernetes
-    digest: b4a1b02b7dfa86e835874a4e2a4b08cb0007aa84d9961c688d61242a701ba6cd
+    digest: 1bcfa73b298fdbc58a483720f3d384ec4cd7f4ee5e41f90d7f78bf96f4dc8940
     name: frame
     type: application
     urls:
@@ -192,9 +192,9 @@ entries:
   me-site:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2025-01-09T00:55:39.720916717Z"
+    created: "2025-01-09T01:08:15.890399349Z"
     description: A Helm chart for the Me-Site application
-    digest: 9a1c1d7f1f0e19276db4d73af21cd75884dd1fab6cf39325e621cf8061cd996e
+    digest: b5bb434ea3655c458890a80ec485f9e0976e9bf0cc18e1f1a6c4c7d425fd7aff
     name: me-site
     type: application
     urls:
@@ -223,12 +223,12 @@ entries:
   prometheus-ipmi-exporter:
   - apiVersion: v2
     appVersion: 1.6.1
-    created: "2025-01-09T00:55:39.721377384Z"
+    created: "2025-01-09T01:08:15.890891107Z"
     description: This is an IPMI exporter for Prometheus.
-    digest: 5b412eb25bf581657b74351397f6e58f95a62022b5abdfcb1e2825695ecacc42
+    digest: c5ddeb3a3785818d280433f0fe5a40372fa8fa555cd0e4477be042a65a3ecccc
     name: prometheus-ipmi-exporter
     type: application
     urls:
     - https://lexfrei.github.io/charts/prometheus-ipmi-exporter-0.1.0.tgz
     version: 0.1.0
-generated: "2025-01-09T00:55:39.718653869Z"
+generated: "2025-01-09T01:08:15.887818925Z"
