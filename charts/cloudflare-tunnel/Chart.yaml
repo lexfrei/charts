@@ -1,11 +1,9 @@
 annotations:
   artifacthub.io/changes: |
-    - kind: added
-      description: "Added JSON schema validation for values.yaml to improve parameter validation."
-    - kind: added
-      description: "Added README.md file with usage instructions and chart documentation."
+    - kind: changed
+      description: Bump app version to 2025.1.1
 apiVersion: v2
-appVersion: 2025.1.0
+appVersion: 2025.1.1
 description: Creation of a cloudflared deployment - a reverse tunnel for an environment
 icon: https://avatars.githubusercontent.com/u/314135
 keywords:
