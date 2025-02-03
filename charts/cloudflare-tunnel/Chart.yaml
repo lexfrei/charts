@@ -27,4 +27,4 @@ sources:
   - https://github.com/lexfrei/charts/
   - https://github.com/cloudflare/cloudflared/
 type: application
-version: "0.5.1"
+version: "0.5.2"
