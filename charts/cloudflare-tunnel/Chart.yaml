@@ -1,9 +1,9 @@
 annotations:
   artifacthub.io/changes: |
     - kind: changed
-      description: Bump app version to 2025.1.1
+      description: Bump app version to 2025.2.0
 apiVersion: v2
-appVersion: 2025.1.1
+appVersion: 2025.2.10
 description: Creation of a cloudflared deployment - a reverse tunnel for an environment
 icon: https://avatars.githubusercontent.com/u/314135
 keywords:
@@ -27,4 +27,4 @@ sources:
   - https://github.com/lexfrei/charts/
   - https://github.com/cloudflare/cloudflared/
 type: application
-version: "0.5.2"
+version: "0.5.3"
