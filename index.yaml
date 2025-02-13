@@ -3,6 +3,40 @@ entries:
   cloudflare-tunnel:
   - annotations:
       artifacthub.io/changes: |
+        - kind: fix
+          description: Fix image tag
+    apiVersion: v2
+    appVersion: 2025.2.0
+    created: "2025-02-13T19:55:32.402063049Z"
+    description: Creation of a cloudflared deployment - a reverse tunnel for an environment
+    digest: 56297b0232ccdaa97507031e557a2784b1f9271151bcbf91083dc787d30f340d
+    icon: https://avatars.githubusercontent.com/u/314135
+    keywords:
+    - cloudflare
+    - cloudflared
+    - reverse-tunnel
+    - tunnel
+    - helm-chart
+    - kubernetes
+    - devops
+    - networking
+    - zero-trust
+    - proxy
+    - vpn
+    maintainers:
+    - email: f@lex.la
+      name: Aleksei Sviridkin
+      url: https://me.lex.la
+    name: cloudflare-tunnel
+    sources:
+    - https://github.com/lexfrei/charts/
+    - https://github.com/cloudflare/cloudflared/
+    type: application
+    urls:
+    - https://lexfrei.github.io/charts/cloudflare-tunnel-0.5.4.tgz
+    version: 0.5.4
+  - annotations:
+      artifacthub.io/changes: |
         - kind: changed
           description: Bump app version to 2025.2.0
     apiVersion: v2
@@ -197,9 +231,9 @@ entries:
   frame:
   - apiVersion: v2
     appVersion: 0.0.0
-    created: "2025-02-10T14:44:57.448338318Z"
+    created: "2025-02-13T19:55:32.40250823Z"
     description: A Helm chart for Kubernetes
-    digest: ac5cdf2220d3db233c9076930dd5f24618c9d9989f9ac6327bb70be8e62d5413
+    digest: 645dad5b6f46237d85f44a4dc180636878753d2087614c3880674f731206ca01
     name: frame
     type: application
     urls:
@@ -258,9 +292,9 @@ entries:
   me-site:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2025-02-10T14:44:57.448638108Z"
+    created: "2025-02-13T19:55:32.402800987Z"
     description: A Helm chart for the Me-Site application
-    digest: 15ad3439e5d853686d778377ad9e57095c614e528e7b8c0efef3a06e1bdd5af6
+    digest: 950cb608d516218efa2972fe145ab254143dad13dcb87bdc30b5f0cde229d5c4
     name: me-site
     type: application
     urls:
@@ -289,12 +323,12 @@ entries:
   prometheus-ipmi-exporter:
   - apiVersion: v2
     appVersion: 1.6.1
-    created: "2025-02-10T14:44:57.449106442Z"
+    created: "2025-02-13T19:55:32.403282897Z"
     description: This is an IPMI exporter for Prometheus.
-    digest: 540fa1d1ecef4ff4ff01e9934c24207be885ea447f3fb91792f8377aef9d308e
+    digest: 05209b8ec3759589096bcdfb9136e48d4d8005848a782e437c90901fa7de9849
     name: prometheus-ipmi-exporter
     type: application
     urls:
     - https://lexfrei.github.io/charts/prometheus-ipmi-exporter-0.1.0.tgz
     version: 0.1.0
-generated: "2025-02-10T14:44:57.446374502Z"
+generated: "2025-02-13T19:55:32.400566014Z"
