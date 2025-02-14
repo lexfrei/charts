@@ -21,7 +21,6 @@ jobs:
       - name: Setup Helm
         run: |
           curl -sSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-          gpg --list-secret-keys --keyid-format LONG
 
       - name: Import GPG private key
         env:
@@ -29,6 +28,7 @@ jobs:
         run: |
           set -o pipefail && set -e
           echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+          gpg --list-secret-keys --keyid-format LONG
 
       - name: Package and sign Helm charts
         env:
