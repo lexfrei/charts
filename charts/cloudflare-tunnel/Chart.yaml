@@ -1,11 +1,27 @@
 annotations:
+  artifacthub.io/category: networking
   artifacthub.io/changes: |
     - kind: fix
       description: Fix image tag
+  artifacthub.io/license: BSD-3-Clause
+  artifacthub.io/links: |
+    - name: Chart Repository
+      url: https://github.com/lexfrei/charts/
+    - name: Cloudflare Cloudflared
+      url: https://github.com/cloudflare/cloudflared/
+
 apiVersion: v2
-appVersion: 2025.2.0
+name: cloudflare-tunnel
 description: Creation of a cloudflared deployment - a reverse tunnel for an environment
+type: application
+
+version: "0.5.4"
+appVersion: "2025.2.0"
+
 icon: https://avatars.githubusercontent.com/u/314135
+
+home: https://github.com/lexfrei/charts/
+
 keywords:
   - cloudflare
   - cloudflared
@@ -18,13 +34,12 @@ keywords:
   - zero-trust
   - proxy
   - vpn
+
 maintainers:
-  - email: f@lex.la
-    name: Aleksei Sviridkin
+  - name: Aleksei Sviridkin
+    email: f@lex.la
     url: https://me.lex.la
-name: cloudflare-tunnel
+
 sources:
   - https://github.com/lexfrei/charts/
   - https://github.com/cloudflare/cloudflared/
-type: application
-version: "0.5.4"
