@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    branches-ignore:
+      - "**"
 
 jobs:
   publish-charts:
@@ -17,39 +20,39 @@ jobs:
 
       - name: Setup Helm
         run: |
-          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+          curl -sSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
-      - name: Import GPG key
+      - name: Import GPG private key
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
         run: |
-          echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --import --batch --yes
-          gpg --list-secret-keys --keyid-format LONG
+          set -o pipefail && set -e
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
 
-      - name: Package only changed Helm charts and sign them
+      - name: Package and sign Helm charts
+        env:
+          GPG_FINGERPRINT: "62516FAA4167CBF4FA4E0775CF943E8B90C984F5"
         run: |
           mkdir -p .deploy
-          git fetch origin gh-pages
-          git checkout gh-pages
-
-          for chart in charts/*/Chart.yaml; do
-            chart_dir=$(dirname "$chart")
-            chart_name=$(basename "$chart_dir")
-
-            # Проверяем, изменился ли чарт
-            if git diff --quiet origin/master -- "$chart_dir"; then
-              echo "Skipping unchanged chart: $chart_name"
-            else
-              echo "Packaging and signing updated chart: $chart_name"
-              helm package "$chart_dir" --destination .deploy
-              helm sign .deploy/$(basename "$chart_dir")-*.tgz --key "${{ secrets.GPG_KEY_ID }}" --keyring ~/.gnupg/pubring.kbx
+          for chart in charts/*/; do
+            if [ -d "$chart" ]; then
+              echo "Packaging and signing chart: $(basename "$chart")"
+              helm package "$chart" --destination .deploy --sign --key "$GPG_FINGERPRINT" --keyring ~/.gnupg/pubring.kbx
             fi
           done
 
       - name: Update Helm repository index
-        if: steps.package.outputs.charts-updated == 'true'
         run: |
+          git fetch origin gh-pages
+          git checkout gh-pages
           mv .deploy/*.tgz .
           mv .deploy/*.tgz.prov .
-          helm repo index --merge index.yaml .
+          helm repo index . --merge index.yaml
           git add .
           git commit -m "Update Helm charts" || echo "No changes to commit"
           git push origin gh-pages
+
+      - name: Clean up GPG key
+        run: |
+          gpg --batch --yes --delete-secret-keys "$GPG_FINGERPRINT"
+          gpg --batch --yes --delete-key "$GPG_FINGERPRINT"
