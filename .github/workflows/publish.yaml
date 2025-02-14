@@ -22,8 +22,14 @@ jobs:
         run: |
           curl -sSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
+      - name: Install GPG v1
+        run: |
+          sudo apt-get update && sudo apt-get install -y gnupg1
+          mkdir -p ~/.gnupg
+          echo "use-agent" >> ~/.gnupg/gpg.conf
+
       - name: Import GPG key
-        run: echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+        run: echo "$GPG_PRIVATE_KEY" | gpg --batch --import --no-default-keyring --keyring ~/.gnupg/secring.gpg
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
 
@@ -33,7 +39,7 @@ jobs:
           for chart in charts/*/; do
             if [ -d "$chart" ]; then
               echo "Packaging and signing chart: $(basename "$chart")"
-              helm package "$chart" --destination .deploy --sign --key "Aleksey Sviridkin" --keyring ~/.gnupg/pubring.kbx
+              helm package "$chart" --destination .deploy --sign --key "Aleksey Sviridkin" --keyring ~/.gnupg/secring.gpg
             fi
           done
 
