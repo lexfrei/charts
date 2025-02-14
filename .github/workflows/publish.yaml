@@ -18,38 +18,19 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Helm
+      - name: Configure Git
         run: |
-          curl -sSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-
-      - name: Install GPG v1
-        run: |
-          sudo apt-get update && sudo apt-get install -y gnupg1
-          mkdir -p ~/.gnupg
-          echo "use-agent" >> ~/.gnupg/gpg.conf
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
 
       - name: Import GPG key
-        run: echo "$GPG_PRIVATE_KEY" | gpg --batch --import --no-default-keyring --keyring ~/.gnupg/secring.gpg
+        run: |
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --dearmor --output keyring.gpg
+
+      - name: Release charts
+        uses: helm/chart-releaser-action@v1.7.0
         env:
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-
-      - name: Package Helm Charts
-        run: |
-          mkdir -p .deploy
-          for chart in charts/*/; do
-            if [ -d "$chart" ]; then
-              echo "Packaging and signing chart: $(basename "$chart")"
-              helm package "$chart" --destination .deploy --sign --key "Aleksey Sviridkin" --keyring ~/.gnupg/secring.gpg
-            fi
-          done
-
-      - name: Update Helm repository index
-        run: |
-          git fetch origin gh-pages
-          git checkout gh-pages
-          mv .deploy/*.tgz .
-          mv .deploy/*.tgz.prov .
-          helm repo index . --merge index.yaml
-          git add .
-          git commit -m "Update Helm charts" || echo "No changes to commit"
-          git push origin gh-pages
+          CR_KEY: Aleksey Sviridkin <f@lex.la>
+          CR_KEYRING: keyring.gpg
+          CR_SIGN: true
+          CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
