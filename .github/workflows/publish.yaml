@@ -21,6 +21,7 @@ jobs:
       - name: Setup Helm
         run: |
           curl -sSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+          gpg --list-secret-keys --keyid-format LONG
 
       - name: Import GPG private key
         env:
