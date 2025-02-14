@@ -22,17 +22,15 @@ jobs:
         run: |
           curl -sSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
-      - name: Import GPG private key
+      - name: Import GPG key
+        run: echo "$GPG_PRIVATE_KEY" | gpg --batch --import
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-        run: |
-          set -o pipefail && set -e
-          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
-          gpg --list-secret-keys --keyid-format LONG
 
-      - name: Package and sign Helm charts
-        env:
-          GPG_FINGERPRINT: "62516FAA4167CBF4FA4E0775CF943E8B90C984F5"
+      - name: List GPG keys
+        run: gpg --list-secret-keys --keyid-format LONG
+
+      - name: Package Helm Charts
         run: |
           mkdir -p .deploy
           for chart in charts/*/; do
@@ -41,6 +39,8 @@ jobs:
               helm package "$chart" --destination .deploy --sign --key "$GPG_FINGERPRINT" --keyring ~/.gnupg/pubring.kbx
             fi
           done
+        env:
+          GPG_FINGERPRINT: ${{ secrets.GPG_FINGERPRINT }}
 
       - name: Update Helm repository index
         run: |
