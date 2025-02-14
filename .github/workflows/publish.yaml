@@ -27,20 +27,15 @@ jobs:
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
 
-      - name: List GPG keys
-        run: gpg --list-secret-keys --keyid-format LONG
-
       - name: Package Helm Charts
         run: |
           mkdir -p .deploy
           for chart in charts/*/; do
             if [ -d "$chart" ]; then
               echo "Packaging and signing chart: $(basename "$chart")"
-              helm package "$chart" --destination .deploy --sign --key "$GPG_FINGERPRINT" --keyring ~/.gnupg/pubring.kbx
+              helm package "$chart" --destination .deploy --sign --key "Aleksey Sviridkin" --keyring ~/.gnupg/pubring.kbx
             fi
           done
-        env:
-          GPG_FINGERPRINT: ${{ secrets.GPG_FINGERPRINT }}
 
       - name: Update Helm repository index
         run: |
@@ -52,8 +47,3 @@ jobs:
           git add .
           git commit -m "Update Helm charts" || echo "No changes to commit"
           git push origin gh-pages
-
-      - name: Clean up GPG key
-        run: |
-          gpg --batch --yes --delete-secret-keys "$GPG_FINGERPRINT"
-          gpg --batch --yes --delete-key "$GPG_FINGERPRINT"
