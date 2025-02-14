@@ -1,4 +1,4 @@
-name: Publish Helm Chart
+name: Publish Helm Charts
 
 on:
   push:
@@ -6,12 +6,50 @@ on:
       - master
 
 jobs:
-  publish-chart:
+  publish-charts:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - name: Publish Helm charts
-        uses: stefanprodan/helm-gh-pages@master
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Helm
+        run: |
+          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+      - name: Import GPG key
+        run: |
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --import --batch --yes
+          gpg --list-secret-keys --keyid-format LONG
+
+      - name: Package only changed Helm charts and sign them
+        run: |
+          mkdir -p .deploy
+          git fetch origin gh-pages
+          git checkout gh-pages
+
+          for chart in charts/*/Chart.yaml; do
+            chart_dir=$(dirname "$chart")
+            chart_name=$(basename "$chart_dir")
+
+            # Проверяем, изменился ли чарт
+            if git diff --quiet origin/master -- "$chart_dir"; then
+              echo "Skipping unchanged chart: $chart_name"
+            else
+              echo "Packaging and signing updated chart: $chart_name"
+              helm package "$chart_dir" --destination .deploy
+              helm sign .deploy/$(basename "$chart_dir")-*.tgz --key "${{ secrets.GPG_KEY_ID }}" --keyring ~/.gnupg/pubring.kbx
+            fi
+          done
+
+      - name: Update Helm repository index
+        if: steps.package.outputs.charts-updated == 'true'
+        run: |
+          mv .deploy/*.tgz .
+          mv .deploy/*.tgz.prov .
+          helm repo index --merge index.yaml .
+          git add .
+          git commit -m "Update Helm charts" || echo "No changes to commit"
+          git push origin gh-pages
