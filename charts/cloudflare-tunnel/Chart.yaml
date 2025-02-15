@@ -1,7 +1,7 @@
 annotations:
   artifacthub.io/category: networking
   artifacthub.io/changes: |
-    - kind: fix
+    - kind: fixed
       description: Fix image tag
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
