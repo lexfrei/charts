@@ -14,6 +14,48 @@ entries:
           url: https://github.com/cloudflare/cloudflared/
     apiVersion: v2
     appVersion: 2025.2.0
+    created: "2025-02-16T16:47:45.10288412Z"
+    description: Creation of a cloudflared deployment - a reverse tunnel for an environment
+    digest: 75342b55a8fa640016a92061443bd9768d23ecf65a7a53bee4e671b8b48af9de
+    home: https://github.com/lexfrei/charts/
+    icon: https://avatars.githubusercontent.com/u/314135
+    keywords:
+    - cloudflare
+    - cloudflared
+    - reverse-tunnel
+    - tunnel
+    - helm-chart
+    - kubernetes
+    - devops
+    - networking
+    - zero-trust
+    - proxy
+    - vpn
+    maintainers:
+    - email: f@lex.la
+      name: Aleksei Sviridkin
+      url: https://me.lex.la
+    name: cloudflare-tunnel
+    sources:
+    - https://github.com/lexfrei/charts/
+    - https://github.com/cloudflare/cloudflared/
+    type: application
+    urls:
+    - https://github.com/lexfrei/charts/releases/download/cloudflare-tunnel-0.5.6/cloudflare-tunnel-0.5.6.tgz
+    version: 0.5.6
+  - annotations:
+      artifacthub.io/category: networking
+      artifacthub.io/changes: |
+        - kind: fixed
+          description: Fix image tag
+      artifacthub.io/license: BSD-3-Clause
+      artifacthub.io/links: |
+        - name: Chart Repository
+          url: https://github.com/lexfrei/charts/
+        - name: Cloudflare Cloudflared
+          url: https://github.com/cloudflare/cloudflared/
+    apiVersion: v2
+    appVersion: 2025.2.0
     created: "2025-02-16T02:26:25.843731689Z"
     description: Creation of a cloudflared deployment - a reverse tunnel for an environment
     digest: 5bdec392ecfbb58befa599efe726bba528c22f8e1a86d94385bfda5e4193a734
@@ -391,4 +433,4 @@ entries:
     urls:
     - https://lexfrei.github.io/charts/prometheus-ipmi-exporter-0.1.0.tgz
     version: 0.1.0
-generated: "2025-02-16T02:26:25.948378197Z"
+generated: "2025-02-16T16:47:45.102942438Z"
