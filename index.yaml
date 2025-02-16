@@ -4,6 +4,48 @@ entries:
   - annotations:
       artifacthub.io/category: networking
       artifacthub.io/changes: |
+        - kind: fixed
+          description: Fix image tag
+      artifacthub.io/license: BSD-3-Clause
+      artifacthub.io/links: |
+        - name: Chart Repository
+          url: https://github.com/lexfrei/charts/
+        - name: Cloudflare Cloudflared
+          url: https://github.com/cloudflare/cloudflared/
+    apiVersion: v2
+    appVersion: 2025.2.0
+    created: "2025-02-16T02:26:25.843731689Z"
+    description: Creation of a cloudflared deployment - a reverse tunnel for an environment
+    digest: 5bdec392ecfbb58befa599efe726bba528c22f8e1a86d94385bfda5e4193a734
+    home: https://github.com/lexfrei/charts/
+    icon: https://avatars.githubusercontent.com/u/314135
+    keywords:
+    - cloudflare
+    - cloudflared
+    - reverse-tunnel
+    - tunnel
+    - helm-chart
+    - kubernetes
+    - devops
+    - networking
+    - zero-trust
+    - proxy
+    - vpn
+    maintainers:
+    - email: f@lex.la
+      name: Aleksei Sviridkin
+      url: https://me.lex.la
+    name: cloudflare-tunnel
+    sources:
+    - https://github.com/lexfrei/charts/
+    - https://github.com/cloudflare/cloudflared/
+    type: application
+    urls:
+    - https://github.com/lexfrei/charts/releases/download/cloudflare-tunnel-0.5.5/cloudflare-tunnel-0.5.5.tgz
+    version: 0.5.5
+  - annotations:
+      artifacthub.io/category: networking
+      artifacthub.io/changes: |
         - kind: fix
           description: Fix image tag
       artifacthub.io/license: BSD-3-Clause
@@ -239,6 +281,16 @@ entries:
   frame:
   - apiVersion: v2
     appVersion: 0.0.0
+    created: "2025-02-16T02:26:25.948300472Z"
+    description: A Helm chart for Kubernetes
+    digest: a92ab2d9618ffe317987505ac53ca9f12d2804dfae685e0f96808d823bc1cb4c
+    name: frame
+    type: application
+    urls:
+    - https://github.com/lexfrei/charts/releases/download/frame-0.3.1/frame-0.3.1.tgz
+    version: 0.3.1
+  - apiVersion: v2
+    appVersion: 0.0.0
     created: "2025-02-14T01:55:05.902359395Z"
     description: A Helm chart for Kubernetes
     digest: 2f21d34a52467052c921ed39ed11ab3b28eb8fc75e55d9cca62c637ee365a650
@@ -339,4 +391,4 @@ entries:
     urls:
     - https://lexfrei.github.io/charts/prometheus-ipmi-exporter-0.1.0.tgz
     version: 0.1.0
-generated: "2025-02-14T01:55:05.901038855Z"
+generated: "2025-02-16T02:26:25.948378197Z"
