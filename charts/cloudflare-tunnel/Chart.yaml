@@ -1,8 +1,7 @@
 annotations:
   artifacthub.io/category: networking
   artifacthub.io/changes: |
-    - kind: fixed
-      description: Fix image tag
+    - bump cloudflared version to 2025.2.1
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -15,8 +14,8 @@ name: cloudflare-tunnel
 description: Creation of a cloudflared deployment - a reverse tunnel for an environment
 type: application
 
-version: "0.5.6"
-appVersion: "2025.2.0"
+version: "0.5.7"
+appVersion: "2025.2.1"
 
 icon: https://avatars.githubusercontent.com/u/314135
 
