@@ -15,6 +15,7 @@ description: Creation of a cloudflared deployment - a reverse tunnel for an envi
 type: application
 
 version: "0.5.7"
+# renovate: datasource=github-releases depName=cloudflare/cloudflared
 appVersion: "2025.2.1"
 
 icon: https://avatars.githubusercontent.com/u/314135
