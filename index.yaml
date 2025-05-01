@@ -4,6 +4,47 @@ entries:
   - annotations:
       artifacthub.io/category: networking
       artifacthub.io/changes: |
+        - bump cloudflared version to 2025.4.2
+      artifacthub.io/license: BSD-3-Clause
+      artifacthub.io/links: |
+        - name: Chart Repository
+          url: https://github.com/lexfrei/charts/
+        - name: Cloudflare Cloudflared
+          url: https://github.com/cloudflare/cloudflared/
+    apiVersion: v2
+    appVersion: 2025.4.2
+    created: "2025-05-01T11:09:41.383909931Z"
+    description: Creation of a cloudflared deployment - a reverse tunnel for an environment
+    digest: 1b6b9e8156a04ed96b040d3eb8721b58e42e473185f00088d2fde3d494d7cbff
+    home: https://github.com/lexfrei/charts/
+    icon: https://avatars.githubusercontent.com/u/314135
+    keywords:
+    - cloudflare
+    - cloudflared
+    - reverse-tunnel
+    - tunnel
+    - helm-chart
+    - kubernetes
+    - devops
+    - networking
+    - zero-trust
+    - proxy
+    - vpn
+    maintainers:
+    - email: f@lex.la
+      name: Aleksei Sviridkin
+      url: https://me.lex.la
+    name: cloudflare-tunnel
+    sources:
+    - https://github.com/lexfrei/charts/
+    - https://github.com/cloudflare/cloudflared/
+    type: application
+    urls:
+    - https://github.com/lexfrei/charts/releases/download/cloudflare-tunnel-0.5.9/cloudflare-tunnel-0.5.9.tgz
+    version: 0.5.9
+  - annotations:
+      artifacthub.io/category: networking
+      artifacthub.io/changes: |
         - bump cloudflared version to 2025.4.0
       artifacthub.io/license: BSD-3-Clause
       artifacthub.io/links: |
@@ -515,4 +556,4 @@ entries:
     urls:
     - https://lexfrei.github.io/charts/prometheus-ipmi-exporter-0.1.0.tgz
     version: 0.1.0
-generated: "2025-04-03T13:12:59.440587845Z"
+generated: "2025-05-01T11:09:41.384025597Z"
