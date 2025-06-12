@@ -1,8 +1,10 @@
 # cloudflare-tunnel
 
-![Version: 0.5](https://img.shields.io/badge/Version-0.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.1.0](https://img.shields.io/badge/AppVersion-2025.1.0-informational?style=flat-square)
+![Version: 0.5.11](https://img.shields.io/badge/Version-0.5.11-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.5.0](https://img.shields.io/badge/AppVersion-2025.5.0-informational?style=flat-square)
 
 Creation of a cloudflared deployment - a reverse tunnel for an environment
+
+**Homepage:** <https://github.com/lexfrei/charts/>
 
 ## Maintainers
 
@@ -42,4 +44,5 @@ Creation of a cloudflared deployment - a reverse tunnel for an environment
 | securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true}` | Security items for one container. We lock it down |
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account |
 | serviceAccount.name | string | `""` | The name of the service account to use If not set and create is true, a name is generated using the fullname template |
+| serviceMonitor.enabled | bool | `false` | Enable prometheus Service Monitor |
 | tolerations | list | `[]` |  |
