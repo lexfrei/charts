@@ -16,7 +16,7 @@ type: application
 
 version: "0.5.10"
 # renovate: datasource=github-releases depName=cloudflare/cloudflared
-appVersion: "2025.5.0"
+appVersion: "2025.7.0"
 
 icon: https://avatars.githubusercontent.com/u/314135
 
