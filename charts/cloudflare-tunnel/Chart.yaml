@@ -1,7 +1,7 @@
 annotations:
   artifacthub.io/category: networking
   artifacthub.io/changes: |
-    - bump cloudflared version to 2025.7.0
+    - bump cloudflared version to 2025.8.0
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -14,9 +14,9 @@ name: cloudflare-tunnel
 description: Creation of a cloudflared deployment - a reverse tunnel for an environment
 type: application
 
-version: "0.5.11"
+version: "0.5.12"
 # renovate: datasource=github-releases depName=cloudflare/cloudflared
-appVersion: "2025.7.0"
+appVersion: "2025.8.0"
 
 icon: https://avatars.githubusercontent.com/u/314135
 
