@@ -156,6 +156,31 @@
     },
     "affinity": {
       "type": "object"
+    },
+    "serviceMonitor": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable prometheus Service Monitor."
+        },
+        "jobLabel": {
+          "type": "string",
+          "description": "Job label for the ServiceMonitor."
+        },
+        "interval": {
+          "type": "string",
+          "description": "Scrape interval for Prometheus."
+        },
+        "metricRelabelings": {
+          "type": "array",
+          "description": "Metric relabelings for the ServiceMonitor."
+        },
+        "relabelings": {
+          "type": "array",
+          "description": "Relabelings for the ServiceMonitor."
+        }
+      }
     }
   },
   "required": [

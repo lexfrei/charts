@@ -84,3 +84,15 @@ tolerations: []
 
 # -- Default affinity is to spread out over nodes; use this to override
 affinity: {}
+
+serviceMonitor:
+  # -- Enable prometheus Service Monitor
+  enabled: false
+  # -- Job label for the ServiceMonitor
+  jobLabel: ""
+  # -- Scrape interval for Prometheus
+  interval: ""
+  # -- Metric relabelings for the ServiceMonitor
+  metricRelabelings: []
+  # -- Relabelings for the ServiceMonitor
+  relabelings: []
