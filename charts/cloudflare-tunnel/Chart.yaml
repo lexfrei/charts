@@ -3,7 +3,6 @@ annotations:
   artifacthub.io/changes: |
     - kind: added
       description: Add ServiceMonitor support for Prometheus metrics
-    - bump cloudflared version to 2025.9.0
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository

@@ -1,6 +1,6 @@
 # cloudflare-tunnel
 
-![Version: 0.5.11](https://img.shields.io/badge/Version-0.5.11-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.5.0](https://img.shields.io/badge/AppVersion-2025.5.0-informational?style=flat-square)
+![Version: 0.6.0](https://img.shields.io/badge/Version-0.6.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.9.0](https://img.shields.io/badge/AppVersion-2025.9.0-informational?style=flat-square)
 
 Creation of a cloudflared deployment - a reverse tunnel for an environment
 
@@ -45,4 +45,8 @@ Creation of a cloudflared deployment - a reverse tunnel for an environment
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account |
 | serviceAccount.name | string | `""` | The name of the service account to use If not set and create is true, a name is generated using the fullname template |
 | serviceMonitor.enabled | bool | `false` | Enable prometheus Service Monitor |
+| serviceMonitor.interval | string | `""` | Scrape interval for Prometheus |
+| serviceMonitor.jobLabel | string | `""` | Job label for the ServiceMonitor |
+| serviceMonitor.metricRelabelings | list | `[]` | Metric relabelings for the ServiceMonitor |
+| serviceMonitor.relabelings | list | `[]` | Relabelings for the ServiceMonitor |
 | tolerations | list | `[]` |  |
