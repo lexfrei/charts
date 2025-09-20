@@ -4,6 +4,48 @@ entries:
   - annotations:
       artifacthub.io/category: networking
       artifacthub.io/changes: |
+        - kind: added
+          description: Add ServiceMonitor support for Prometheus metrics
+      artifacthub.io/license: BSD-3-Clause
+      artifacthub.io/links: |
+        - name: Chart Repository
+          url: https://github.com/lexfrei/charts/
+        - name: Cloudflare Cloudflared
+          url: https://github.com/cloudflare/cloudflared/
+    apiVersion: v2
+    appVersion: 2025.9.0
+    created: "2025-09-20T10:06:12.395000749Z"
+    description: Creation of a cloudflared deployment - a reverse tunnel for an environment
+    digest: aa97a18d5b7b9f1a97deab26194f97a5cc2c0c116cadc73d2673c824c6ed8ca0
+    home: https://github.com/lexfrei/charts/
+    icon: https://avatars.githubusercontent.com/u/314135
+    keywords:
+    - cloudflare
+    - cloudflared
+    - reverse-tunnel
+    - tunnel
+    - helm-chart
+    - kubernetes
+    - devops
+    - networking
+    - zero-trust
+    - proxy
+    - vpn
+    maintainers:
+    - email: f@lex.la
+      name: Aleksei Sviridkin
+      url: https://me.lex.la
+    name: cloudflare-tunnel
+    sources:
+    - https://github.com/lexfrei/charts/
+    - https://github.com/cloudflare/cloudflared/
+    type: application
+    urls:
+    - https://github.com/lexfrei/charts/releases/download/cloudflare-tunnel-0.6.0/cloudflare-tunnel-0.6.0.tgz
+    version: 0.6.0
+  - annotations:
+      artifacthub.io/category: networking
+      artifacthub.io/changes: |
         - bump cloudflared version to 2025.9.0
       artifacthub.io/license: BSD-3-Clause
       artifacthub.io/links: |
@@ -761,4 +803,4 @@ entries:
     urls:
     - https://lexfrei.github.io/charts/prometheus-ipmi-exporter-0.1.0.tgz
     version: 0.1.0
-generated: "2025-09-20T09:19:59.205978956Z"
+generated: "2025-09-20T10:06:12.395209651Z"
