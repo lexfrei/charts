@@ -3,6 +3,20 @@
   "extends": [
     "config:recommended"
   ],
+  "packageRules": [
+    {
+      "description": "Auto-bump chart version when appVersion changes",
+      "matchManagers": ["regex"],
+      "matchFiles": ["charts/**/Chart.yaml"],
+      "bumpVersions": [
+        {
+          "filePatterns": ["{{{packageFileDir}}}/Chart.{yaml,yml}"],
+          "matchStrings": ["version:\\s+[\"']?(?<version>[^\"'\\s]+)[\"']?"],
+          "bumpType": "{{#if isPatch}}patch{{else}}minor{{/if}}"
+        }
+      ]
+    }
+  ],
   "regexManagers": [
     {
       "fileMatch": [
