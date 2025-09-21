@@ -219,6 +219,7 @@ jobs:
           git clean -fdx
           
           git checkout gh-pages
+          git pull --rebase origin gh-pages
           helm repo index . --url https://lexfrei.github.io/charts
           git add index.yaml
           git commit -m "Update Helm index" || echo "No changes to commit"
