@@ -2,7 +2,11 @@ annotations:
   artifacthub.io/category: networking
   artifacthub.io/changes: |
     - kind: added
-      description: Add ServiceMonitor support for Prometheus metrics
+      description: Add Pod Disruption Budget support for high availability
+    - kind: added
+      description: Add Topology Spread Constraints for better pod distribution
+    - kind: added
+      description: Add priorityClassName support for pod scheduling priority
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -15,7 +19,7 @@ name: cloudflare-tunnel
 description: Creation of a cloudflared deployment - a reverse tunnel for an environment
 type: application
 
-version: "0.6.1"
+version: "0.7.0"
 # renovate: datasource=github-releases depName=cloudflare/cloudflared
 appVersion: "2025.9.0"
 

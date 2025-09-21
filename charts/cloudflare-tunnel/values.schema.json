@@ -181,6 +181,50 @@
           "description": "Relabelings for the ServiceMonitor."
         }
       }
+    },
+    "podDisruptionBudget": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable Pod Disruption Budget."
+        },
+        "minAvailable": {
+          "type": ["integer", "string"],
+          "description": "Minimum number of available pods."
+        },
+        "maxUnavailable": {
+          "type": ["integer", "string"],
+          "description": "Maximum number of unavailable pods."
+        }
+      }
+    },
+    "topologySpreadConstraints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "maxSkew": {
+            "type": "integer"
+          },
+          "topologyKey": {
+            "type": "string"
+          },
+          "whenUnsatisfiable": {
+            "type": "string",
+            "enum": ["DoNotSchedule", "ScheduleAnyway"]
+          },
+          "labelSelector": {
+            "type": "object"
+          }
+        },
+        "required": ["maxSkew", "topologyKey", "whenUnsatisfiable"]
+      },
+      "description": "Topology spread constraints for pod distribution."
+    },
+    "priorityClassName": {
+      "type": "string",
+      "description": "Priority class name for pod scheduling priority."
     }
   },
   "required": [

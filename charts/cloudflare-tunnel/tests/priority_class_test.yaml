@@ -1,0 +1,90 @@
+suite: test priority class
+templates:
+  - deployment.yaml
+  - configmap.yaml
+  - secret.yaml
+values:
+  - ../values.yaml
+tests:
+  - it: should not have priorityClassName by default
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+    asserts:
+      - template: deployment.yaml
+        isNull:
+          path: spec.template.spec.priorityClassName
+
+  - it: should set priorityClassName when specified
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      priorityClassName: high-priority
+    asserts:
+      - template: deployment.yaml
+        equal:
+          path: spec.template.spec.priorityClassName
+          value: high-priority
+
+  - it: should set system-cluster-critical priority class
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      priorityClassName: system-cluster-critical
+    asserts:
+      - template: deployment.yaml
+        equal:
+          path: spec.template.spec.priorityClassName
+          value: system-cluster-critical
+
+  - it: should set system-node-critical priority class
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      priorityClassName: system-node-critical
+    asserts:
+      - template: deployment.yaml
+        equal:
+          path: spec.template.spec.priorityClassName
+          value: system-node-critical
+
+  - it: should allow custom priority class names
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      priorityClassName: my-custom-priority
+    asserts:
+      - template: deployment.yaml
+        equal:
+          path: spec.template.spec.priorityClassName
+          value: my-custom-priority

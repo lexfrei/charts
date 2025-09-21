@@ -1,6 +1,6 @@
 # cloudflare-tunnel
 
-![Version: 0.6.0](https://img.shields.io/badge/Version-0.6.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.9.0](https://img.shields.io/badge/AppVersion-2025.9.0-informational?style=flat-square)
+![Version: 0.7.0](https://img.shields.io/badge/Version-0.7.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.9.0](https://img.shields.io/badge/AppVersion-2025.9.0-informational?style=flat-square)
 
 Creation of a cloudflared deployment - a reverse tunnel for an environment
 
@@ -49,4 +49,9 @@ Creation of a cloudflared deployment - a reverse tunnel for an environment
 | serviceMonitor.jobLabel | string | `""` | Job label for the ServiceMonitor |
 | serviceMonitor.metricRelabelings | list | `[]` | Metric relabelings for the ServiceMonitor |
 | serviceMonitor.relabelings | list | `[]` | Relabelings for the ServiceMonitor |
+| podDisruptionBudget | object | `{"enabled":false,"minAvailable":1}` | Pod Disruption Budget configuration |
+| podDisruptionBudget.enabled | bool | `false` | Enable Pod Disruption Budget |
+| podDisruptionBudget.minAvailable | int | `1` | Minimum number of available pods (conflicts with maxUnavailable) |
+| topologySpreadConstraints | list | `[]` | Topology spread constraints for pod distribution across zones/nodes See https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/ |
+| priorityClassName | string | `""` | Priority class name for pod scheduling priority See https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/ |
 | tolerations | list | `[]` |  |
