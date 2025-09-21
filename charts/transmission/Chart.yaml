@@ -1,0 +1,43 @@
+annotations:
+  artifacthub.io/category: storage
+  artifacthub.io/changes: |
+    - kind: added
+      description: Initial release of transmission chart
+  artifacthub.io/license: BSD-3-Clause
+  artifacthub.io/links: |
+    - name: Chart Repository
+      url: https://github.com/lexfrei/charts/
+    - name: Transmission
+      url: https://transmissionbt.com/
+
+apiVersion: v2
+name: transmission
+description: Transmission BitTorrent client Helm chart for Kubernetes
+type: application
+
+version: "0.1.0"
+# renovate: datasource=docker depName=linuxserver/transmission
+appVersion: "4.0.6"
+
+icon: https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/transmission-icon.png
+
+home: https://github.com/lexfrei/charts/
+
+keywords:
+  - transmission
+  - bittorrent
+  - torrent
+  - download
+  - p2p
+  - helm-chart
+  - kubernetes
+
+maintainers:
+  - name: lexfrei
+    email: f@lex.la
+    url: https://github.com/lexfrei
+
+sources:
+  - https://github.com/lexfrei/charts/
+  - https://github.com/transmission/transmission
+  - https://github.com/linuxserver/docker-transmission
