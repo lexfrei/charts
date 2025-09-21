@@ -1,0 +1,72 @@
+name: Update Renovate PR Changelog
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'charts/**/Chart.yaml'
+
+jobs:
+  update-changelog:
+    # Only run on Renovate PRs
+    if: startsWith(github.head_ref, 'renovate/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Update changelog for changed charts
+        id: update
+        run: |
+          set -e
+          CHARTS_UPDATED=false
+          
+          # Find all changed Chart.yaml files
+          for chart_file in $(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep 'Chart.yaml$' || true); do
+            echo "Processing $chart_file"
+            
+            # Extract chart directory
+            chart_dir=$(dirname "$chart_file")
+            
+            # Get the new appVersion from the PR
+            new_app_version=$(yq eval '.appVersion' "$chart_file")
+            chart_version=$(yq eval '.version' "$chart_file")
+            
+            echo "Chart: $chart_dir"
+            echo "Version: $chart_version"
+            echo "AppVersion: $new_app_version"
+            
+            # Update changelog annotation using yq
+            yq eval -i '.annotations."artifacthub.io/changes" = "- kind: changed\n  description: Update appVersion to '"$new_app_version"'"' "$chart_file"
+            
+            CHARTS_UPDATED=true
+          done
+          
+          echo "charts_updated=$CHARTS_UPDATED" >> $GITHUB_OUTPUT
+
+      - name: Commit changes
+        if: steps.update.outputs.charts_updated == 'true'
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          git add charts/**/Chart.yaml
+          
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update changelog annotations [skip ci]"
+            git push
+          fi
