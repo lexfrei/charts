@@ -1,0 +1,114 @@
+suite: test conditional resources
+templates:
+  - service.yaml
+  - secret.yaml
+  - servicemonitor.yaml
+tests:
+  # Service tests
+  - it: should NOT create service by default
+    templates:
+      - service.yaml
+    set:
+      cloudflare:
+        account: "test"
+        tunnelName: "test"
+        tunnelId: "test"
+        secret: "test"
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should create service when serviceMonitor enabled
+    templates:
+      - service.yaml
+    set:
+      cloudflare:
+        account: "test"
+        tunnelName: "test"
+        tunnelId: "test"
+        secret: "test"
+      serviceMonitor:
+        enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Service
+
+  # Secret tests  
+  - it: should create secret by default
+    templates:
+      - secret.yaml
+    set:
+      cloudflare:
+        account: "test"
+        tunnelName: "test"
+        tunnelId: "test"
+        secret: "test"
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Secret
+
+  - it: should NOT create secret when secretName provided
+    templates:
+      - secret.yaml
+    set:
+      cloudflare:
+        account: "test"
+        tunnelName: "test"
+        tunnelId: "test"
+        secret: "test"
+        secretName: "my-secret"
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  # ServiceMonitor tests
+  - it: should NOT create servicemonitor by default
+    templates:
+      - servicemonitor.yaml
+    set:
+      cloudflare:
+        account: "test"
+        tunnelName: "test"
+        tunnelId: "test"
+        secret: "test"
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should create servicemonitor when enabled
+    templates:
+      - servicemonitor.yaml
+    set:
+      cloudflare:
+        account: "test"
+        tunnelName: "test"
+        tunnelId: "test"
+        secret: "test"
+      serviceMonitor:
+        enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: ServiceMonitor
+
+  - it: should create both service and servicemonitor when enabled
+    set:
+      cloudflare:
+        account: "test"
+        tunnelName: "test"
+        tunnelId: "test"
+        secret: "test"
+      serviceMonitor:
+        enabled: true
+    asserts:
+      - template: service.yaml
+        isKind:
+          of: Service
+      - template: servicemonitor.yaml
+        isKind:
+          of: ServiceMonitor

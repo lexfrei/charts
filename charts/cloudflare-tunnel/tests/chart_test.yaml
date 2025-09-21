@@ -1,0 +1,30 @@
+suite: cloudflare-tunnel chart tests  
+templates:
+  - deployment.yaml
+  - configmap.yaml
+  - secret.yaml
+  - serviceaccount.yaml
+tests:
+  - it: should create basic resources
+    set:
+      cloudflare:
+        account: "test-account"
+        tunnelName: "test-tunnel"
+        tunnelId: "test-id" 
+        secret: "test-secret"
+        ingress:
+          - hostname: test.example.com
+            service: http://test:80
+    asserts:
+      - template: deployment.yaml
+        isKind:
+          of: Deployment
+      - template: configmap.yaml
+        isKind:
+          of: ConfigMap
+      - template: secret.yaml
+        isKind:
+          of: Secret
+      - template: serviceaccount.yaml
+        isKind:
+          of: ServiceAccount
