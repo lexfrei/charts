@@ -1,10 +1,8 @@
 annotations:
   artifacthub.io/category: networking
   artifacthub.io/changes: |
-    - kind: added
-      description: Add DaemonSet deployment mode as alternative to Deployment
     - kind: changed
-      description: Support for one tunnel pod per node to prevent port exhaustion
+      description: Improve README with comprehensive status badges and enhanced documentation
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -17,7 +15,7 @@ name: cloudflare-tunnel
 description: Creation of a cloudflared deployment - a reverse tunnel for an environment
 type: application
 
-version: "0.9.0"
+version: "0.9.1"
 # renovate: datasource=github-releases depName=cloudflare/cloudflared
 appVersion: "2025.9.0"
 
