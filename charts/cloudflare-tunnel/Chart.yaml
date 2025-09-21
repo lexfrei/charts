@@ -37,9 +37,9 @@ keywords:
   - vpn
 
 maintainers:
-  - name: Aleksei Sviridkin
+  - name: lexfrei
     email: f@lex.la
-    url: https://me.lex.la
+    url: https://github.com/lexfrei
 
 sources:
   - https://github.com/lexfrei/charts/
