@@ -1,0 +1,86 @@
+suite: test customizable metrics port
+templates:
+  - deployment.yaml
+  - configmap.yaml
+  - service.yaml
+  - secret.yaml
+values:
+  - ../values.yaml
+tests:
+  - it: should use default port 2000 when not specified
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      serviceMonitor:
+        enabled: true
+    asserts:
+      - template: deployment.yaml
+        equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.port
+          value: 2000
+      - template: configmap.yaml
+        matchRegex:
+          path: data["config.yaml"]
+          pattern: "metrics: 0.0.0.0:2000"
+      - template: service.yaml
+        equal:
+          path: spec.ports[0].port
+          value: 2000
+      - template: service.yaml
+        equal:
+          path: spec.ports[0].targetPort
+          value: 2000
+
+  - it: should use custom metrics port when specified
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      metricsPort: 8080
+      serviceMonitor:
+        enabled: true
+    asserts:
+      - template: deployment.yaml
+        equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.port
+          value: 8080
+      - template: configmap.yaml
+        matchRegex:
+          path: data["config.yaml"]
+          pattern: "metrics: 0.0.0.0:8080"
+      - template: service.yaml
+        equal:
+          path: spec.ports[0].port
+          value: 8080
+      - template: service.yaml
+        equal:
+          path: spec.ports[0].targetPort
+          value: 8080
+
+  - it: should accept metrics port as integer
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      metricsPort: 9090
+    asserts:
+      - template: deployment.yaml
+        equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.port
+          value: 9090

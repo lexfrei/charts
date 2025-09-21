@@ -23,9 +23,9 @@
 ### Required for chart changes
 
 - [ ] Chart version has been bumped in `Chart.yaml`
+- [ ] **`Chart.yaml` annotations updated with changelog entries** (`artifacthub.io/changes`)
 - [ ] `values.schema.json` has been updated (if new values were added)
 - [ ] `README.md` has been updated (if new values were added)
-- [ ] `Chart.yaml` changelog has been updated with changes
 - [ ] All new values have proper descriptions/comments
 - [ ] Tests have been added/updated in `tests/` directory
 - [ ] All tests pass locally (`helm unittest charts/<chart-name>`)

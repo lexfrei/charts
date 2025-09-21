@@ -2,11 +2,17 @@ annotations:
   artifacthub.io/category: networking
   artifacthub.io/changes: |
     - kind: added
-      description: Add Pod Disruption Budget support for high availability
+      description: Add originRequest configuration for upstream connection tuning
     - kind: added
-      description: Add Topology Spread Constraints for better pod distribution
+      description: Add customizable liveness probe parameters
     - kind: added
-      description: Add priorityClassName support for pod scheduling priority
+      description: Add log level configuration via TUNNEL_LOGLEVEL
+    - kind: added
+      description: Add podLabels for custom pod labels
+    - kind: added
+      description: Add configurable metrics port (closes #14)
+    - kind: changed
+      description: Make metrics port configurable across all templates
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -19,7 +25,7 @@ name: cloudflare-tunnel
 description: Creation of a cloudflared deployment - a reverse tunnel for an environment
 type: application
 
-version: "0.7.0"
+version: "0.8.0"
 # renovate: datasource=github-releases depName=cloudflare/cloudflared
 appVersion: "2025.9.0"
 

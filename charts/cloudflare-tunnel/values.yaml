@@ -28,6 +28,25 @@ cloudflare:
     #   service: hello_world
   # -- If true, enable the default 404 page. Needs to be false if you want to use a '*' wildcard rule.
   enableDefault404: true
+  # -- Global originRequest configuration for all ingress rules
+  # See https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress#origin-request
+  originRequest: {}
+    # connectTimeout: 30s
+    # tlsTimeout: 10s
+    # keepAliveTimeout: 90s
+    # noHappyEyeballs: false
+    # keepAliveConnections: 100
+    # httpHostHeader: ""
+    # originServerName: ""
+    # caPool: ""
+    # noTLSVerify: false
+    # disableChunkedEncoding: false
+    # bastionMode: false
+    # proxyAddress: ""
+    # proxyPort: 0
+    # proxyType: ""
+    # ipRules: []
+    # http2Origin: false
 
 # -- The image to use
 image:
@@ -119,3 +138,23 @@ topologySpreadConstraints: []
 # -- Priority class name for pod scheduling priority
 # See https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/
 priorityClassName: ""
+
+# -- Metrics port for Prometheus metrics and readiness probe
+metricsPort: 2000
+
+# -- Liveness probe configuration
+livenessProbe:
+  # -- Failure threshold for liveness probe
+  failureThreshold: 1
+  # -- Initial delay before liveness probe starts
+  initialDelaySeconds: 10
+  # -- Period between liveness probe checks
+  periodSeconds: 10
+  # -- Timeout for liveness probe
+  # timeoutSeconds: 1
+
+# -- Log level for cloudflared (debug, info, warn, error, fatal)
+logLevel: ""
+
+# -- Additional labels to add to pods
+podLabels: {}

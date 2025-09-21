@@ -1,0 +1,102 @@
+suite: test additional pod labels
+templates:
+  - deployment.yaml
+  - configmap.yaml
+  - secret.yaml
+values:
+  - ../values.yaml
+tests:
+  - it: should have only selector labels by default
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+    asserts:
+      - template: deployment.yaml
+        equal:
+          path: spec.template.metadata.labels
+          value:
+            app.kubernetes.io/name: cloudflare-tunnel
+            app.kubernetes.io/instance: RELEASE-NAME
+
+  - it: should add custom pod labels
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      podLabels:
+        custom-label: custom-value
+    asserts:
+      - template: deployment.yaml
+        equal:
+          path: spec.template.metadata.labels["custom-label"]
+          value: custom-value
+
+  - it: should preserve selector labels when adding custom labels
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      podLabels:
+        team: platform
+        environment: production
+    asserts:
+      - template: deployment.yaml
+        equal:
+          path: spec.template.metadata.labels["app.kubernetes.io/name"]
+          value: cloudflare-tunnel
+      - template: deployment.yaml
+        equal:
+          path: spec.template.metadata.labels["app.kubernetes.io/instance"]
+          value: RELEASE-NAME
+      - template: deployment.yaml
+        equal:
+          path: spec.template.metadata.labels["team"]
+          value: platform
+      - template: deployment.yaml
+        equal:
+          path: spec.template.metadata.labels["environment"]
+          value: production
+
+  - it: should support multiple custom labels
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      podLabels:
+        label1: value1
+        label2: value2
+        label3: value3
+    asserts:
+      - template: deployment.yaml
+        equal:
+          path: spec.template.metadata.labels["label1"]
+          value: value1
+      - template: deployment.yaml
+        equal:
+          path: spec.template.metadata.labels["label2"]
+          value: value2
+      - template: deployment.yaml
+        equal:
+          path: spec.template.metadata.labels["label3"]
+          value: value3

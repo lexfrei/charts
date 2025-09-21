@@ -8,8 +8,8 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - port: 2000
-      targetPort: 2000
+    - port: {{ .Values.metricsPort }}
+      targetPort: {{ .Values.metricsPort }}
       protocol: TCP
       name: metrics
   selector:
