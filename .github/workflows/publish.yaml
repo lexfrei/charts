@@ -38,52 +38,39 @@ jobs:
           sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           sudo chmod +x /usr/local/bin/yq
 
-      - name: Import GPG key
+      - name: Import GPG key and export for Helm
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           echo "$GPG_PRIVATE_KEY" | gpg --batch --import
           
-          # Get the key ID from imported key
-          KEY_ID=$(gpg --list-secret-keys --keyid-format=long | grep 'sec' | head -1 | sed 's/.*\/\([A-F0-9]*\).*/\1/')
-          echo "GPG_KEY_ID=$KEY_ID" >> $GITHUB_ENV
+          # Export keys in legacy format for Helm (required by chart-releaser)
+          gpg --export >~/.gnupg/pubring.gpg
+          gpg --batch --pinentry-mode loopback --yes --passphrase "$GPG_PASSPHRASE" --export-secret-key >~/.gnupg/secring.gpg
           
-          # Export key ID for Helm
-          echo "Imported GPG key: $KEY_ID"
+          # Create passphrase file for chart-releaser
+          echo "$GPG_PASSPHRASE" > ~/.gpg-passphrase
+          chmod 600 ~/.gpg-passphrase
+          
+          echo "Exported GPG keys for Helm signing"
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.7.0
         with:
           charts_dir: charts
+          config: .cr.yaml
           skip_existing: true
           mark_as_latest: true
           packages_with_index: true
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CR_RELEASE_NAME_TEMPLATE: "{{ .Name }}-{{ .Version }}"
+          CR_KEY: f@lex.la
+          CR_KEYRING: ~/.gnupg/secring.gpg
+          CR_PASSPHRASE_FILE: ~/.gpg-passphrase
 
-      - name: Sign charts manually
-        env:
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-        run: |
-          # Find all packaged charts and sign them
-          for chart_package in .cr-release-packages/*.tgz; do
-            if [ -f "$chart_package" ] && [ ! -f "${chart_package}.prov" ]; then
-              echo "Signing $chart_package"
-              # Use gpg to create detached signature
-              gpg --batch --yes --no-tty --pinentry-mode loopback \
-                --passphrase "$GPG_PASSPHRASE" \
-                --local-user "$GPG_KEY_ID" \
-                --armor --detach-sign "$chart_package"
-              # Rename .asc to .prov
-              mv "${chart_package}.asc" "${chart_package}.prov"
-            elif [ -f "${chart_package}.prov" ]; then
-              echo "Already signed: $chart_package"
-            fi
-          done
-
-      - name: Upload signed provenance files
+      - name: Upload provenance files to releases
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
