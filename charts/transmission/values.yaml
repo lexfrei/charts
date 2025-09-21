@@ -1,0 +1,125 @@
+# Default values for transmission
+
+# -- Image configuration
+image:
+  repository: linuxserver/transmission
+  pullPolicy: IfNotPresent
+  # -- Overrides the image tag whose default is the chart appVersion
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# -- Environment variables for Transmission container
+env:
+  # -- User ID to run as
+  PUID: "1000"
+  # -- Group ID to run as
+  PGID: "1000"
+  # -- Timezone
+  TZ: "Europe/Moscow"
+
+# -- Security context for the pod
+podSecurityContext:
+  fsGroup: 1000
+
+# -- Security context for the container
+securityContext: {}
+
+# -- Service configuration
+service:
+  # -- Service type
+  type: LoadBalancer
+  # -- Service annotations
+  annotations:
+    metallb.io/address-pool: transmission-pool
+  # -- HTTP port
+  httpPort: 9091
+  # -- Torrent TCP port
+  torrentTCPPort: 51413
+  # -- Torrent UDP port
+  torrentUDPPort: 51413
+
+# -- Ingress configuration
+ingress:
+  enabled: true
+  className: ""
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+    cert-manager.io/cluster-issuer: "cloudflare-issuer"
+  hosts:
+    - host: transmission.home.lex.la
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: transmission-tls
+      hosts:
+        - transmission.home.lex.la
+
+# -- Resource limits and requests
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "100m"
+  limits:
+    memory: "512Mi"
+    cpu: "400m"
+
+# -- Persistence configuration
+persistence:
+  # -- Config volume configuration
+  config:
+    enabled: true
+    # -- Storage class name
+    storageClassName: truenas-nfs-csi
+    # -- Access mode
+    accessMode: ReadWriteOnce
+    # -- Size of the volume
+    size: 1Gi
+    # -- If you want to use an existing PVC
+    existingClaim: ""
+
+  # -- Downloads volume configuration
+  downloads:
+    enabled: true
+    # -- Type of storage (pvc or nfs)
+    type: nfs
+    # -- NFS server (when type is nfs)
+    nfsServer: truenas.home.lex.la
+    # -- NFS path (when type is nfs)
+    nfsPath: /mnt/pool/Transmission
+    # -- Storage class (when type is pvc)
+    storageClassName: ""
+    # -- Access mode (when type is pvc)
+    accessMode: ReadWriteMany
+    # -- Size (when type is pvc)
+    size: 100Gi
+    # -- Existing claim (when type is pvc)
+    existingClaim: ""
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# -- Pod annotations
+podAnnotations: {}
+
+# -- Pod labels
+podLabels: {}
+
+# -- Service account configuration
+serviceAccount:
+  # -- Specifies whether a service account should be created
+  create: true
+  # -- Annotations to add to the service account
+  annotations: {}
+  # -- The name of the service account to use
+  name: ""
+
+# -- Update strategy
+updateStrategy:
+  type: RollingUpdate

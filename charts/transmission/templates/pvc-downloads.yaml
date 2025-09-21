@@ -1,0 +1,17 @@
+{{- if and .Values.persistence.downloads.enabled (eq .Values.persistence.downloads.type "pvc") (not .Values.persistence.downloads.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "transmission.fullname" . }}-downloads
+  labels:
+    {{- include "transmission.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - {{ .Values.persistence.downloads.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.downloads.size }}
+  {{- if .Values.persistence.downloads.storageClassName }}
+  storageClassName: {{ .Values.persistence.downloads.storageClassName }}
+  {{- end }}
+{{- end }}

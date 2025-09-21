@@ -4,9 +4,13 @@ on:
   push:
     branches:
       - master
-  pull_request:
-    branches-ignore:
-      - "**"
+    paths:
+      - 'charts/**'
+
+permissions:
+  contents: write
+  packages: write
+  pages: write
 
 jobs:
   publish-charts:
@@ -23,9 +27,191 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
 
-      - name: Release charts
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: 'latest'
+
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Import GPG key
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+          
+          # Get the key ID from imported key
+          KEY_ID=$(gpg --list-secret-keys --keyid-format=long | grep 'sec' | head -1 | sed 's/.*\/\([A-F0-9]*\).*/\1/')
+          echo "GPG_KEY_ID=$KEY_ID" >> $GITHUB_ENV
+          
+          # Export key ID for Helm
+          echo "Imported GPG key: $KEY_ID"
+
+      - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.7.0
         with:
+          charts_dir: charts
           skip_existing: true
+          mark_as_latest: true
+          packages_with_index: true
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CR_RELEASE_NAME_TEMPLATE: "{{ .Name }}-{{ .Version }}"
+          CR_SIGN: true
+          CR_KEY: ${{ env.GPG_KEY_ID }}
+          CR_KEYRING: ${{ runner.temp }}/.gnupg/secring.gpg
+
+      - name: Sign charts manually (if chart-releaser doesn't sign)
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          # Find all packaged charts
+          for chart_package in .cr-release-packages/*.tgz; do
+            if [ ! -f "${chart_package}.prov" ]; then
+              echo "Signing $chart_package"
+              helm package --sign --key "${{ env.GPG_KEY_ID }}" --keyring ~/.gnupg/pubring.kbx "$(dirname "$chart_package")" 
+            else
+              echo "Already signed: $chart_package"
+            fi
+          done
+
+      - name: Upload signed provenance files
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get list of changed charts
+          changed_charts=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep 'charts/.*/Chart.yaml' | xargs -r dirname | sort -u || true)
+          
+          if [ -z "$changed_charts" ]; then
+            echo "No chart changes detected"
+            exit 0
+          fi
+          
+          for chart_dir in $changed_charts; do
+            chart_name=$(basename "$chart_dir")
+            chart_file="$chart_dir/Chart.yaml"
+            chart_version=$(yq eval '.version' "$chart_file")
+            release_tag="${chart_name}-${chart_version}"
+            
+            # Find and upload provenance file
+            prov_file=$(find .cr-release-packages -name "${chart_name}-${chart_version}.tgz.prov" 2>/dev/null || true)
+            
+            if [ -n "$prov_file" ] && [ -f "$prov_file" ]; then
+              echo "Uploading provenance file for $release_tag"
+              gh release upload "$release_tag" "$prov_file" --clobber || echo "Failed to upload provenance file"
+            else
+              echo "No provenance file found for $release_tag"
+            fi
+          done
+
+      - name: Update releases with changelog
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          
+          # Get list of changed charts
+          changed_charts=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep 'charts/.*/Chart.yaml' | xargs -r dirname | sort -u || true)
+          
+          if [ -z "$changed_charts" ]; then
+            echo "No chart changes detected"
+            exit 0
+          fi
+          
+          for chart_dir in $changed_charts; do
+            chart_name=$(basename "$chart_dir")
+            chart_file="$chart_dir/Chart.yaml"
+            
+            # Get chart version
+            chart_version=$(yq eval '.version' "$chart_file")
+            release_tag="${chart_name}-${chart_version}"
+            
+            echo "Processing $release_tag"
+            
+            # Extract changelog from Chart.yaml
+            changelog_raw=$(yq eval '.annotations."artifacthub.io/changes"' "$chart_file")
+            
+            # Prepare release body
+            release_body="## Chart: $chart_name v$chart_version"
+            
+            if [ "$changelog_raw" != "null" ] && [ -n "$changelog_raw" ]; then
+              release_body="${release_body}
+
+          ### Changelog
+
+          "
+              # Parse changelog and format with emojis using a temp file to avoid subshell issues
+              temp_file=$(mktemp)
+              SEPARATOR="|"
+              echo "$changelog_raw" | yq eval ".[] | .kind + \"${SEPARATOR}\" + .description" - > "$temp_file"
+              
+              while IFS="${SEPARATOR}" read -r kind description; do
+                case "$kind" in
+                  "added")
+                    emoji="✨"
+                    ;;
+                  "changed")
+                    emoji="🔄"
+                    ;;
+                  "deprecated")
+                    emoji="⚠️"
+                    ;;
+                  "removed")
+                    emoji="🗑️"
+                    ;;
+                  "fixed")
+                    emoji="🐛"
+                    ;;
+                  "security")
+                    emoji="🔒"
+                    ;;
+                  *)
+                    emoji="📝"
+                    ;;
+                esac
+                release_body="${release_body}- ${emoji} ${description}
+          "
+              done < "$temp_file"
+              
+              rm -f "$temp_file"
+            fi
+            
+            # Add GPG verification instructions
+            release_body="${release_body}
+
+          ### 🔐 GPG Signature Verification
+
+          To verify the chart signature:
+          \`\`\`bash
+          # Import public key
+          curl -sSL https://raw.githubusercontent.com/lexfrei/charts/master/GPG_PUBLIC_KEY.asc | gpg --import
+
+          # Verify signature
+          helm verify ${chart_name}-${chart_version}.tgz
+          \`\`\`
+          "
+            
+            # Get current release info
+            release_info=$(gh release view "$release_tag" --json body,name,tagName 2>/dev/null || echo "")
+            
+            if [ -n "$release_info" ]; then
+              echo "Updating release $release_tag with changelog"
+              
+              # Update the release with new body
+              gh release edit "$release_tag" --notes "$release_body"
+            else
+              echo "Release $release_tag not found, skipping"
+            fi
+          done
+
+      - name: Update index
+        run: |
+          git checkout gh-pages
+          helm repo index . --url https://lexfrei.github.io/charts
+          git add index.yaml
+          git commit -m "Update Helm index" || echo "No changes to commit"
+          git push origin gh-pages
