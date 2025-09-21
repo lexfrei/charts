@@ -1,6 +1,8 @@
-# cloudflare-tunnel
+{{ template "chart.header" . }}
 
-![Version: 0.9.0](https://img.shields.io/badge/Version-0.9.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.9.0](https://img.shields.io/badge/AppVersion-2025.9.0-informational?style=flat-square)
+{{ template "chart.deprecationWarning" . }}
+
+{{ template "chart.badgesSection" . }}
 
 ## 📊 Status & Metrics
 
@@ -10,9 +12,9 @@
 [![Helm Version](https://img.shields.io/badge/Helm-v3-informational?logo=helm)](https://helm.sh/)
 [![Kubernetes Version](https://img.shields.io/badge/Kubernetes-1.19%2B-blue?logo=kubernetes)](https://kubernetes.io/)
 
-Creation of a cloudflared deployment - a reverse tunnel for an environment
+{{ template "chart.description" . }}
 
-**Homepage:** <https://github.com/lexfrei/charts/>
+{{ template "chart.homepageLine" . }}
 
 ## ✨ Features
 
@@ -270,64 +272,13 @@ If experiencing port exhaustion on nodes:
 - [Ingress Rules Configuration](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress)
 - [Origin Request Settings](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress#origin-request)
 
-## Maintainers
+{{ template "chart.maintainersSection" . }}
 
-| Name | Email | Url |
-| ---- | ------ | --- |
-| lexfrei | <f@lex.la> | <https://github.com/lexfrei> |
+{{ template "chart.sourcesSection" . }}
 
-## Source Code
+{{ template "chart.requirementsSection" . }}
 
-* <https://github.com/lexfrei/charts/>
-* <https://github.com/cloudflare/cloudflared/>
-
-## Values
-
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| affinity | object | `{}` | Default affinity is to spread out over nodes; use this to override |
-| cloudflare | object | `{"account":"","enableDefault404":true,"enableWarp":false,"ingress":[],"originRequest":{},"secret":"","secretName":null,"tunnelId":"","tunnelName":""}` | Cloudflare parameters |
-| cloudflare.account | string | `""` | Your Cloudflare account number |
-| cloudflare.enableDefault404 | bool | `true` | If true, enable the default 404 page. Needs to be false if you want to use a '*' wildcard rule. |
-| cloudflare.enableWarp | bool | `false` | If true, turn on WARP routing for TCP |
-| cloudflare.ingress | list | `[]` | Define ingress rules for the tunnel See https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress |
-| cloudflare.originRequest | object | `{}` | Global originRequest configuration for all ingress rules See https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress#origin-request |
-| cloudflare.secret | string | `""` | The secret for the tunnel |
-| cloudflare.secretName | string | `nil` | If defined, no secret is created for the credentials, and instead, the secret referenced is used |
-| cloudflare.tunnelId | string | `""` | The ID of the above tunnel |
-| cloudflare.tunnelName | string | `""` | The name of the tunnel this instance will serve |
-| deploymentMode | string | `"deployment"` | Deployment mode: "deployment" or "daemonset" DaemonSet mode ensures one tunnel pod per node, useful for: - Preventing port exhaustion from multiple pods on same node - Following Cloudflare's recommendation to limit instances per node - Ensuring predictable distribution and node-level reliability |
-| fullnameOverride | string | `""` |  |
-| image | object | `{"pullPolicy":"IfNotPresent","repository":"cloudflare/cloudflared","tag":""}` | The image to use |
-| image.tag | string | `""` | If supplied, this overrides "appVersion" |
-| imagePullSecrets | list | `[]` |  |
-| livenessProbe | object | `{"failureThreshold":1,"initialDelaySeconds":10,"periodSeconds":10}` | Liveness probe configuration |
-| livenessProbe.failureThreshold | int | `1` | Failure threshold for liveness probe |
-| livenessProbe.initialDelaySeconds | int | `10` | Initial delay before liveness probe starts |
-| livenessProbe.periodSeconds | int | `10` | Period between liveness probe checks |
-| logLevel | string | `""` | Log level for cloudflared (debug, info, warn, error, fatal) |
-| metricsPort | int | `2000` | Metrics port for Prometheus metrics and readiness probe |
-| nameOverride | string | `""` |  |
-| nodeSelector | object | `{}` |  |
-| podAnnotations | object | `{}` |  |
-| podDisruptionBudget | object | `{"enabled":false,"minAvailable":1}` | Pod Disruption Budget configuration |
-| podDisruptionBudget.enabled | bool | `false` | Enable Pod Disruption Budget |
-| podDisruptionBudget.minAvailable | int | `1` | Minimum number of available pods (conflicts with maxUnavailable) |
-| podLabels | object | `{}` | Additional labels to add to pods |
-| podSecurityContext | object | `{"runAsNonRoot":true,"runAsUser":65532}` | Security items common to everything in the pod.  Here we require that it does not run as the user defined in the image, literally named "nonroot" |
-| priorityClassName | string | `""` | Priority class name for pod scheduling priority See https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/ |
-| replicaCount | int | `2` | The version of the image to use |
-| resources | object | `{}` |  |
-| securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true}` | Security items for one container. We lock it down |
-| serviceAccount.annotations | object | `{}` | Annotations to add to the service account |
-| serviceAccount.name | string | `""` | The name of the service account to use If not set and create is true, a name is generated using the fullname template |
-| serviceMonitor.enabled | bool | `false` | Enable prometheus Service Monitor |
-| serviceMonitor.interval | string | `""` | Scrape interval for Prometheus |
-| serviceMonitor.jobLabel | string | `""` | Job label for the ServiceMonitor |
-| serviceMonitor.metricRelabelings | list | `[]` | Metric relabelings for the ServiceMonitor |
-| serviceMonitor.relabelings | list | `[]` | Relabelings for the ServiceMonitor |
-| tolerations | list | `[]` |  |
-| topologySpreadConstraints | list | `[]` | Topology spread constraints for pod distribution across zones/nodes See https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/ |
+{{ template "chart.valuesSection" . }}
 
 ## 🤝 Contributing
 
@@ -337,5 +288,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 This chart is licensed under the BSD-3-Clause License.
 
-----------------------------------------------
-Autogenerated from chart metadata using [helm-docs v1.14.2](https://github.com/norwoodj/helm-docs/releases/v1.14.2)
+{{ template "helm-docs.versionFooter" . }}
