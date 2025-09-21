@@ -5,6 +5,52 @@ entries:
       artifacthub.io/category: networking
       artifacthub.io/changes: |
         - kind: added
+          description: Add Pod Disruption Budget support for high availability
+        - kind: added
+          description: Add Topology Spread Constraints for better pod distribution
+        - kind: added
+          description: Add priorityClassName support for pod scheduling priority
+      artifacthub.io/license: BSD-3-Clause
+      artifacthub.io/links: |
+        - name: Chart Repository
+          url: https://github.com/lexfrei/charts/
+        - name: Cloudflare Cloudflared
+          url: https://github.com/cloudflare/cloudflared/
+    apiVersion: v2
+    appVersion: 2025.9.0
+    created: "2025-09-21T09:38:45.310524Z"
+    description: Creation of a cloudflared deployment - a reverse tunnel for an environment
+    digest: 2d2d0d0fefa0d1cce4d233bcbd28059ad95ed86e407693d63533f40a32c05131
+    home: https://github.com/lexfrei/charts/
+    icon: https://avatars.githubusercontent.com/u/314135
+    keywords:
+    - cloudflare
+    - cloudflared
+    - reverse-tunnel
+    - tunnel
+    - helm-chart
+    - kubernetes
+    - devops
+    - networking
+    - zero-trust
+    - proxy
+    - vpn
+    maintainers:
+    - email: f@lex.la
+      name: lexfrei
+      url: https://github.com/lexfrei
+    name: cloudflare-tunnel
+    sources:
+    - https://github.com/lexfrei/charts/
+    - https://github.com/cloudflare/cloudflared/
+    type: application
+    urls:
+    - https://github.com/lexfrei/charts/releases/download/cloudflare-tunnel-0.7.0/cloudflare-tunnel-0.7.0.tgz
+    version: 0.7.0
+  - annotations:
+      artifacthub.io/category: networking
+      artifacthub.io/changes: |
+        - kind: added
           description: Add ServiceMonitor support for Prometheus metrics
       artifacthub.io/license: BSD-3-Clause
       artifacthub.io/links: |
@@ -845,4 +891,4 @@ entries:
     urls:
     - https://lexfrei.github.io/charts/prometheus-ipmi-exporter-0.1.0.tgz
     version: 0.1.0
-generated: "2025-09-21T08:05:23.496681644Z"
+generated: "2025-09-21T09:38:45.310727609Z"
