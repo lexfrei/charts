@@ -214,8 +214,9 @@ jobs:
 
       - name: Update index
         run: |
-          # Remove local index.yaml if exists to avoid conflicts
-          rm -f index.yaml
+          # Force clean working directory before checkout
+          git reset --hard HEAD
+          git clean -fdx
           
           git checkout gh-pages
           helm repo index . --url https://lexfrei.github.io/charts
