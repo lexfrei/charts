@@ -51,6 +51,72 @@
         "enableDefault404": {
           "type": "boolean",
           "description": "Enable the default 404 page."
+        },
+        "originRequest": {
+          "type": "object",
+          "description": "Global originRequest configuration for all ingress rules.",
+          "properties": {
+            "connectTimeout": {
+              "type": "string",
+              "description": "Timeout for establishing a new TCP connection."
+            },
+            "tlsTimeout": {
+              "type": "string",
+              "description": "Timeout for completing a TLS handshake."
+            },
+            "keepAliveTimeout": {
+              "type": "string",
+              "description": "Timeout after which an idle keepalive connection is closed."
+            },
+            "noHappyEyeballs": {
+              "type": "boolean",
+              "description": "Disable the Happy Eyeballs algorithm."
+            },
+            "keepAliveConnections": {
+              "type": "integer",
+              "description": "Maximum number of idle keepalive connections."
+            },
+            "httpHostHeader": {
+              "type": "string",
+              "description": "Sets the HTTP Host header for the local service."
+            },
+            "originServerName": {
+              "type": "string",
+              "description": "Hostname to use for TLS verification."
+            },
+            "caPool": {
+              "type": "string",
+              "description": "Path to the CA certificate."
+            },
+            "noTLSVerify": {
+              "type": "boolean",
+              "description": "Disables TLS verification of the origin."
+            },
+            "disableChunkedEncoding": {
+              "type": "boolean",
+              "description": "Disables chunked transfer encoding."
+            },
+            "bastionMode": {
+              "type": "boolean",
+              "description": "Runs the tunnel as a bastion."
+            },
+            "proxyAddress": {
+              "type": "string",
+              "description": "Address of the proxy."
+            },
+            "proxyPort": {
+              "type": "integer",
+              "description": "Port of the proxy."
+            },
+            "proxyType": {
+              "type": "string",
+              "description": "Type of proxy."
+            },
+            "http2Origin": {
+              "type": "boolean",
+              "description": "Use HTTP/2 for connections to the origin."
+            }
+          }
         }
       },
       "required": [
@@ -225,6 +291,45 @@
     "priorityClassName": {
       "type": "string",
       "description": "Priority class name for pod scheduling priority."
+    },
+    "metricsPort": {
+      "type": "integer",
+      "description": "Metrics port for Prometheus metrics and readiness probe.",
+      "default": 2000
+    },
+    "livenessProbe": {
+      "type": "object",
+      "description": "Liveness probe configuration.",
+      "properties": {
+        "failureThreshold": {
+          "type": "integer",
+          "description": "Failure threshold for liveness probe.",
+          "default": 1
+        },
+        "initialDelaySeconds": {
+          "type": "integer",
+          "description": "Initial delay before liveness probe starts.",
+          "default": 10
+        },
+        "periodSeconds": {
+          "type": "integer",
+          "description": "Period between liveness probe checks.",
+          "default": 10
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "description": "Timeout for liveness probe."
+        }
+      }
+    },
+    "logLevel": {
+      "type": "string",
+      "description": "Log level for cloudflared (debug, info, warn, error, fatal).",
+      "enum": ["debug", "info", "warn", "error", "fatal", ""]
+    },
+    "podLabels": {
+      "type": "object",
+      "description": "Additional labels to add to pods."
     }
   },
   "required": [

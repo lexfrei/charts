@@ -1,0 +1,117 @@
+suite: test log level configuration
+templates:
+  - deployment.yaml
+  - configmap.yaml
+  - secret.yaml
+values:
+  - ../values.yaml
+tests:
+  - it: should not set TUNNEL_LOGLEVEL by default
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+    asserts:
+      - template: deployment.yaml
+        isNull:
+          path: spec.template.spec.containers[0].env
+
+  - it: should set TUNNEL_LOGLEVEL when logLevel is specified
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      logLevel: debug
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_LOGLEVEL
+            value: debug
+
+  - it: should support info log level
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      logLevel: info
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_LOGLEVEL
+            value: info
+
+  - it: should support warn log level
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      logLevel: warn
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_LOGLEVEL
+            value: warn
+
+  - it: should support error log level
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      logLevel: error
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_LOGLEVEL
+            value: error
+
+  - it: should support fatal log level
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      logLevel: fatal
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_LOGLEVEL
+            value: fatal

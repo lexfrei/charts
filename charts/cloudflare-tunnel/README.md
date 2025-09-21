@@ -1,6 +1,6 @@
 # cloudflare-tunnel
 
-![Version: 0.7.0](https://img.shields.io/badge/Version-0.7.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.9.0](https://img.shields.io/badge/AppVersion-2025.9.0-informational?style=flat-square)
+![Version: 0.8.0](https://img.shields.io/badge/Version-0.8.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.9.0](https://img.shields.io/badge/AppVersion-2025.9.0-informational?style=flat-square)
 
 Creation of a cloudflared deployment - a reverse tunnel for an environment
 
@@ -10,7 +10,7 @@ Creation of a cloudflared deployment - a reverse tunnel for an environment
 
 | Name | Email | Url |
 | ---- | ------ | --- |
-| Aleksei Sviridkin | <f@lex.la> | <https://me.lex.la> |
+| lexfrei | <f@lex.la> | <https://github.com/lexfrei> |
 
 ## Source Code
 
@@ -22,11 +22,12 @@ Creation of a cloudflared deployment - a reverse tunnel for an environment
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` | Default affinity is to spread out over nodes; use this to override |
-| cloudflare | object | `{"account":"","enableDefault404":true,"enableWarp":false,"ingress":[],"secret":"","secretName":null,"tunnelId":"","tunnelName":""}` | Cloudflare parameters |
+| cloudflare | object | `{"account":"","enableDefault404":true,"enableWarp":false,"ingress":[],"originRequest":{},"secret":"","secretName":null,"tunnelId":"","tunnelName":""}` | Cloudflare parameters |
 | cloudflare.account | string | `""` | Your Cloudflare account number |
 | cloudflare.enableDefault404 | bool | `true` | If true, enable the default 404 page. Needs to be false if you want to use a '*' wildcard rule. |
 | cloudflare.enableWarp | bool | `false` | If true, turn on WARP routing for TCP |
 | cloudflare.ingress | list | `[]` | Define ingress rules for the tunnel See https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress |
+| cloudflare.originRequest | object | `{}` | Global originRequest configuration for all ingress rules See https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress#origin-request |
 | cloudflare.secret | string | `""` | The secret for the tunnel |
 | cloudflare.secretName | string | `nil` | If defined, no secret is created for the credentials, and instead, the secret referenced is used |
 | cloudflare.tunnelId | string | `""` | The ID of the above tunnel |
@@ -35,10 +36,21 @@ Creation of a cloudflared deployment - a reverse tunnel for an environment
 | image | object | `{"pullPolicy":"IfNotPresent","repository":"cloudflare/cloudflared","tag":""}` | The image to use |
 | image.tag | string | `""` | If supplied, this overrides "appVersion" |
 | imagePullSecrets | list | `[]` |  |
+| livenessProbe | object | `{"failureThreshold":1,"initialDelaySeconds":10,"periodSeconds":10}` | Liveness probe configuration |
+| livenessProbe.failureThreshold | int | `1` | Failure threshold for liveness probe |
+| livenessProbe.initialDelaySeconds | int | `10` | Initial delay before liveness probe starts |
+| livenessProbe.periodSeconds | int | `10` | Period between liveness probe checks |
+| logLevel | string | `""` | Log level for cloudflared (debug, info, warn, error, fatal) |
+| metricsPort | int | `2000` | Metrics port for Prometheus metrics and readiness probe |
 | nameOverride | string | `""` |  |
 | nodeSelector | object | `{}` |  |
 | podAnnotations | object | `{}` |  |
+| podDisruptionBudget | object | `{"enabled":false,"minAvailable":1}` | Pod Disruption Budget configuration |
+| podDisruptionBudget.enabled | bool | `false` | Enable Pod Disruption Budget |
+| podDisruptionBudget.minAvailable | int | `1` | Minimum number of available pods (conflicts with maxUnavailable) |
+| podLabels | object | `{}` | Additional labels to add to pods |
 | podSecurityContext | object | `{"runAsNonRoot":true,"runAsUser":65532}` | Security items common to everything in the pod.  Here we require that it does not run as the user defined in the image, literally named "nonroot" |
+| priorityClassName | string | `""` | Priority class name for pod scheduling priority See https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/ |
 | replicaCount | int | `2` | The version of the image to use |
 | resources | object | `{}` |  |
 | securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true}` | Security items for one container. We lock it down |
@@ -49,9 +61,8 @@ Creation of a cloudflared deployment - a reverse tunnel for an environment
 | serviceMonitor.jobLabel | string | `""` | Job label for the ServiceMonitor |
 | serviceMonitor.metricRelabelings | list | `[]` | Metric relabelings for the ServiceMonitor |
 | serviceMonitor.relabelings | list | `[]` | Relabelings for the ServiceMonitor |
-| podDisruptionBudget | object | `{"enabled":false,"minAvailable":1}` | Pod Disruption Budget configuration |
-| podDisruptionBudget.enabled | bool | `false` | Enable Pod Disruption Budget |
-| podDisruptionBudget.minAvailable | int | `1` | Minimum number of available pods (conflicts with maxUnavailable) |
-| topologySpreadConstraints | list | `[]` | Topology spread constraints for pod distribution across zones/nodes See https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/ |
-| priorityClassName | string | `""` | Priority class name for pod scheduling priority See https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/ |
 | tolerations | list | `[]` |  |
+| topologySpreadConstraints | list | `[]` | Topology spread constraints for pod distribution across zones/nodes See https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/ |
+
+----------------------------------------------
+Autogenerated from chart metadata using [helm-docs v1.14.2](https://github.com/norwoodj/helm-docs/releases/v1.14.2)

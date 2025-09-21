@@ -13,11 +13,16 @@ data:
     warp-routing:
       enabled: {{ .Values.cloudflare.enableWarp }}
     # Serves the metrics server under /metrics and the readiness server under /ready
-    metrics: 0.0.0.0:2000
+    metrics: 0.0.0.0:{{ .Values.metricsPort }}
     # Autoupdates applied in a k8s pod will be lost when the pod is removed or restarted, so
     # autoupdate doesn't make sense in Kubernetes. However, outside of Kubernetes, we strongly
     # recommend using autoupdate.
     no-autoupdate: true
+    # Global originRequest configuration for all ingress rules
+    {{- if .Values.cloudflare.originRequest }}
+    originRequest:
+      {{- toYaml .Values.cloudflare.originRequest | nindent 6 }}
+    {{- end }}
     # The `ingress` block tells cloudflared which local service to route incoming
     # requests to. For more about ingress rules, see
     # https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/ingress
