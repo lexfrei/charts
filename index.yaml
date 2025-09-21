@@ -5,6 +5,58 @@ entries:
       artifacthub.io/category: networking
       artifacthub.io/changes: |
         - kind: added
+          description: Add originRequest configuration for upstream connection tuning
+        - kind: added
+          description: Add customizable liveness probe parameters
+        - kind: added
+          description: Add log level configuration via TUNNEL_LOGLEVEL
+        - kind: added
+          description: Add podLabels for custom pod labels
+        - kind: added
+          description: Add configurable metrics port (closes #14)
+        - kind: changed
+          description: Make metrics port configurable across all templates
+      artifacthub.io/license: BSD-3-Clause
+      artifacthub.io/links: |
+        - name: Chart Repository
+          url: https://github.com/lexfrei/charts/
+        - name: Cloudflare Cloudflared
+          url: https://github.com/cloudflare/cloudflared/
+    apiVersion: v2
+    appVersion: 2025.9.0
+    created: "2025-09-21T11:18:18.396128281Z"
+    description: Creation of a cloudflared deployment - a reverse tunnel for an environment
+    digest: 70b33be045a1b85d21bd31e6ad8affb94161d80b7bd1fae28c77fff138e6ff5b
+    home: https://github.com/lexfrei/charts/
+    icon: https://avatars.githubusercontent.com/u/314135
+    keywords:
+    - cloudflare
+    - cloudflared
+    - reverse-tunnel
+    - tunnel
+    - helm-chart
+    - kubernetes
+    - devops
+    - networking
+    - zero-trust
+    - proxy
+    - vpn
+    maintainers:
+    - email: f@lex.la
+      name: lexfrei
+      url: https://github.com/lexfrei
+    name: cloudflare-tunnel
+    sources:
+    - https://github.com/lexfrei/charts/
+    - https://github.com/cloudflare/cloudflared/
+    type: application
+    urls:
+    - https://github.com/lexfrei/charts/releases/download/cloudflare-tunnel-0.8.0/cloudflare-tunnel-0.8.0.tgz
+    version: 0.8.0
+  - annotations:
+      artifacthub.io/category: networking
+      artifacthub.io/changes: |
+        - kind: added
           description: Add Pod Disruption Budget support for high availability
         - kind: added
           description: Add Topology Spread Constraints for better pod distribution
@@ -891,4 +943,4 @@ entries:
     urls:
     - https://lexfrei.github.io/charts/prometheus-ipmi-exporter-0.1.0.tgz
     version: 0.1.0
-generated: "2025-09-21T09:38:45.310727609Z"
+generated: "2025-09-21T11:18:18.396316896Z"
