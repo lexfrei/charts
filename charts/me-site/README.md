@@ -4,6 +4,12 @@
 
 A Helm chart for the Me-Site application
 
+## Maintainers
+
+| Name | Email | Url |
+| ---- | ------ | --- |
+| lexfrei | <f@lex.la> | <https://github.com/lexfrei> |
+
 ## Values
 
 | Key | Type | Default | Description |

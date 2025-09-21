@@ -4,6 +4,12 @@
 
 A Helm chart for Kubernetes
 
+## Maintainers
+
+| Name | Email | Url |
+| ---- | ------ | --- |
+| lexfrei | <f@lex.la> | <https://github.com/lexfrei> |
+
 ## Values
 
 | Key | Type | Default | Description |
