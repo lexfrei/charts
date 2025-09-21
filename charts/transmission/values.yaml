@@ -80,7 +80,7 @@ persistence:
     size: 1Gi
     # -- If you want to use an existing PVC
     existingClaim: ""
-  
+
   # -- Downloads volume configuration
   downloads:
     enabled: true
