@@ -158,3 +158,10 @@ logLevel: ""
 
 # -- Additional labels to add to pods
 podLabels: {}
+
+# -- Deployment mode: "deployment" or "daemonset"
+# DaemonSet mode ensures one tunnel pod per node, useful for:
+# - Preventing port exhaustion from multiple pods on same node
+# - Following Cloudflare's recommendation to limit instances per node
+# - Ensuring predictable distribution and node-level reliability
+deploymentMode: deployment

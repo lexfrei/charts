@@ -1,6 +1,6 @@
 # cloudflare-tunnel
 
-![Version: 0.8.0](https://img.shields.io/badge/Version-0.8.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.9.0](https://img.shields.io/badge/AppVersion-2025.9.0-informational?style=flat-square)
+![Version: 0.9.0](https://img.shields.io/badge/Version-0.9.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.9.0](https://img.shields.io/badge/AppVersion-2025.9.0-informational?style=flat-square)
 
 Creation of a cloudflared deployment - a reverse tunnel for an environment
 
@@ -32,6 +32,7 @@ Creation of a cloudflared deployment - a reverse tunnel for an environment
 | cloudflare.secretName | string | `nil` | If defined, no secret is created for the credentials, and instead, the secret referenced is used |
 | cloudflare.tunnelId | string | `""` | The ID of the above tunnel |
 | cloudflare.tunnelName | string | `""` | The name of the tunnel this instance will serve |
+| deploymentMode | string | `"deployment"` | Deployment mode: "deployment" or "daemonset" DaemonSet mode ensures one tunnel pod per node, useful for: - Preventing port exhaustion from multiple pods on same node - Following Cloudflare's recommendation to limit instances per node - Ensuring predictable distribution and node-level reliability |
 | fullnameOverride | string | `""` |  |
 | image | object | `{"pullPolicy":"IfNotPresent","repository":"cloudflare/cloudflared","tag":""}` | The image to use |
 | image.tag | string | `""` | If supplied, this overrides "appVersion" |

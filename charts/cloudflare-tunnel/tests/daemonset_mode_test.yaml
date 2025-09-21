@@ -1,0 +1,206 @@
+suite: test DaemonSet deployment mode
+templates:
+  - deployment.yaml
+  - daemonset.yaml
+  - configmap.yaml
+  - secret.yaml
+values:
+  - ../values.yaml
+tests:
+  - it: should create Deployment by default
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+    asserts:
+      - template: deployment.yaml
+        hasDocuments:
+          count: 1
+      - template: daemonset.yaml
+        hasDocuments:
+          count: 0
+
+  - it: should create DaemonSet when deploymentMode is daemonset
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+    asserts:
+      - template: daemonset.yaml
+        hasDocuments:
+          count: 1
+      - template: deployment.yaml
+        hasDocuments:
+          count: 0
+
+  - it: should use correct kind for DaemonSet
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+    asserts:
+      - template: daemonset.yaml
+        equal:
+          path: kind
+          value: DaemonSet
+
+  - it: should have all required fields in DaemonSet
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+    asserts:
+      - template: daemonset.yaml
+        isNotNull:
+          path: metadata.name
+      - template: daemonset.yaml
+        isNotNull:
+          path: spec.selector
+      - template: daemonset.yaml
+        isNotNull:
+          path: spec.template
+
+  - it: should support nodeSelector in DaemonSet mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+      nodeSelector:
+        disktype: ssd
+    asserts:
+      - template: daemonset.yaml
+        equal:
+          path: spec.template.spec.nodeSelector.disktype
+          value: ssd
+
+  - it: should support tolerations in DaemonSet mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+      tolerations:
+        - key: node-role.kubernetes.io/master
+          operator: Exists
+          effect: NoSchedule
+    asserts:
+      - template: daemonset.yaml
+        contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: node-role.kubernetes.io/master
+            operator: Exists
+            effect: NoSchedule
+
+  - it: should support affinity in DaemonSet mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - node1
+    asserts:
+      - template: daemonset.yaml
+        isNotNull:
+          path: spec.template.spec.affinity.nodeAffinity
+
+  - it: should support custom pod labels in DaemonSet mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+      podLabels:
+        custom-label: custom-value
+    asserts:
+      - template: daemonset.yaml
+        equal:
+          path: spec.template.metadata.labels["custom-label"]
+          value: custom-value
+
+  - it: should support priorityClassName in DaemonSet mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+      priorityClassName: high-priority
+    asserts:
+      - template: daemonset.yaml
+        equal:
+          path: spec.template.spec.priorityClassName
+          value: high-priority
+
+  - it: should ignore replicaCount in DaemonSet mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+      replicaCount: 5
+    asserts:
+      - template: daemonset.yaml
+        isNull:
+          path: spec.replicas

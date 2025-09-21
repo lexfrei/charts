@@ -2,17 +2,9 @@ annotations:
   artifacthub.io/category: networking
   artifacthub.io/changes: |
     - kind: added
-      description: Add originRequest configuration for upstream connection tuning
-    - kind: added
-      description: Add customizable liveness probe parameters
-    - kind: added
-      description: Add log level configuration via TUNNEL_LOGLEVEL
-    - kind: added
-      description: Add podLabels for custom pod labels
-    - kind: added
-      description: Add configurable metrics port (closes #14)
+      description: Add DaemonSet deployment mode as alternative to Deployment
     - kind: changed
-      description: Make metrics port configurable across all templates
+      description: Support for one tunnel pod per node to prevent port exhaustion
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -25,7 +17,7 @@ name: cloudflare-tunnel
 description: Creation of a cloudflared deployment - a reverse tunnel for an environment
 type: application
 
-version: "0.8.0"
+version: "0.9.0"
 # renovate: datasource=github-releases depName=cloudflare/cloudflared
 appVersion: "2025.9.0"
 
