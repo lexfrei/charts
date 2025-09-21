@@ -1,8 +1,10 @@
 annotations:
   artifacthub.io/category: networking
+  # Valid kinds for changes: added, changed, deprecated, removed, fixed, security
+  # See: https://artifacthub.io/docs/topics/annotations/helm/
   artifacthub.io/changes: |
-    - kind: changed
-      description: Improve README with comprehensive status badges and enhanced documentation
+    - kind: fixed
+      description: Fix Artifact Hub badge link to point to correct package URL
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -15,7 +17,7 @@ name: cloudflare-tunnel
 description: Creation of a cloudflared deployment - a reverse tunnel for an environment
 type: application
 
-version: "0.9.1"
+version: "0.9.2"
 # renovate: datasource=github-releases depName=cloudflare/cloudflared
 appVersion: "2025.9.0"
 
