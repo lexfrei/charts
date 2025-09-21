@@ -1,0 +1,54 @@
+suite: test all resources
+templates:
+  - deployment.yaml
+  - configmap.yaml
+  - secret.yaml
+  - serviceaccount.yaml
+tests:
+  - it: should render all required resources with minimal config
+    set:
+      cloudflare:
+        account: "test-account"
+        tunnelName: "test-tunnel"
+        tunnelId: "test-id"
+        secret: "test-secret"
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+    asserts:
+      - template: deployment.yaml
+        isKind:
+          of: Deployment
+      - template: configmap.yaml
+        isKind:
+          of: ConfigMap
+      - template: secret.yaml
+        isKind:
+          of: Secret
+      - template: serviceaccount.yaml
+        isKind:
+          of: ServiceAccount
+
+  - it: should apply common labels to all resources
+    set:
+      cloudflare:
+        account: "test-account"
+        tunnelName: "test-tunnel"
+        tunnelId: "test-id"
+        secret: "test-secret"
+        ingress:
+          - hostname: test.example.com
+            service: http://test:80
+    asserts:
+      - template: deployment.yaml
+        equal:
+          path: metadata.labels["app.kubernetes.io/name"]
+          value: cloudflare-tunnel
+      - template: deployment.yaml
+        equal:
+          path: metadata.labels["app.kubernetes.io/instance"]
+          value: RELEASE-NAME
+      - template: serviceaccount.yaml
+        equal:
+          path: metadata.labels["app.kubernetes.io/managed-by"]
+          value: Helm

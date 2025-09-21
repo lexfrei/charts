@@ -1,0 +1,70 @@
+suite: test service
+templates:
+  - service.yaml
+tests:
+  - it: should not create service by default
+    set:
+      cloudflare:
+        account: "test-account"
+        tunnelName: "test-tunnel"
+        tunnelId: "test-id"
+        secret: "test-secret"
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should create a metrics service when serviceMonitor enabled
+    set:
+      cloudflare:
+        account: "test-account"
+        tunnelName: "test-tunnel"
+        tunnelId: "test-id"
+        secret: "test-secret"
+      serviceMonitor:
+        enabled: true
+    asserts:
+      - isKind:
+          of: Service
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-cloudflare-tunnel
+      - equal:
+          path: spec.type
+          value: ClusterIP
+
+  - it: should expose metrics port when serviceMonitor enabled
+    set:
+      cloudflare:
+        account: "test-account"
+        tunnelName: "test-tunnel"
+        tunnelId: "test-id"
+        secret: "test-secret"
+      serviceMonitor:
+        enabled: true
+    asserts:
+      - contains:
+          path: spec.ports
+          content:
+            name: metrics
+            port: 2000
+            targetPort: 2000
+            protocol: TCP
+
+  - it: should have correct selector labels when serviceMonitor enabled
+    set:
+      cloudflare:
+        account: "test-account"
+        tunnelName: "test-tunnel"
+        tunnelId: "test-id"
+        secret: "test-secret"
+      serviceMonitor:
+        enabled: true
+    asserts:
+      - isNotNull:
+          path: spec.selector
+      - equal:
+          path: spec.selector["app.kubernetes.io/name"]
+          value: cloudflare-tunnel
+      - equal:
+          path: spec.selector["app.kubernetes.io/instance"]
+          value: RELEASE-NAME

@@ -1,0 +1,135 @@
+suite: test configmap
+templates:
+  - configmap.yaml
+tests:
+  - it: should create configmap with tunnel configuration
+    set:
+      cloudflare:
+        account: "test-account"
+        tunnelName: "test-tunnel"
+        tunnelId: "test-tunnel-id"
+        secret: "test-secret"
+        ingress:
+          - hostname: app.example.com
+            service: http://web-service:80
+          - hostname: api.example.com
+            service: http://api-service:8080
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-cloudflare-tunnel
+      - matchRegex:
+          path: data["config.yaml"]
+          pattern: "tunnel: test-tunnel"
+      - matchRegex:
+          path: data["config.yaml"]
+          pattern: "credentials-file: /etc/cloudflared/creds/credentials.json"
+
+  - it: should include metrics configuration
+    set:
+      cloudflare:
+        account: "test-account"
+        tunnelName: "test-tunnel"
+        tunnelId: "test-tunnel-id"
+        secret: "test-secret"
+        ingress:
+          - hostname: test.example.com
+            service: http://test:80
+    asserts:
+      - matchRegex:
+          path: data["config.yaml"]
+          pattern: "metrics: 0.0.0.0:2000"
+
+  - it: should include ingress rules
+    set:
+      cloudflare:
+        account: "test-account"
+        tunnelName: "test-tunnel"
+        tunnelId: "test-tunnel-id"
+        secret: "test-secret"
+        ingress:
+          - hostname: test1.example.com
+            service: http://service1:80
+          - hostname: test2.example.com
+            service: http://service2:8080
+    asserts:
+      - matchRegex:
+          path: data["config.yaml"]
+          pattern: "hostname: test1.example.com"
+      - matchRegex:
+          path: data["config.yaml"]
+          pattern: "service: http://service1:80"
+      - matchRegex:
+          path: data["config.yaml"]
+          pattern: "hostname: test2.example.com"
+      - matchRegex:
+          path: data["config.yaml"]
+          pattern: "service: http://service2:8080"
+
+  - it: should include default 404 service when enabled
+    set:
+      cloudflare:
+        account: "test-account"
+        tunnelName: "test-tunnel"
+        tunnelId: "test-tunnel-id"
+        secret: "test-secret"
+        enableDefault404: true
+        ingress:
+          - hostname: test.example.com
+            service: http://test:80
+    asserts:
+      - matchRegex:
+          path: data["config.yaml"]
+          pattern: "service: http_status:404"
+
+  - it: should not include default 404 when disabled
+    set:
+      cloudflare:
+        account: "test-account"
+        tunnelName: "test-tunnel"
+        tunnelId: "test-tunnel-id"
+        secret: "test-secret"
+        enableDefault404: false
+        ingress:
+          - hostname: test.example.com
+            service: http://test:80
+    asserts:
+      - notMatchRegex:
+          path: data["config.yaml"]
+          pattern: "service: http_status:404"
+
+  - it: should enable WARP routing when configured
+    set:
+      cloudflare:
+        account: "test-account"
+        tunnelName: "test-tunnel"
+        tunnelId: "test-tunnel-id"
+        secret: "test-secret"
+        enableWarp: true
+        ingress:
+          - hostname: test.example.com
+            service: http://test:80
+    asserts:
+      - matchRegex:
+          path: data["config.yaml"]
+          pattern: "warp-routing:"
+      - matchRegex:
+          path: data["config.yaml"]
+          pattern: "enabled: true"
+
+  - it: should disable WARP routing by default
+    set:
+      cloudflare:
+        account: "test-account"
+        tunnelName: "test-tunnel"
+        tunnelId: "test-tunnel-id"
+        secret: "test-secret"
+        ingress:
+          - hostname: test.example.com
+            service: http://test:80
+    asserts:
+      - matchRegex:
+          path: data["config.yaml"]
+          pattern: "enabled: false"

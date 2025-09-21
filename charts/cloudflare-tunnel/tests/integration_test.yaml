@@ -1,0 +1,114 @@
+suite: test edge cases and integration
+templates:
+  - deployment.yaml
+  - configmap.yaml
+  - secret.yaml
+tests:
+  - it: should use custom secret in deployment when secretName provided
+    set:
+      cloudflare:
+        account: "test"
+        tunnelName: "test"
+        tunnelId: "test"
+        secret: "test"
+        secretName: "my-custom-secret"
+    asserts:
+      - template: deployment.yaml
+        equal:
+          path: spec.template.spec.volumes[0].secret.secretName
+          value: "my-custom-secret"
+      - template: secret.yaml
+        hasDocuments:
+          count: 0
+
+  - it: should use default secret in deployment when no secretName
+    set:
+      cloudflare:
+        account: "test"
+        tunnelName: "test"
+        tunnelId: "test"
+        secret: "test"
+    asserts:
+      - template: deployment.yaml
+        equal:
+          path: spec.template.spec.volumes[0].secret.secretName
+          value: RELEASE-NAME-cloudflare-tunnel
+      - template: secret.yaml
+        hasDocuments:
+          count: 1
+
+  - it: should handle resources limits and requests
+    set:
+      cloudflare:
+        account: "test"
+        tunnelName: "test"
+        tunnelId: "test"
+        secret: "test"
+      resources:
+        limits:
+          cpu: 500m
+          memory: 512Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+    asserts:
+      - template: deployment.yaml
+        equal:
+          path: spec.template.spec.containers[0].resources.limits.cpu
+          value: 500m
+      - template: deployment.yaml
+        equal:
+          path: spec.template.spec.containers[0].resources.requests.memory
+          value: 128Mi
+
+  - it: should include imagePullSecrets when provided
+    set:
+      cloudflare:
+        account: "test"
+        tunnelName: "test"
+        tunnelId: "test"
+        secret: "test"
+      imagePullSecrets:
+        - regcred
+    asserts:
+      - template: deployment.yaml
+        equal:
+          path: spec.template.spec.imagePullSecrets[0]
+          value: regcred
+
+  - it: should handle nodeSelector
+    set:
+      cloudflare:
+        account: "test"
+        tunnelName: "test"
+        tunnelId: "test"
+        secret: "test"
+      nodeSelector:
+        disktype: ssd
+    asserts:
+      - template: deployment.yaml
+        equal:
+          path: spec.template.spec.nodeSelector.disktype
+          value: ssd
+
+  - it: should handle tolerations
+    set:
+      cloudflare:
+        account: "test"
+        tunnelName: "test"
+        tunnelId: "test"
+        secret: "test"
+      tolerations:
+        - key: "key1"
+          operator: "Equal"
+          value: "value1"
+          effect: "NoSchedule"
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: "key1"
+            operator: "Equal"
+            value: "value1"
+            effect: "NoSchedule"
