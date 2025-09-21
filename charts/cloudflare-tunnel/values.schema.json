@@ -330,6 +330,12 @@
     "podLabels": {
       "type": "object",
       "description": "Additional labels to add to pods."
+    },
+    "deploymentMode": {
+      "type": "string",
+      "description": "Deployment mode: deployment or daemonset.",
+      "enum": ["deployment", "daemonset"],
+      "default": "deployment"
     }
   },
   "required": [
