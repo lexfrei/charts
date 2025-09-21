@@ -1029,4 +1029,44 @@ entries:
     urls:
     - https://lexfrei.github.io/charts/prometheus-ipmi-exporter-0.1.0.tgz
     version: 0.1.0
-generated: "2025-09-21T14:04:48.420614774Z"
+  transmission:
+  - annotations:
+      artifacthub.io/category: storage
+      artifacthub.io/changes: |
+        - kind: added
+          description: Initial release of transmission chart
+      artifacthub.io/license: BSD-3-Clause
+      artifacthub.io/links: |
+        - name: Chart Repository
+          url: https://github.com/lexfrei/charts/
+        - name: Transmission
+          url: https://transmissionbt.com/
+    apiVersion: v2
+    appVersion: 4.0.6
+    created: "2025-09-21T16:09:59.967957203Z"
+    description: Transmission BitTorrent client Helm chart for Kubernetes
+    digest: aed827f53c508430e3e70aeddbd7d0973cca16f1107191d174b52284550699ac
+    home: https://github.com/lexfrei/charts/
+    icon: https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/transmission-icon.png
+    keywords:
+    - transmission
+    - bittorrent
+    - torrent
+    - download
+    - p2p
+    - helm-chart
+    - kubernetes
+    maintainers:
+    - email: f@lex.la
+      name: lexfrei
+      url: https://github.com/lexfrei
+    name: transmission
+    sources:
+    - https://github.com/lexfrei/charts/
+    - https://github.com/transmission/transmission
+    - https://github.com/linuxserver/docker-transmission
+    type: application
+    urls:
+    - transmission-0.1.0.tgz
+    version: 0.1.0
+generated: "2025-09-21T16:09:59.968066237Z"
