@@ -1,6 +1,6 @@
 # cloudflare-tunnel
 
-![Version: 0.9.2](https://img.shields.io/badge/Version-0.9.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.9.0](https://img.shields.io/badge/AppVersion-2025.9.0-informational?style=flat-square)
+![Version: 0.9.3](https://img.shields.io/badge/Version-0.9.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.9.0](https://img.shields.io/badge/AppVersion-2025.9.0-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -13,6 +13,8 @@
 Creation of a cloudflared deployment - a reverse tunnel for an environment
 
 **Homepage:** <https://github.com/lexfrei/charts/>
+
+> **Note**: This chart uses the official Cloudflare Docker image [`cloudflare/cloudflared`](https://hub.docker.com/r/cloudflare/cloudflared) maintained by Cloudflare.
 
 ## ✨ Features
 
@@ -32,6 +34,14 @@ Creation of a cloudflared deployment - a reverse tunnel for an environment
 - Implement Zero Trust network architecture
 - Connect on-premises services to Cloudflare's network
 - Enable secure remote access without VPNs
+
+## 🐳 Docker Image
+
+This Helm chart uses the **official Cloudflare Docker image**:
+- **Image**: [`cloudflare/cloudflared`](https://hub.docker.com/r/cloudflare/cloudflared)
+- **Maintained by**: Cloudflare
+- **Auto-updated**: Via Renovate bot to track latest releases
+- **Source**: [github.com/cloudflare/cloudflared](https://github.com/cloudflare/cloudflared)
 
 ## 📋 Prerequisites
 

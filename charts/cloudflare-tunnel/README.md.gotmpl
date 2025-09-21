@@ -16,6 +16,8 @@
 
 {{ template "chart.homepageLine" . }}
 
+> **Note**: This chart uses the official Cloudflare Docker image [`cloudflare/cloudflared`](https://hub.docker.com/r/cloudflare/cloudflared) maintained by Cloudflare.
+
 ## ✨ Features
 
 - 🚀 **Zero Trust Network Access** - Secure remote access to your Kubernetes services without exposing them to the internet
@@ -34,6 +36,14 @@
 - Implement Zero Trust network architecture
 - Connect on-premises services to Cloudflare's network
 - Enable secure remote access without VPNs
+
+## 🐳 Docker Image
+
+This Helm chart uses the **official Cloudflare Docker image**:
+- **Image**: [`cloudflare/cloudflared`](https://hub.docker.com/r/cloudflare/cloudflared)
+- **Maintained by**: Cloudflare
+- **Auto-updated**: Via Renovate bot to track latest releases
+- **Source**: [github.com/cloudflare/cloudflared](https://github.com/cloudflare/cloudflared)
 
 ## 📋 Prerequisites
 
