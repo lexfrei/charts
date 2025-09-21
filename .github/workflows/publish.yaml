@@ -86,9 +86,10 @@ jobs:
           "
               # Parse changelog and format with emojis using a temp file to avoid subshell issues
               temp_file=$(mktemp)
-              echo "$changelog_raw" | yq eval '.[] | .kind + "|" + .description' - > "$temp_file"
+              SEPARATOR="|"
+              echo "$changelog_raw" | yq eval ".[] | .kind + \"${SEPARATOR}\" + .description" - > "$temp_file"
               
-              while IFS='|' read -r kind description; do
+              while IFS="${SEPARATOR}" read -r kind description; do
                 case "$kind" in
                   "added")
                     emoji="✨"
