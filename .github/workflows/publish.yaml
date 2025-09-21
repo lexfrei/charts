@@ -52,7 +52,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          #!/bin/bash
           set -e
           
           # Get list of changed charts
@@ -82,11 +81,14 @@ jobs:
             if [ "$changelog_raw" != "null" ] && [ -n "$changelog_raw" ]; then
               release_body="${release_body}
 
-### Changelog
+          ### Changelog
 
-"
-              # Parse changelog and format with emojis
-              echo "$changelog_raw" | yq eval '.[] | .kind + "|" + .description' - | while IFS='|' read -r kind description; do
+          "
+              # Parse changelog and format with emojis using a temp file to avoid subshell issues
+              temp_file=$(mktemp)
+              echo "$changelog_raw" | yq eval '.[] | .kind + "|" + .description' - > "$temp_file"
+              
+              while IFS='|' read -r kind description; do
                 case "$kind" in
                   "added")
                     emoji="✨"
@@ -111,8 +113,10 @@ jobs:
                     ;;
                 esac
                 release_body="${release_body}- ${emoji} ${description}
-"
-              done
+          "
+              done < "$temp_file"
+              
+              rm -f "$temp_file"
             fi
             
             # Get current release info
