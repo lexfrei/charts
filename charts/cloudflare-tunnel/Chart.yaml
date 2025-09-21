@@ -1,5 +1,7 @@
 annotations:
   artifacthub.io/category: networking
+  # Valid kinds for changes: added, changed, deprecated, removed, fixed, security
+  # See: https://artifacthub.io/docs/topics/annotations/helm/
   artifacthub.io/changes: |
     - kind: fixed
       description: Fix Artifact Hub badge link to point to correct package URL
