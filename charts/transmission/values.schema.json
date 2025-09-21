@@ -1,0 +1,323 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Transmission Values",
+  "type": "object",
+  "properties": {
+    "image": {
+      "type": "object",
+      "properties": {
+        "repository": {
+          "type": "string",
+          "description": "Image repository"
+        },
+        "pullPolicy": {
+          "type": "string",
+          "enum": ["Always", "IfNotPresent", "Never"],
+          "description": "Image pull policy"
+        },
+        "tag": {
+          "type": "string",
+          "description": "Overrides the image tag whose default is the chart appVersion"
+        }
+      },
+      "required": ["repository", "pullPolicy"]
+    },
+    "imagePullSecrets": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Image pull secrets"
+    },
+    "nameOverride": {
+      "type": "string",
+      "description": "Override the name of the chart"
+    },
+    "fullnameOverride": {
+      "type": "string",
+      "description": "Override the fullname of the chart"
+    },
+    "env": {
+      "type": "object",
+      "properties": {
+        "PUID": {
+          "type": "string",
+          "description": "User ID to run as"
+        },
+        "PGID": {
+          "type": "string",
+          "description": "Group ID to run as"
+        },
+        "TZ": {
+          "type": "string",
+          "description": "Timezone"
+        }
+      }
+    },
+    "podSecurityContext": {
+      "type": "object",
+      "description": "Security context for the pod"
+    },
+    "securityContext": {
+      "type": "object",
+      "description": "Security context for the container"
+    },
+    "service": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ClusterIP", "NodePort", "LoadBalancer", "ExternalName"],
+          "description": "Service type"
+        },
+        "annotations": {
+          "type": "object",
+          "description": "Service annotations"
+        },
+        "httpPort": {
+          "type": "integer",
+          "description": "HTTP port",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "torrentTCPPort": {
+          "type": "integer",
+          "description": "Torrent TCP port",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "torrentUDPPort": {
+          "type": "integer",
+          "description": "Torrent UDP port",
+          "minimum": 1,
+          "maximum": 65535
+        }
+      },
+      "required": ["type", "httpPort", "torrentTCPPort", "torrentUDPPort"]
+    },
+    "ingress": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable ingress"
+        },
+        "className": {
+          "type": "string",
+          "description": "Ingress class name"
+        },
+        "annotations": {
+          "type": "object",
+          "description": "Ingress annotations"
+        },
+        "hosts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "host": {
+                "type": "string",
+                "description": "Hostname"
+              },
+              "paths": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "pathType": {
+                      "type": "string",
+                      "enum": ["Prefix", "Exact", "ImplementationSpecific"]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tls": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "secretName": {
+                "type": "string"
+              },
+              "hosts": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": ["enabled"]
+    },
+    "resources": {
+      "type": "object",
+      "properties": {
+        "requests": {
+          "type": "object",
+          "properties": {
+            "memory": {
+              "type": "string",
+              "pattern": "^[0-9]+(Mi|Gi|M|G)$",
+              "description": "Memory request"
+            },
+            "cpu": {
+              "type": "string",
+              "pattern": "^[0-9]+m?$",
+              "description": "CPU request"
+            }
+          }
+        },
+        "limits": {
+          "type": "object",
+          "properties": {
+            "memory": {
+              "type": "string",
+              "pattern": "^[0-9]+(Mi|Gi|M|G)$",
+              "description": "Memory limit"
+            },
+            "cpu": {
+              "type": "string",
+              "pattern": "^[0-9]+m?$",
+              "description": "CPU limit"
+            }
+          }
+        }
+      }
+    },
+    "persistence": {
+      "type": "object",
+      "properties": {
+        "config": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Enable config persistence"
+            },
+            "storageClassName": {
+              "type": "string",
+              "description": "Storage class name"
+            },
+            "accessMode": {
+              "type": "string",
+              "enum": ["ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany"],
+              "description": "Access mode"
+            },
+            "size": {
+              "type": "string",
+              "pattern": "^[0-9]+(Mi|Gi|Ti|M|G|T)$",
+              "description": "Size of the volume"
+            },
+            "existingClaim": {
+              "type": "string",
+              "description": "Use an existing PVC"
+            }
+          },
+          "required": ["enabled"]
+        },
+        "downloads": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Enable downloads persistence"
+            },
+            "type": {
+              "type": "string",
+              "enum": ["pvc", "nfs"],
+              "description": "Type of storage"
+            },
+            "nfsServer": {
+              "type": "string",
+              "description": "NFS server (when type is nfs)"
+            },
+            "nfsPath": {
+              "type": "string",
+              "description": "NFS path (when type is nfs)"
+            },
+            "storageClassName": {
+              "type": "string",
+              "description": "Storage class (when type is pvc)"
+            },
+            "accessMode": {
+              "type": "string",
+              "enum": ["ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany"],
+              "description": "Access mode (when type is pvc)"
+            },
+            "size": {
+              "type": "string",
+              "pattern": "^[0-9]+(Mi|Gi|Ti|M|G|T)$",
+              "description": "Size (when type is pvc)"
+            },
+            "existingClaim": {
+              "type": "string",
+              "description": "Existing claim (when type is pvc)"
+            }
+          },
+          "required": ["enabled", "type"]
+        }
+      },
+      "required": ["config", "downloads"]
+    },
+    "nodeSelector": {
+      "type": "object",
+      "description": "Node selector"
+    },
+    "tolerations": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Tolerations"
+    },
+    "affinity": {
+      "type": "object",
+      "description": "Affinity rules"
+    },
+    "podAnnotations": {
+      "type": "object",
+      "description": "Pod annotations"
+    },
+    "podLabels": {
+      "type": "object",
+      "description": "Pod labels"
+    },
+    "serviceAccount": {
+      "type": "object",
+      "properties": {
+        "create": {
+          "type": "boolean",
+          "description": "Specifies whether a service account should be created"
+        },
+        "annotations": {
+          "type": "object",
+          "description": "Annotations to add to the service account"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the service account to use"
+        }
+      },
+      "required": ["create"]
+    },
+    "updateStrategy": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["RollingUpdate", "Recreate"],
+          "description": "Update strategy type"
+        }
+      }
+    }
+  },
+  "required": ["image", "service", "persistence"]
+}
