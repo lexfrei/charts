@@ -72,7 +72,8 @@ jobs:
             if [ -f "$chart_package" ] && [ ! -f "${chart_package}.prov" ]; then
               echo "Signing $chart_package"
               # Use gpg to create detached signature
-              echo "$GPG_PASSPHRASE" | gpg --batch --yes --passphrase-fd 0 \
+              gpg --batch --yes --no-tty --pinentry-mode loopback \
+                --passphrase "$GPG_PASSPHRASE" \
                 --local-user "$GPG_KEY_ID" \
                 --armor --detach-sign "$chart_package"
               # Rename .asc to .prov
