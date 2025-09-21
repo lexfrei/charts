@@ -4,686 +4,6 @@ entries:
   - annotations:
       artifacthub.io/category: networking
       artifacthub.io/changes: |
-        - kind: changed
-          description: Improve README with comprehensive status badges and enhanced documentation
-      artifacthub.io/license: BSD-3-Clause
-      artifacthub.io/links: |
-        - name: Chart Repository
-          url: https://github.com/lexfrei/charts/
-        - name: Cloudflare Cloudflared
-          url: https://github.com/cloudflare/cloudflared/
-    apiVersion: v2
-    appVersion: 2025.9.0
-    created: "2025-09-21T14:04:48.420384124Z"
-    description: Creation of a cloudflared deployment - a reverse tunnel for an environment
-    digest: 4b23d77442556ecb65888ec005cff2e8f759f17ce33b52fe44a1bde8842aa5ce
-    home: https://github.com/lexfrei/charts/
-    icon: https://avatars.githubusercontent.com/u/314135
-    keywords:
-    - cloudflare
-    - cloudflared
-    - reverse-tunnel
-    - tunnel
-    - helm-chart
-    - kubernetes
-    - devops
-    - networking
-    - zero-trust
-    - proxy
-    - vpn
-    maintainers:
-    - email: f@lex.la
-      name: lexfrei
-      url: https://github.com/lexfrei
-    name: cloudflare-tunnel
-    sources:
-    - https://github.com/lexfrei/charts/
-    - https://github.com/cloudflare/cloudflared/
-    type: application
-    urls:
-    - https://github.com/lexfrei/charts/releases/download/cloudflare-tunnel-0.9.1/cloudflare-tunnel-0.9.1.tgz
-    version: 0.9.1
-  - annotations:
-      artifacthub.io/category: networking
-      artifacthub.io/changes: |
-        - kind: added
-          description: Add DaemonSet deployment mode as alternative to Deployment
-        - kind: changed
-          description: Support for one tunnel pod per node to prevent port exhaustion
-      artifacthub.io/license: BSD-3-Clause
-      artifacthub.io/links: |
-        - name: Chart Repository
-          url: https://github.com/lexfrei/charts/
-        - name: Cloudflare Cloudflared
-          url: https://github.com/cloudflare/cloudflared/
-    apiVersion: v2
-    appVersion: 2025.9.0
-    created: "2025-09-21T11:52:06.664454635Z"
-    description: Creation of a cloudflared deployment - a reverse tunnel for an environment
-    digest: 20b54b281abd4a44235fae57004383003f8b86f58b3d9d460657d93a0ff2e636
-    home: https://github.com/lexfrei/charts/
-    icon: https://avatars.githubusercontent.com/u/314135
-    keywords:
-    - cloudflare
-    - cloudflared
-    - reverse-tunnel
-    - tunnel
-    - helm-chart
-    - kubernetes
-    - devops
-    - networking
-    - zero-trust
-    - proxy
-    - vpn
-    maintainers:
-    - email: f@lex.la
-      name: lexfrei
-      url: https://github.com/lexfrei
-    name: cloudflare-tunnel
-    sources:
-    - https://github.com/lexfrei/charts/
-    - https://github.com/cloudflare/cloudflared/
-    type: application
-    urls:
-    - https://github.com/lexfrei/charts/releases/download/cloudflare-tunnel-0.9.0/cloudflare-tunnel-0.9.0.tgz
-    version: 0.9.0
-  - annotations:
-      artifacthub.io/category: networking
-      artifacthub.io/changes: |
-        - kind: added
-          description: Add originRequest configuration for upstream connection tuning
-        - kind: added
-          description: Add customizable liveness probe parameters
-        - kind: added
-          description: Add log level configuration via TUNNEL_LOGLEVEL
-        - kind: added
-          description: Add podLabels for custom pod labels
-        - kind: added
-          description: Add configurable metrics port (closes #14)
-        - kind: changed
-          description: Make metrics port configurable across all templates
-      artifacthub.io/license: BSD-3-Clause
-      artifacthub.io/links: |
-        - name: Chart Repository
-          url: https://github.com/lexfrei/charts/
-        - name: Cloudflare Cloudflared
-          url: https://github.com/cloudflare/cloudflared/
-    apiVersion: v2
-    appVersion: 2025.9.0
-    created: "2025-09-21T11:18:18.396128281Z"
-    description: Creation of a cloudflared deployment - a reverse tunnel for an environment
-    digest: 70b33be045a1b85d21bd31e6ad8affb94161d80b7bd1fae28c77fff138e6ff5b
-    home: https://github.com/lexfrei/charts/
-    icon: https://avatars.githubusercontent.com/u/314135
-    keywords:
-    - cloudflare
-    - cloudflared
-    - reverse-tunnel
-    - tunnel
-    - helm-chart
-    - kubernetes
-    - devops
-    - networking
-    - zero-trust
-    - proxy
-    - vpn
-    maintainers:
-    - email: f@lex.la
-      name: lexfrei
-      url: https://github.com/lexfrei
-    name: cloudflare-tunnel
-    sources:
-    - https://github.com/lexfrei/charts/
-    - https://github.com/cloudflare/cloudflared/
-    type: application
-    urls:
-    - https://github.com/lexfrei/charts/releases/download/cloudflare-tunnel-0.8.0/cloudflare-tunnel-0.8.0.tgz
-    version: 0.8.0
-  - annotations:
-      artifacthub.io/category: networking
-      artifacthub.io/changes: |
-        - kind: added
-          description: Add Pod Disruption Budget support for high availability
-        - kind: added
-          description: Add Topology Spread Constraints for better pod distribution
-        - kind: added
-          description: Add priorityClassName support for pod scheduling priority
-      artifacthub.io/license: BSD-3-Clause
-      artifacthub.io/links: |
-        - name: Chart Repository
-          url: https://github.com/lexfrei/charts/
-        - name: Cloudflare Cloudflared
-          url: https://github.com/cloudflare/cloudflared/
-    apiVersion: v2
-    appVersion: 2025.9.0
-    created: "2025-09-21T09:38:45.310524Z"
-    description: Creation of a cloudflared deployment - a reverse tunnel for an environment
-    digest: 2d2d0d0fefa0d1cce4d233bcbd28059ad95ed86e407693d63533f40a32c05131
-    home: https://github.com/lexfrei/charts/
-    icon: https://avatars.githubusercontent.com/u/314135
-    keywords:
-    - cloudflare
-    - cloudflared
-    - reverse-tunnel
-    - tunnel
-    - helm-chart
-    - kubernetes
-    - devops
-    - networking
-    - zero-trust
-    - proxy
-    - vpn
-    maintainers:
-    - email: f@lex.la
-      name: lexfrei
-      url: https://github.com/lexfrei
-    name: cloudflare-tunnel
-    sources:
-    - https://github.com/lexfrei/charts/
-    - https://github.com/cloudflare/cloudflared/
-    type: application
-    urls:
-    - https://github.com/lexfrei/charts/releases/download/cloudflare-tunnel-0.7.0/cloudflare-tunnel-0.7.0.tgz
-    version: 0.7.0
-  - annotations:
-      artifacthub.io/category: networking
-      artifacthub.io/changes: |
-        - kind: added
-          description: Add ServiceMonitor support for Prometheus metrics
-      artifacthub.io/license: BSD-3-Clause
-      artifacthub.io/links: |
-        - name: Chart Repository
-          url: https://github.com/lexfrei/charts/
-        - name: Cloudflare Cloudflared
-          url: https://github.com/cloudflare/cloudflared/
-    apiVersion: v2
-    appVersion: 2025.9.0
-    created: "2025-09-21T08:05:23.496543224Z"
-    description: Creation of a cloudflared deployment - a reverse tunnel for an environment
-    digest: 2904db3cbb7e07d9c6e980d999f2869a27a0708600ea8ed108aca43c151dbb2b
-    home: https://github.com/lexfrei/charts/
-    icon: https://avatars.githubusercontent.com/u/314135
-    keywords:
-    - cloudflare
-    - cloudflared
-    - reverse-tunnel
-    - tunnel
-    - helm-chart
-    - kubernetes
-    - devops
-    - networking
-    - zero-trust
-    - proxy
-    - vpn
-    maintainers:
-    - email: f@lex.la
-      name: lexfrei
-      url: https://github.com/lexfrei
-    name: cloudflare-tunnel
-    sources:
-    - https://github.com/lexfrei/charts/
-    - https://github.com/cloudflare/cloudflared/
-    type: application
-    urls:
-    - https://github.com/lexfrei/charts/releases/download/cloudflare-tunnel-0.6.1/cloudflare-tunnel-0.6.1.tgz
-    version: 0.6.1
-  - annotations:
-      artifacthub.io/category: networking
-      artifacthub.io/changes: |
-        - kind: added
-          description: Add ServiceMonitor support for Prometheus metrics
-      artifacthub.io/license: BSD-3-Clause
-      artifacthub.io/links: |
-        - name: Chart Repository
-          url: https://github.com/lexfrei/charts/
-        - name: Cloudflare Cloudflared
-          url: https://github.com/cloudflare/cloudflared/
-    apiVersion: v2
-    appVersion: 2025.9.0
-    created: "2025-09-20T10:06:12.395000749Z"
-    description: Creation of a cloudflared deployment - a reverse tunnel for an environment
-    digest: aa97a18d5b7b9f1a97deab26194f97a5cc2c0c116cadc73d2673c824c6ed8ca0
-    home: https://github.com/lexfrei/charts/
-    icon: https://avatars.githubusercontent.com/u/314135
-    keywords:
-    - cloudflare
-    - cloudflared
-    - reverse-tunnel
-    - tunnel
-    - helm-chart
-    - kubernetes
-    - devops
-    - networking
-    - zero-trust
-    - proxy
-    - vpn
-    maintainers:
-    - email: f@lex.la
-      name: Aleksei Sviridkin
-      url: https://me.lex.la
-    name: cloudflare-tunnel
-    sources:
-    - https://github.com/lexfrei/charts/
-    - https://github.com/cloudflare/cloudflared/
-    type: application
-    urls:
-    - https://github.com/lexfrei/charts/releases/download/cloudflare-tunnel-0.6.0/cloudflare-tunnel-0.6.0.tgz
-    version: 0.6.0
-  - annotations:
-      artifacthub.io/category: networking
-      artifacthub.io/changes: |
-        - bump cloudflared version to 2025.9.0
-      artifacthub.io/license: BSD-3-Clause
-      artifacthub.io/links: |
-        - name: Chart Repository
-          url: https://github.com/lexfrei/charts/
-        - name: Cloudflare Cloudflared
-          url: https://github.com/cloudflare/cloudflared/
-    apiVersion: v2
-    appVersion: 2025.9.0
-    created: "2025-09-20T09:19:59.205825718Z"
-    description: Creation of a cloudflared deployment - a reverse tunnel for an environment
-    digest: 7572e21a77da3c494d206e61fe4c31743b65849dbfc67f047e551e80add0491a
-    home: https://github.com/lexfrei/charts/
-    icon: https://avatars.githubusercontent.com/u/314135
-    keywords:
-    - cloudflare
-    - cloudflared
-    - reverse-tunnel
-    - tunnel
-    - helm-chart
-    - kubernetes
-    - devops
-    - networking
-    - zero-trust
-    - proxy
-    - vpn
-    maintainers:
-    - email: f@lex.la
-      name: Aleksei Sviridkin
-      url: https://me.lex.la
-    name: cloudflare-tunnel
-    sources:
-    - https://github.com/lexfrei/charts/
-    - https://github.com/cloudflare/cloudflared/
-    type: application
-    urls:
-    - https://github.com/lexfrei/charts/releases/download/cloudflare-tunnel-0.5.14/cloudflare-tunnel-0.5.14.tgz
-    version: 0.5.14
-  - annotations:
-      artifacthub.io/category: networking
-      artifacthub.io/changes: |
-        - bump cloudflared version to 2025.8.1
-      artifacthub.io/license: BSD-3-Clause
-      artifacthub.io/links: |
-        - name: Chart Repository
-          url: https://github.com/lexfrei/charts/
-        - name: Cloudflare Cloudflared
-          url: https://github.com/cloudflare/cloudflared/
-    apiVersion: v2
-    appVersion: 2025.8.1
-    created: "2025-09-15T21:10:43.020330858Z"
-    description: Creation of a cloudflared deployment - a reverse tunnel for an environment
-    digest: e45d2025e04f9d2df7e36639757c99d7dc79f85ac6d5f9cff7d966d4b7976daf
-    home: https://github.com/lexfrei/charts/
-    icon: https://avatars.githubusercontent.com/u/314135
-    keywords:
-    - cloudflare
-    - cloudflared
-    - reverse-tunnel
-    - tunnel
-    - helm-chart
-    - kubernetes
-    - devops
-    - networking
-    - zero-trust
-    - proxy
-    - vpn
-    maintainers:
-    - email: f@lex.la
-      name: Aleksei Sviridkin
-      url: https://me.lex.la
-    name: cloudflare-tunnel
-    sources:
-    - https://github.com/lexfrei/charts/
-    - https://github.com/cloudflare/cloudflared/
-    type: application
-    urls:
-    - https://github.com/lexfrei/charts/releases/download/cloudflare-tunnel-0.5.13/cloudflare-tunnel-0.5.13.tgz
-    version: 0.5.13
-  - annotations:
-      artifacthub.io/category: networking
-      artifacthub.io/changes: |
-        - bump cloudflared version to 2025.8.0
-      artifacthub.io/license: BSD-3-Clause
-      artifacthub.io/links: |
-        - name: Chart Repository
-          url: https://github.com/lexfrei/charts/
-        - name: Cloudflare Cloudflared
-          url: https://github.com/cloudflare/cloudflared/
-    apiVersion: v2
-    appVersion: 2025.8.0
-    created: "2025-09-15T19:37:42.405281346Z"
-    description: Creation of a cloudflared deployment - a reverse tunnel for an environment
-    digest: 486391baf139084799981f0f5614ac8ac14ed1e42672cb7da797fd8b9701404f
-    home: https://github.com/lexfrei/charts/
-    icon: https://avatars.githubusercontent.com/u/314135
-    keywords:
-    - cloudflare
-    - cloudflared
-    - reverse-tunnel
-    - tunnel
-    - helm-chart
-    - kubernetes
-    - devops
-    - networking
-    - zero-trust
-    - proxy
-    - vpn
-    maintainers:
-    - email: f@lex.la
-      name: Aleksei Sviridkin
-      url: https://me.lex.la
-    name: cloudflare-tunnel
-    sources:
-    - https://github.com/lexfrei/charts/
-    - https://github.com/cloudflare/cloudflared/
-    type: application
-    urls:
-    - https://github.com/lexfrei/charts/releases/download/cloudflare-tunnel-0.5.12/cloudflare-tunnel-0.5.12.tgz
-    version: 0.5.12
-  - annotations:
-      artifacthub.io/category: networking
-      artifacthub.io/changes: |
-        - bump cloudflared version to 2025.7.0
-      artifacthub.io/license: BSD-3-Clause
-      artifacthub.io/links: |
-        - name: Chart Repository
-          url: https://github.com/lexfrei/charts/
-        - name: Cloudflare Cloudflared
-          url: https://github.com/cloudflare/cloudflared/
-    apiVersion: v2
-    appVersion: 2025.7.0
-    created: "2025-07-06T04:58:32.627415941Z"
-    description: Creation of a cloudflared deployment - a reverse tunnel for an environment
-    digest: 933d6197283c6046d015012cbf8b492a44b73958bdf46484473a273a3f12eb5b
-    home: https://github.com/lexfrei/charts/
-    icon: https://avatars.githubusercontent.com/u/314135
-    keywords:
-    - cloudflare
-    - cloudflared
-    - reverse-tunnel
-    - tunnel
-    - helm-chart
-    - kubernetes
-    - devops
-    - networking
-    - zero-trust
-    - proxy
-    - vpn
-    maintainers:
-    - email: f@lex.la
-      name: Aleksei Sviridkin
-      url: https://me.lex.la
-    name: cloudflare-tunnel
-    sources:
-    - https://github.com/lexfrei/charts/
-    - https://github.com/cloudflare/cloudflared/
-    type: application
-    urls:
-    - https://github.com/lexfrei/charts/releases/download/cloudflare-tunnel-0.5.11/cloudflare-tunnel-0.5.11.tgz
-    version: 0.5.11
-  - annotations:
-      artifacthub.io/category: networking
-      artifacthub.io/changes: |
-        - bump cloudflared version to 2025.5.0
-      artifacthub.io/license: BSD-3-Clause
-      artifacthub.io/links: |
-        - name: Chart Repository
-          url: https://github.com/lexfrei/charts/
-        - name: Cloudflare Cloudflared
-          url: https://github.com/cloudflare/cloudflared/
-    apiVersion: v2
-    appVersion: 2025.5.0
-    created: "2025-05-16T11:35:40.504103594Z"
-    description: Creation of a cloudflared deployment - a reverse tunnel for an environment
-    digest: c956df4a8c505335d1a951138350538de6d0a15a59ac21a913ae1c8b0db61e8e
-    home: https://github.com/lexfrei/charts/
-    icon: https://avatars.githubusercontent.com/u/314135
-    keywords:
-    - cloudflare
-    - cloudflared
-    - reverse-tunnel
-    - tunnel
-    - helm-chart
-    - kubernetes
-    - devops
-    - networking
-    - zero-trust
-    - proxy
-    - vpn
-    maintainers:
-    - email: f@lex.la
-      name: Aleksei Sviridkin
-      url: https://me.lex.la
-    name: cloudflare-tunnel
-    sources:
-    - https://github.com/lexfrei/charts/
-    - https://github.com/cloudflare/cloudflared/
-    type: application
-    urls:
-    - https://github.com/lexfrei/charts/releases/download/cloudflare-tunnel-0.5.10/cloudflare-tunnel-0.5.10.tgz
-    version: 0.5.10
-  - annotations:
-      artifacthub.io/category: networking
-      artifacthub.io/changes: |
-        - bump cloudflared version to 2025.4.2
-      artifacthub.io/license: BSD-3-Clause
-      artifacthub.io/links: |
-        - name: Chart Repository
-          url: https://github.com/lexfrei/charts/
-        - name: Cloudflare Cloudflared
-          url: https://github.com/cloudflare/cloudflared/
-    apiVersion: v2
-    appVersion: 2025.4.2
-    created: "2025-05-01T11:09:41.383909931Z"
-    description: Creation of a cloudflared deployment - a reverse tunnel for an environment
-    digest: 1b6b9e8156a04ed96b040d3eb8721b58e42e473185f00088d2fde3d494d7cbff
-    home: https://github.com/lexfrei/charts/
-    icon: https://avatars.githubusercontent.com/u/314135
-    keywords:
-    - cloudflare
-    - cloudflared
-    - reverse-tunnel
-    - tunnel
-    - helm-chart
-    - kubernetes
-    - devops
-    - networking
-    - zero-trust
-    - proxy
-    - vpn
-    maintainers:
-    - email: f@lex.la
-      name: Aleksei Sviridkin
-      url: https://me.lex.la
-    name: cloudflare-tunnel
-    sources:
-    - https://github.com/lexfrei/charts/
-    - https://github.com/cloudflare/cloudflared/
-    type: application
-    urls:
-    - https://github.com/lexfrei/charts/releases/download/cloudflare-tunnel-0.5.9/cloudflare-tunnel-0.5.9.tgz
-    version: 0.5.9
-  - annotations:
-      artifacthub.io/category: networking
-      artifacthub.io/changes: |
-        - bump cloudflared version to 2025.4.0
-      artifacthub.io/license: BSD-3-Clause
-      artifacthub.io/links: |
-        - name: Chart Repository
-          url: https://github.com/lexfrei/charts/
-        - name: Cloudflare Cloudflared
-          url: https://github.com/cloudflare/cloudflared/
-    apiVersion: v2
-    appVersion: 2025.4.0
-    created: "2025-04-03T13:12:59.440486926Z"
-    description: Creation of a cloudflared deployment - a reverse tunnel for an environment
-    digest: 05ae625a4c5059a7d115efa8b2af042ce87e589456f8c16698cb615d96c128e4
-    home: https://github.com/lexfrei/charts/
-    icon: https://avatars.githubusercontent.com/u/314135
-    keywords:
-    - cloudflare
-    - cloudflared
-    - reverse-tunnel
-    - tunnel
-    - helm-chart
-    - kubernetes
-    - devops
-    - networking
-    - zero-trust
-    - proxy
-    - vpn
-    maintainers:
-    - email: f@lex.la
-      name: Aleksei Sviridkin
-      url: https://me.lex.la
-    name: cloudflare-tunnel
-    sources:
-    - https://github.com/lexfrei/charts/
-    - https://github.com/cloudflare/cloudflared/
-    type: application
-    urls:
-    - https://github.com/lexfrei/charts/releases/download/cloudflare-tunnel-0.5.8/cloudflare-tunnel-0.5.8.tgz
-    version: 0.5.8
-  - annotations:
-      artifacthub.io/category: networking
-      artifacthub.io/changes: |
-        - bump cloudflared version to 2025.2.1
-      artifacthub.io/license: BSD-3-Clause
-      artifacthub.io/links: |
-        - name: Chart Repository
-          url: https://github.com/lexfrei/charts/
-        - name: Cloudflare Cloudflared
-          url: https://github.com/cloudflare/cloudflared/
-    apiVersion: v2
-    appVersion: 2025.2.1
-    created: "2025-03-01T12:04:10.992025149Z"
-    description: Creation of a cloudflared deployment - a reverse tunnel for an environment
-    digest: 1b723c0850c59f47bc766e5025b5f4fe8016a16fd2f95a014591ab81a7efb8bf
-    home: https://github.com/lexfrei/charts/
-    icon: https://avatars.githubusercontent.com/u/314135
-    keywords:
-    - cloudflare
-    - cloudflared
-    - reverse-tunnel
-    - tunnel
-    - helm-chart
-    - kubernetes
-    - devops
-    - networking
-    - zero-trust
-    - proxy
-    - vpn
-    maintainers:
-    - email: f@lex.la
-      name: Aleksei Sviridkin
-      url: https://me.lex.la
-    name: cloudflare-tunnel
-    sources:
-    - https://github.com/lexfrei/charts/
-    - https://github.com/cloudflare/cloudflared/
-    type: application
-    urls:
-    - https://github.com/lexfrei/charts/releases/download/cloudflare-tunnel-0.5.7/cloudflare-tunnel-0.5.7.tgz
-    version: 0.5.7
-  - annotations:
-      artifacthub.io/category: networking
-      artifacthub.io/changes: |
-        - kind: fixed
-          description: Fix image tag
-      artifacthub.io/license: BSD-3-Clause
-      artifacthub.io/links: |
-        - name: Chart Repository
-          url: https://github.com/lexfrei/charts/
-        - name: Cloudflare Cloudflared
-          url: https://github.com/cloudflare/cloudflared/
-    apiVersion: v2
-    appVersion: 2025.2.0
-    created: "2025-02-16T16:47:45.10288412Z"
-    description: Creation of a cloudflared deployment - a reverse tunnel for an environment
-    digest: 75342b55a8fa640016a92061443bd9768d23ecf65a7a53bee4e671b8b48af9de
-    home: https://github.com/lexfrei/charts/
-    icon: https://avatars.githubusercontent.com/u/314135
-    keywords:
-    - cloudflare
-    - cloudflared
-    - reverse-tunnel
-    - tunnel
-    - helm-chart
-    - kubernetes
-    - devops
-    - networking
-    - zero-trust
-    - proxy
-    - vpn
-    maintainers:
-    - email: f@lex.la
-      name: Aleksei Sviridkin
-      url: https://me.lex.la
-    name: cloudflare-tunnel
-    sources:
-    - https://github.com/lexfrei/charts/
-    - https://github.com/cloudflare/cloudflared/
-    type: application
-    urls:
-    - https://github.com/lexfrei/charts/releases/download/cloudflare-tunnel-0.5.6/cloudflare-tunnel-0.5.6.tgz
-    version: 0.5.6
-  - annotations:
-      artifacthub.io/category: networking
-      artifacthub.io/changes: |
-        - kind: fixed
-          description: Fix image tag
-      artifacthub.io/license: BSD-3-Clause
-      artifacthub.io/links: |
-        - name: Chart Repository
-          url: https://github.com/lexfrei/charts/
-        - name: Cloudflare Cloudflared
-          url: https://github.com/cloudflare/cloudflared/
-    apiVersion: v2
-    appVersion: 2025.2.0
-    created: "2025-02-16T02:26:25.843731689Z"
-    description: Creation of a cloudflared deployment - a reverse tunnel for an environment
-    digest: 5bdec392ecfbb58befa599efe726bba528c22f8e1a86d94385bfda5e4193a734
-    home: https://github.com/lexfrei/charts/
-    icon: https://avatars.githubusercontent.com/u/314135
-    keywords:
-    - cloudflare
-    - cloudflared
-    - reverse-tunnel
-    - tunnel
-    - helm-chart
-    - kubernetes
-    - devops
-    - networking
-    - zero-trust
-    - proxy
-    - vpn
-    maintainers:
-    - email: f@lex.la
-      name: Aleksei Sviridkin
-      url: https://me.lex.la
-    name: cloudflare-tunnel
-    sources:
-    - https://github.com/lexfrei/charts/
-    - https://github.com/cloudflare/cloudflared/
-    type: application
-    urls:
-    - https://github.com/lexfrei/charts/releases/download/cloudflare-tunnel-0.5.5/cloudflare-tunnel-0.5.5.tgz
-    version: 0.5.5
-  - annotations:
-      artifacthub.io/category: networking
-      artifacthub.io/changes: |
         - kind: fix
           description: Fix image tag
       artifacthub.io/license: BSD-3-Clause
@@ -694,7 +14,7 @@ entries:
           url: https://github.com/cloudflare/cloudflared/
     apiVersion: v2
     appVersion: 2025.2.0
-    created: "2025-02-14T01:55:05.901819275Z"
+    created: "2025-09-21T16:11:39.247367598Z"
     description: Creation of a cloudflared deployment - a reverse tunnel for an environment
     digest: 688657d27400e56d3f07f0fe893359431ca9d229e94c795ff0cc8be13bc0da1e
     home: https://github.com/lexfrei/charts/
@@ -726,44 +46,10 @@ entries:
   - annotations:
       artifacthub.io/changes: |
         - kind: changed
-          description: Bump app version to 2025.2.0
-    apiVersion: v2
-    appVersion: 2025.2.10
-    created: "2025-02-10T14:44:57.447850406Z"
-    description: Creation of a cloudflared deployment - a reverse tunnel for an environment
-    digest: 6c207febb25c3841c4d2f35056d4ba71334081ad229ccb7a2593e99ec5aba8da
-    icon: https://avatars.githubusercontent.com/u/314135
-    keywords:
-    - cloudflare
-    - cloudflared
-    - reverse-tunnel
-    - tunnel
-    - helm-chart
-    - kubernetes
-    - devops
-    - networking
-    - zero-trust
-    - proxy
-    - vpn
-    maintainers:
-    - email: f@lex.la
-      name: Aleksei Sviridkin
-      url: https://me.lex.la
-    name: cloudflare-tunnel
-    sources:
-    - https://github.com/lexfrei/charts/
-    - https://github.com/cloudflare/cloudflared/
-    type: application
-    urls:
-    - https://lexfrei.github.io/charts/cloudflare-tunnel-0.5.3.tgz
-    version: 0.5.3
-  - annotations:
-      artifacthub.io/changes: |
-        - kind: changed
           description: Bump app version to 2025.1.1
     apiVersion: v2
     appVersion: 2025.1.1
-    created: "2025-02-03T21:34:38.066062307Z"
+    created: "2025-09-21T16:11:39.246929947Z"
     description: Creation of a cloudflared deployment - a reverse tunnel for an environment
     digest: 529f94aa22fb202261425baf6a939affaf5362b8775509de29ba21198f8b52c5
     icon: https://avatars.githubusercontent.com/u/314135
@@ -797,7 +83,7 @@ entries:
           description: Bump app version to 2025.1.1
     apiVersion: v2
     appVersion: 2025.1.1
-    created: "2025-02-03T21:13:21.090439198Z"
+    created: "2025-09-21T16:11:39.246551626Z"
     description: Creation of a cloudflared deployment - a reverse tunnel for an environment
     digest: e3872d23fb33816b0bb5a1073514ee7405ca0b9c697ec9ebd4870018fbd71825
     icon: https://avatars.githubusercontent.com/u/314135
@@ -828,10 +114,43 @@ entries:
   - annotations:
       artifacthub.io/changes: |
         - kind: changed
+          description: Bump app version to 2025.1.0
+    apiVersion: v2
+    appVersion: 2025.1.0
+    created: "2025-09-21T16:11:39.247739557Z"
+    description: Creation of a cloudflared deployment - a reverse tunnel for an environment
+    digest: d150d4dbae84f89901225ba2c91d6aeb07a4a0a7ac695077f66778a0f7f86b57
+    icon: https://developers.cloudflare.com/cloudflare-one/favicon-32x32.png
+    keywords:
+    - cloudflare
+    - cloudflared
+    - reverse-tunnel
+    - tunnel
+    - helm-chart
+    - kubernetes
+    - devops
+    - networking
+    - zero-trust
+    - proxy
+    - vpn
+    maintainers:
+    - email: f@lex.la
+      name: Aleksei Sviridkin
+    name: cloudflare-tunnel
+    sources:
+    - https://github.com/lexfrei/charts/
+    - https://github.com/cloudflare/cloudflared/
+    type: application
+    urls:
+    - https://lexfrei.github.io/charts/cloudflare-tunnel-0.5.tgz
+    version: "0.5"
+  - annotations:
+      artifacthub.io/changes: |
+        - kind: changed
           description: Bump app version to 2024.12.1
     apiVersion: v2
     appVersion: 2024.12.1
-    created: "2025-01-07T23:14:15.773500625Z"
+    created: "2025-09-21T16:11:39.246147858Z"
     description: Creation of a cloudflared deployment - a reverse tunnel for an environment
     digest: 3d43893f7ffc0653f3144491248520cf224a97da25dae1134362b67e548d04ea
     icon: https://developers.cloudflare.com/cloudflare-one/favicon-32x32.png
@@ -864,7 +183,7 @@ entries:
           description: Bump app version to 2024.11.1
     apiVersion: v2
     appVersion: 2024.12.1
-    created: "2024-12-10T18:24:00.748174612Z"
+    created: "2025-09-21T16:11:39.245779286Z"
     description: Creation of a cloudflared deployment - a reverse tunnel for an environment
     digest: 0cbaf151e89612f0063b455a31c880d4de67b40772c0a498e2dd50ef3cc5d333
     icon: https://developers.cloudflare.com/cloudflare-one/favicon-32x32.png
@@ -882,7 +201,7 @@ entries:
           description: Bump app version to 2024.4.0
     apiVersion: v2
     appVersion: 2024.4.0
-    created: "2024-05-08T00:17:01.561974039Z"
+    created: "2025-09-21T16:11:39.245418098Z"
     description: Creation of a cloudflared deployment - a reverse tunnel for an environment
     digest: a7fa1bebfc74bb144b6b98d1beef7da785e7bdbe93efdc6789d0aaf1e86beb8c
     icon: https://developers.cloudflare.com/cloudflare-one/favicon-32x32.png
@@ -896,7 +215,7 @@ entries:
     version: 0.4.2
   - apiVersion: v2
     appVersion: 2024.3.0
-    created: "2024-04-19T09:56:53.516074251Z"
+    created: "2025-09-21T16:11:39.244863667Z"
     description: Creation of a cloudflared deployment - a reverse tunnel for an environment
     digest: 402a9a2327afd53ae18f6d233c19fd6322de4fcd55f6c5e4d714fbab240e49d3
     icon: https://developers.cloudflare.com/cloudflare-one/favicon-32x32.png
@@ -907,7 +226,7 @@ entries:
     version: 0.4.1
   - apiVersion: v2
     appVersion: 2023.5.1
-    created: "2024-03-22T09:13:01.318407069Z"
+    created: "2025-09-21T16:11:39.244336187Z"
     description: Creation of a cloudflared deployment - a reverse tunnel for an environment
     digest: c3ed151a2e64f49a83caea174de0a763cc97ad5a6b096f0b6d6dd5d030f8852e
     icon: https://developers.cloudflare.com/cloudflare-one/favicon-32x32.png
@@ -919,17 +238,7 @@ entries:
   frame:
   - apiVersion: v2
     appVersion: 0.0.0
-    created: "2025-02-16T02:26:25.948300472Z"
-    description: A Helm chart for Kubernetes
-    digest: a92ab2d9618ffe317987505ac53ca9f12d2804dfae685e0f96808d823bc1cb4c
-    name: frame
-    type: application
-    urls:
-    - https://github.com/lexfrei/charts/releases/download/frame-0.3.1/frame-0.3.1.tgz
-    version: 0.3.1
-  - apiVersion: v2
-    appVersion: 0.0.0
-    created: "2025-02-14T01:55:05.902359395Z"
+    created: "2025-09-21T16:11:39.249964594Z"
     description: A Helm chart for Kubernetes
     digest: 2f21d34a52467052c921ed39ed11ab3b28eb8fc75e55d9cca62c637ee365a650
     name: frame
@@ -939,7 +248,7 @@ entries:
     version: 0.3.0
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2024-04-23T21:18:55.100812489Z"
+    created: "2025-09-21T16:11:39.249469976Z"
     description: A Helm chart for Kubernetes
     digest: 51581cbf6b4db5555f1597cadbd55c0b216989a7b35719cc46096182ea5d7e6b
     name: frame
@@ -949,7 +258,7 @@ entries:
     version: 0.2.1
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2024-04-23T21:13:09.75391027Z"
+    created: "2025-09-21T16:11:39.249139676Z"
     description: A Helm chart for Kubernetes
     digest: 7b2e669bc12f1591ab7cf1a27b8740f5ccc76202d42db07e9030df418acf6aeb
     name: frame
@@ -959,7 +268,7 @@ entries:
     version: 0.2.0
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2024-04-23T18:12:48.659790716Z"
+    created: "2025-09-21T16:11:39.248765573Z"
     description: A Helm chart for Kubernetes
     digest: f8d5f93055814655505a9b426dfb1a7db36b1b0c34c034f3c304008ddc168f9c
     name: frame
@@ -969,7 +278,7 @@ entries:
     version: 0.1.3
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2024-04-23T17:17:32.311493508Z"
+    created: "2025-09-21T16:11:39.248439471Z"
     description: A Helm chart for Kubernetes
     digest: 2528cf0ba6d68416a4df1141ba05f7106bca8dd0d6932d75ffaf44daefed708a
     name: frame
@@ -979,7 +288,7 @@ entries:
     version: 0.1.2
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2024-04-23T16:39:35.711145787Z"
+    created: "2025-09-21T16:11:39.248082631Z"
     description: A Helm chart for Kubernetes
     digest: f721b9f2701c6220606dc832cb3320ad855515d2bf6b145f833253cb65be2b8a
     name: frame
@@ -990,7 +299,7 @@ entries:
   me-site:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2025-02-14T01:55:05.902727052Z"
+    created: "2025-09-21T16:11:39.251211583Z"
     description: A Helm chart for the Me-Site application
     digest: 18125ef111575690e71769a12137c7e88a706f20ed0fecd9b96cc12aba0dd300
     name: me-site
@@ -1000,7 +309,7 @@ entries:
     version: 0.3.0
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-04-23T21:18:55.101078615Z"
+    created: "2025-09-21T16:11:39.25092258Z"
     description: A Helm chart for the Me-Site application
     digest: ddbefaa6b91c2d6dd8c864f20a7cd1006c1011b8f1a5502f825ec16b017c5b0d
     name: me-site
@@ -1010,7 +319,7 @@ entries:
     version: 0.2.0
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2024-03-25T11:24:26.912562312Z"
+    created: "2025-09-21T16:11:39.250457931Z"
     description: A Helm chart for the Me-Site application
     digest: 2017b6e6308b8be4e284168039865ea35f37a6289df9b3a941b3485e875a86a8
     name: me-site
@@ -1021,7 +330,7 @@ entries:
   prometheus-ipmi-exporter:
   - apiVersion: v2
     appVersion: 1.6.1
-    created: "2025-02-14T01:55:05.903295705Z"
+    created: "2025-09-21T16:11:39.251601655Z"
     description: This is an IPMI exporter for Prometheus.
     digest: 10e3aad9e22a15ee88bcde9bb67845272e7776bb6c25a7d900632aebe3665a0b
     name: prometheus-ipmi-exporter
@@ -1043,7 +352,7 @@ entries:
           url: https://transmissionbt.com/
     apiVersion: v2
     appVersion: 4.0.6
-    created: "2025-09-21T16:09:59.967957203Z"
+    created: "2025-09-21T16:11:39.25211536Z"
     description: Transmission BitTorrent client Helm chart for Kubernetes
     digest: aed827f53c508430e3e70aeddbd7d0973cca16f1107191d174b52284550699ac
     home: https://github.com/lexfrei/charts/
@@ -1067,6 +376,6 @@ entries:
     - https://github.com/linuxserver/docker-transmission
     type: application
     urls:
-    - transmission-0.1.0.tgz
+    - https://lexfrei.github.io/charts/transmission-0.1.0.tgz
     version: 0.1.0
-generated: "2025-09-21T16:09:59.968066237Z"
+generated: "2025-09-21T16:11:39.243636593Z"
