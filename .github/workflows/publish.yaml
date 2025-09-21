@@ -74,17 +74,45 @@ jobs:
             echo "Processing $release_tag"
             
             # Extract changelog from Chart.yaml
-            changelog=$(yq eval '.annotations."artifacthub.io/changes"' "$chart_file")
+            changelog_raw=$(yq eval '.annotations."artifacthub.io/changes"' "$chart_file")
             
             # Prepare release body
             release_body="## Chart: $chart_name v$chart_version"
             
-            if [ "$changelog" != "null" ] && [ -n "$changelog" ]; then
+            if [ "$changelog_raw" != "null" ] && [ -n "$changelog_raw" ]; then
               release_body="${release_body}
 
 ### Changelog
 
-${changelog}"
+"
+              # Parse changelog and format with emojis
+              echo "$changelog_raw" | yq eval '.[] | .kind + "|" + .description' - | while IFS='|' read -r kind description; do
+                case "$kind" in
+                  "added")
+                    emoji="✨"
+                    ;;
+                  "changed")
+                    emoji="🔄"
+                    ;;
+                  "deprecated")
+                    emoji="⚠️"
+                    ;;
+                  "removed")
+                    emoji="🗑️"
+                    ;;
+                  "fixed")
+                    emoji="🐛"
+                    ;;
+                  "security")
+                    emoji="🔒"
+                    ;;
+                  *)
+                    emoji="📝"
+                    ;;
+                esac
+                release_body="${release_body}- ${emoji} ${description}
+"
+              done
             fi
             
             # Get current release info
