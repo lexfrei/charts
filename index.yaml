@@ -5,6 +5,50 @@ entries:
       artifacthub.io/category: networking
       artifacthub.io/changes: |
         - kind: added
+          description: Add DaemonSet deployment mode as alternative to Deployment
+        - kind: changed
+          description: Support for one tunnel pod per node to prevent port exhaustion
+      artifacthub.io/license: BSD-3-Clause
+      artifacthub.io/links: |
+        - name: Chart Repository
+          url: https://github.com/lexfrei/charts/
+        - name: Cloudflare Cloudflared
+          url: https://github.com/cloudflare/cloudflared/
+    apiVersion: v2
+    appVersion: 2025.9.0
+    created: "2025-09-21T11:52:06.664454635Z"
+    description: Creation of a cloudflared deployment - a reverse tunnel for an environment
+    digest: 20b54b281abd4a44235fae57004383003f8b86f58b3d9d460657d93a0ff2e636
+    home: https://github.com/lexfrei/charts/
+    icon: https://avatars.githubusercontent.com/u/314135
+    keywords:
+    - cloudflare
+    - cloudflared
+    - reverse-tunnel
+    - tunnel
+    - helm-chart
+    - kubernetes
+    - devops
+    - networking
+    - zero-trust
+    - proxy
+    - vpn
+    maintainers:
+    - email: f@lex.la
+      name: lexfrei
+      url: https://github.com/lexfrei
+    name: cloudflare-tunnel
+    sources:
+    - https://github.com/lexfrei/charts/
+    - https://github.com/cloudflare/cloudflared/
+    type: application
+    urls:
+    - https://github.com/lexfrei/charts/releases/download/cloudflare-tunnel-0.9.0/cloudflare-tunnel-0.9.0.tgz
+    version: 0.9.0
+  - annotations:
+      artifacthub.io/category: networking
+      artifacthub.io/changes: |
+        - kind: added
           description: Add originRequest configuration for upstream connection tuning
         - kind: added
           description: Add customizable liveness probe parameters
@@ -943,4 +987,4 @@ entries:
     urls:
     - https://lexfrei.github.io/charts/prometheus-ipmi-exporter-0.1.0.tgz
     version: 0.1.0
-generated: "2025-09-21T11:18:18.396316896Z"
+generated: "2025-09-21T11:52:06.664674577Z"
