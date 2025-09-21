@@ -96,3 +96,26 @@ serviceMonitor:
   metricRelabelings: []
   # -- Relabelings for the ServiceMonitor
   relabelings: []
+
+# -- Pod Disruption Budget configuration
+podDisruptionBudget:
+  # -- Enable Pod Disruption Budget
+  enabled: false
+  # -- Minimum number of available pods (conflicts with maxUnavailable)
+  minAvailable: 1
+  # -- Maximum number of unavailable pods (conflicts with minAvailable)
+  # maxUnavailable: 1
+
+# -- Topology spread constraints for pod distribution across zones/nodes
+# See https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
+topologySpreadConstraints: []
+  # - maxSkew: 1
+  #   topologyKey: topology.kubernetes.io/zone
+  #   whenUnsatisfiable: DoNotSchedule
+  #   labelSelector:
+  #     matchLabels:
+  #       app.kubernetes.io/name: cloudflare-tunnel
+
+# -- Priority class name for pod scheduling priority
+# See https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/
+priorityClassName: ""

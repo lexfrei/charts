@@ -1,0 +1,104 @@
+suite: test pod disruption budget
+templates:
+  - pdb.yaml
+tests:
+  - it: should not create PDB by default
+    set:
+      replicaCount: 2
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should not create PDB when disabled explicitly
+    set:
+      replicaCount: 2
+      podDisruptionBudget:
+        enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should create PDB when enabled
+    set:
+      replicaCount: 2
+      podDisruptionBudget:
+        enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: PodDisruptionBudget
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-cloudflare-tunnel
+
+  - it: should set minAvailable when specified
+    set:
+      replicaCount: 3
+      podDisruptionBudget:
+        enabled: true
+        minAvailable: 2
+    asserts:
+      - equal:
+          path: spec.minAvailable
+          value: 2
+
+  - it: should set maxUnavailable when specified
+    set:
+      replicaCount: 3
+      podDisruptionBudget:
+        enabled: true
+        maxUnavailable: 1
+    asserts:
+      - equal:
+          path: spec.maxUnavailable
+          value: 1
+
+  - it: should use correct selector labels
+    set:
+      replicaCount: 2
+      podDisruptionBudget:
+        enabled: true
+    asserts:
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app.kubernetes.io/name: cloudflare-tunnel
+            app.kubernetes.io/instance: RELEASE-NAME
+
+  - it: should not create PDB when replicas is 1
+    set:
+      replicaCount: 1
+      podDisruptionBudget:
+        enabled: true
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should set default minAvailable to 1 when not specified
+    set:
+      replicaCount: 2
+      podDisruptionBudget:
+        enabled: true
+    asserts:
+      - equal:
+          path: spec.minAvailable
+          value: 1
+
+  - it: should include standard labels
+    set:
+      replicaCount: 2
+      podDisruptionBudget:
+        enabled: true
+    asserts:
+      - equal:
+          path: metadata.labels["app.kubernetes.io/name"]
+          value: cloudflare-tunnel
+      - equal:
+          path: metadata.labels["app.kubernetes.io/instance"]
+          value: RELEASE-NAME
+      - isNotNull:
+          path: metadata.labels["app.kubernetes.io/version"]
+      - equal:
+          path: metadata.labels["app.kubernetes.io/managed-by"]
+          value: Helm
