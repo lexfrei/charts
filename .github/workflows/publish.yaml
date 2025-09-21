@@ -61,20 +61,22 @@ jobs:
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CR_RELEASE_NAME_TEMPLATE: "{{ .Name }}-{{ .Version }}"
-          CR_SIGN: true
-          CR_KEY: ${{ env.GPG_KEY_ID }}
-          CR_KEYRING: ${{ runner.temp }}/.gnupg/secring.gpg
 
-      - name: Sign charts manually (if chart-releaser doesn't sign)
+      - name: Sign charts manually
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          # Find all packaged charts
+          # Find all packaged charts and sign them
           for chart_package in .cr-release-packages/*.tgz; do
-            if [ ! -f "${chart_package}.prov" ]; then
+            if [ -f "$chart_package" ] && [ ! -f "${chart_package}.prov" ]; then
               echo "Signing $chart_package"
-              helm package --sign --key "${{ env.GPG_KEY_ID }}" --keyring ~/.gnupg/pubring.kbx "$(dirname "$chart_package")" 
-            else
+              # Use gpg to create detached signature
+              echo "$GPG_PASSPHRASE" | gpg --batch --yes --passphrase-fd 0 \
+                --local-user "$GPG_KEY_ID" \
+                --armor --detach-sign "$chart_package"
+              # Rename .asc to .prov
+              mv "${chart_package}.asc" "${chart_package}.prov"
+            elif [ -f "${chart_package}.prov" ]; then
               echo "Already signed: $chart_package"
             fi
           done
