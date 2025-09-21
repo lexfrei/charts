@@ -32,6 +32,11 @@ jobs:
         with:
           version: 'latest'
 
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.7.0
         with:
@@ -42,6 +47,58 @@ jobs:
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CR_RELEASE_NAME_TEMPLATE: "{{ .Name }}-{{ .Version }}"
+
+      - name: Update releases with changelog
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          #!/bin/bash
+          set -e
+          
+          # Get list of changed charts
+          changed_charts=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep 'charts/.*/Chart.yaml' | xargs -r dirname | sort -u || true)
+          
+          if [ -z "$changed_charts" ]; then
+            echo "No chart changes detected"
+            exit 0
+          fi
+          
+          for chart_dir in $changed_charts; do
+            chart_name=$(basename "$chart_dir")
+            chart_file="$chart_dir/Chart.yaml"
+            
+            # Get chart version
+            chart_version=$(yq eval '.version' "$chart_file")
+            release_tag="${chart_name}-${chart_version}"
+            
+            echo "Processing $release_tag"
+            
+            # Extract changelog from Chart.yaml
+            changelog=$(yq eval '.annotations."artifacthub.io/changes"' "$chart_file")
+            
+            # Prepare release body
+            release_body="## Chart: $chart_name v$chart_version"
+            
+            if [ "$changelog" != "null" ] && [ -n "$changelog" ]; then
+              release_body="${release_body}
+
+### Changelog
+
+${changelog}"
+            fi
+            
+            # Get current release info
+            release_info=$(gh release view "$release_tag" --json body,name,tagName 2>/dev/null || echo "")
+            
+            if [ -n "$release_info" ]; then
+              echo "Updating release $release_tag with changelog"
+              
+              # Update the release with new body
+              gh release edit "$release_tag" --notes "$release_body"
+            else
+              echo "Release $release_tag not found, skipping"
+            fi
+          done
 
       - name: Update index
         run: |
