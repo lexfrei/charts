@@ -14,7 +14,7 @@ entries:
           url: https://github.com/cloudflare/cloudflared/
     apiVersion: v2
     appVersion: 2025.9.0
-    created: "2025-09-21T19:24:18.167946778Z"
+    created: "2025-09-22T00:03:50.90449895Z"
     description: Creation of a cloudflared deployment - a reverse tunnel for an environment
     digest: 3440b7ef3e9ab216e868dfc7a90e0474e0c8d36775754b9545c1d60be7eb4b53
     home: https://github.com/lexfrei/charts/
@@ -41,7 +41,7 @@ entries:
     - https://github.com/cloudflare/cloudflared/
     type: application
     urls:
-    - cloudflare-tunnel-0.9.3.tgz
+    - https://lexfrei.github.io/charts/cloudflare-tunnel-0.9.3.tgz
     version: 0.9.3
   - annotations:
       artifacthub.io/category: networking
@@ -56,7 +56,7 @@ entries:
           url: https://github.com/cloudflare/cloudflared/
     apiVersion: v2
     appVersion: 2025.2.0
-    created: "2025-09-21T16:11:39.247367598Z"
+    created: "2025-09-22T00:03:50.903337038Z"
     description: Creation of a cloudflared deployment - a reverse tunnel for an environment
     digest: 688657d27400e56d3f07f0fe893359431ca9d229e94c795ff0cc8be13bc0da1e
     home: https://github.com/lexfrei/charts/
@@ -91,7 +91,7 @@ entries:
           description: Bump app version to 2025.1.1
     apiVersion: v2
     appVersion: 2025.1.1
-    created: "2025-09-21T16:11:39.246929947Z"
+    created: "2025-09-22T00:03:50.90292277Z"
     description: Creation of a cloudflared deployment - a reverse tunnel for an environment
     digest: 529f94aa22fb202261425baf6a939affaf5362b8775509de29ba21198f8b52c5
     icon: https://avatars.githubusercontent.com/u/314135
@@ -125,7 +125,7 @@ entries:
           description: Bump app version to 2025.1.1
     apiVersion: v2
     appVersion: 2025.1.1
-    created: "2025-09-21T16:11:39.246551626Z"
+    created: "2025-09-22T00:03:50.901475129Z"
     description: Creation of a cloudflared deployment - a reverse tunnel for an environment
     digest: e3872d23fb33816b0bb5a1073514ee7405ca0b9c697ec9ebd4870018fbd71825
     icon: https://avatars.githubusercontent.com/u/314135
@@ -159,7 +159,7 @@ entries:
           description: Bump app version to 2025.1.0
     apiVersion: v2
     appVersion: 2025.1.0
-    created: "2025-09-21T16:11:39.247739557Z"
+    created: "2025-09-22T00:03:50.903700881Z"
     description: Creation of a cloudflared deployment - a reverse tunnel for an environment
     digest: d150d4dbae84f89901225ba2c91d6aeb07a4a0a7ac695077f66778a0f7f86b57
     icon: https://developers.cloudflare.com/cloudflare-one/favicon-32x32.png
@@ -192,7 +192,7 @@ entries:
           description: Bump app version to 2024.12.1
     apiVersion: v2
     appVersion: 2024.12.1
-    created: "2025-09-21T16:11:39.246147858Z"
+    created: "2025-09-22T00:03:50.901086529Z"
     description: Creation of a cloudflared deployment - a reverse tunnel for an environment
     digest: 3d43893f7ffc0653f3144491248520cf224a97da25dae1134362b67e548d04ea
     icon: https://developers.cloudflare.com/cloudflare-one/favicon-32x32.png
@@ -225,7 +225,7 @@ entries:
           description: Bump app version to 2024.11.1
     apiVersion: v2
     appVersion: 2024.12.1
-    created: "2025-09-21T16:11:39.245779286Z"
+    created: "2025-09-22T00:03:50.900748484Z"
     description: Creation of a cloudflared deployment - a reverse tunnel for an environment
     digest: 0cbaf151e89612f0063b455a31c880d4de67b40772c0a498e2dd50ef3cc5d333
     icon: https://developers.cloudflare.com/cloudflare-one/favicon-32x32.png
@@ -243,7 +243,7 @@ entries:
           description: Bump app version to 2024.4.0
     apiVersion: v2
     appVersion: 2024.4.0
-    created: "2025-09-21T16:11:39.245418098Z"
+    created: "2025-09-22T00:03:50.900376315Z"
     description: Creation of a cloudflared deployment - a reverse tunnel for an environment
     digest: a7fa1bebfc74bb144b6b98d1beef7da785e7bdbe93efdc6789d0aaf1e86beb8c
     icon: https://developers.cloudflare.com/cloudflare-one/favicon-32x32.png
@@ -257,7 +257,7 @@ entries:
     version: 0.4.2
   - apiVersion: v2
     appVersion: 2024.3.0
-    created: "2025-09-21T16:11:39.244863667Z"
+    created: "2025-09-22T00:03:50.900031938Z"
     description: Creation of a cloudflared deployment - a reverse tunnel for an environment
     digest: 402a9a2327afd53ae18f6d233c19fd6322de4fcd55f6c5e4d714fbab240e49d3
     icon: https://developers.cloudflare.com/cloudflare-one/favicon-32x32.png
@@ -268,7 +268,7 @@ entries:
     version: 0.4.1
   - apiVersion: v2
     appVersion: 2023.5.1
-    created: "2025-09-21T16:11:39.244336187Z"
+    created: "2025-09-22T00:03:50.899739839Z"
     description: Creation of a cloudflared deployment - a reverse tunnel for an environment
     digest: c3ed151a2e64f49a83caea174de0a763cc97ad5a6b096f0b6d6dd5d030f8852e
     icon: https://developers.cloudflare.com/cloudflare-one/favicon-32x32.png
@@ -280,7 +280,7 @@ entries:
   frame:
   - apiVersion: v2
     appVersion: 0.0.0
-    created: "2025-09-21T16:11:39.249964594Z"
+    created: "2025-09-22T00:03:50.906661522Z"
     description: A Helm chart for Kubernetes
     digest: 2f21d34a52467052c921ed39ed11ab3b28eb8fc75e55d9cca62c637ee365a650
     name: frame
@@ -290,7 +290,7 @@ entries:
     version: 0.3.0
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-09-21T16:11:39.249469976Z"
+    created: "2025-09-22T00:03:50.906253416Z"
     description: A Helm chart for Kubernetes
     digest: 51581cbf6b4db5555f1597cadbd55c0b216989a7b35719cc46096182ea5d7e6b
     name: frame
@@ -300,7 +300,7 @@ entries:
     version: 0.2.1
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-09-21T16:11:39.249139676Z"
+    created: "2025-09-22T00:03:50.905911493Z"
     description: A Helm chart for Kubernetes
     digest: 7b2e669bc12f1591ab7cf1a27b8740f5ccc76202d42db07e9030df418acf6aeb
     name: frame
@@ -310,7 +310,7 @@ entries:
     version: 0.2.0
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-09-21T16:11:39.248765573Z"
+    created: "2025-09-22T00:03:50.905527532Z"
     description: A Helm chart for Kubernetes
     digest: f8d5f93055814655505a9b426dfb1a7db36b1b0c34c034f3c304008ddc168f9c
     name: frame
@@ -320,7 +320,7 @@ entries:
     version: 0.1.3
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-09-21T16:11:39.248439471Z"
+    created: "2025-09-22T00:03:50.905180871Z"
     description: A Helm chart for Kubernetes
     digest: 2528cf0ba6d68416a4df1141ba05f7106bca8dd0d6932d75ffaf44daefed708a
     name: frame
@@ -330,7 +330,7 @@ entries:
     version: 0.1.2
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-09-21T16:11:39.248082631Z"
+    created: "2025-09-22T00:03:50.904852134Z"
     description: A Helm chart for Kubernetes
     digest: f721b9f2701c6220606dc832cb3320ad855515d2bf6b145f833253cb65be2b8a
     name: frame
@@ -341,7 +341,7 @@ entries:
   me-site:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2025-09-21T16:11:39.251211583Z"
+    created: "2025-09-22T00:03:50.907396593Z"
     description: A Helm chart for the Me-Site application
     digest: 18125ef111575690e71769a12137c7e88a706f20ed0fecd9b96cc12aba0dd300
     name: me-site
@@ -351,7 +351,7 @@ entries:
     version: 0.3.0
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2025-09-21T16:11:39.25092258Z"
+    created: "2025-09-22T00:03:50.907135793Z"
     description: A Helm chart for the Me-Site application
     digest: ddbefaa6b91c2d6dd8c864f20a7cd1006c1011b8f1a5502f825ec16b017c5b0d
     name: me-site
@@ -361,7 +361,7 @@ entries:
     version: 0.2.0
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2025-09-21T16:11:39.250457931Z"
+    created: "2025-09-22T00:03:50.906882337Z"
     description: A Helm chart for the Me-Site application
     digest: 2017b6e6308b8be4e284168039865ea35f37a6289df9b3a941b3485e875a86a8
     name: me-site
@@ -372,7 +372,7 @@ entries:
   prometheus-ipmi-exporter:
   - apiVersion: v2
     appVersion: 1.6.1
-    created: "2025-09-21T16:11:39.251601655Z"
+    created: "2025-09-22T00:03:50.90780486Z"
     description: This is an IPMI exporter for Prometheus.
     digest: 10e3aad9e22a15ee88bcde9bb67845272e7776bb6c25a7d900632aebe3665a0b
     name: prometheus-ipmi-exporter
@@ -394,7 +394,7 @@ entries:
           url: https://transmissionbt.com/
     apiVersion: v2
     appVersion: 4.0.5
-    created: "2025-09-22T00:03:50.100812231Z"
+    created: "2025-09-22T00:03:50.911247521Z"
     description: Transmission BitTorrent client Helm chart for Kubernetes
     digest: b8a8abc5f4a3570a57b07e14aeff903ca9dbd9a5368e9e0a3ebeb6d9c85445ef
     home: https://github.com/lexfrei/charts/
@@ -418,7 +418,7 @@ entries:
     - https://github.com/linuxserver/docker-transmission
     type: application
     urls:
-    - transmission-0.1.2.tgz
+    - https://lexfrei.github.io/charts/transmission-0.1.2.tgz
     version: 0.1.2
   - annotations:
       artifacthub.io/category: storage
@@ -433,7 +433,7 @@ entries:
           url: https://transmissionbt.com/
     apiVersion: v2
     appVersion: 4.0.5
-    created: "2025-09-21T16:16:35.671769843Z"
+    created: "2025-09-22T00:03:50.910324819Z"
     description: Transmission BitTorrent client Helm chart for Kubernetes
     digest: 6000574436476b155fb6f20a7407bca384e0319d38afee22998426147cdae5bc
     home: https://github.com/lexfrei/charts/
@@ -457,7 +457,7 @@ entries:
     - https://github.com/linuxserver/docker-transmission
     type: application
     urls:
-    - transmission-0.1.1.tgz
+    - https://lexfrei.github.io/charts/transmission-0.1.1.tgz
     version: 0.1.1
   - annotations:
       artifacthub.io/category: storage
@@ -472,7 +472,7 @@ entries:
           url: https://transmissionbt.com/
     apiVersion: v2
     appVersion: 4.0.6
-    created: "2025-09-21T16:11:39.25211536Z"
+    created: "2025-09-22T00:03:50.909469101Z"
     description: Transmission BitTorrent client Helm chart for Kubernetes
     digest: aed827f53c508430e3e70aeddbd7d0973cca16f1107191d174b52284550699ac
     home: https://github.com/lexfrei/charts/
@@ -498,4 +498,4 @@ entries:
     urls:
     - https://lexfrei.github.io/charts/transmission-0.1.0.tgz
     version: 0.1.0
-generated: "2025-09-22T00:03:50.100846816Z"
+generated: "2025-09-22T00:03:50.899285927Z"
