@@ -92,3 +92,19 @@ jobs:
             git commit -m "chore: update changelog and documentation"
             git push
           fi
+
+      - name: Trigger tests after bot commit
+        if: steps.update.outputs.changes_made == 'true'
+        run: |
+          # Get list of changed charts from the update step
+          changed_charts=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep 'Chart.yaml
+ | sed 's|/Chart.yaml||' | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          
+          echo "Triggering tests for charts: $changed_charts"
+          
+          # Trigger the test workflow with the changed charts
+          gh workflow run test.yaml \
+            --ref ${{ github.head_ref }} \
+            --field charts="$changed_charts"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
