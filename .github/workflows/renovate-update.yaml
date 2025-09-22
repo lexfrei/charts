@@ -8,8 +8,8 @@ on:
 
 jobs:
   update-renovate-pr:
-    # Only run on Renovate PRs
-    if: startsWith(github.head_ref, 'renovate/')
+    # Only run on Renovate PRs, but not on commits from github-actions bot
+    if: startsWith(github.head_ref, 'renovate/') && github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -89,6 +89,6 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "chore: update changelog and documentation [skip ci]"
+            git commit -m "chore: update changelog and documentation"
             git push
           fi
