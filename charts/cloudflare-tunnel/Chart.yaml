@@ -17,9 +17,9 @@ name: cloudflare-tunnel
 description: Creation of a cloudflared deployment - a reverse tunnel for an environment
 type: application
 
-version: "0.9.3"
+version: "0.9.4"
 # renovate: datasource=github-releases depName=cloudflare/cloudflared
-appVersion: "2025.9.0"
+appVersion: "2025.9.1"
 
 icon: https://avatars.githubusercontent.com/u/314135
 
