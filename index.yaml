@@ -3,6 +3,48 @@ entries:
   cloudflare-tunnel:
   - annotations:
       artifacthub.io/category: networking
+      artifacthub.io/changes: |-
+        - kind: changed
+          description: Update appVersion to 2025.9.1
+      artifacthub.io/license: BSD-3-Clause
+      artifacthub.io/links: |
+        - name: Chart Repository
+          url: https://github.com/lexfrei/charts/
+        - name: Cloudflare Cloudflared
+          url: https://github.com/cloudflare/cloudflared/
+    apiVersion: v2
+    appVersion: 2025.9.1
+    created: "2025-09-22T15:04:20.178185803Z"
+    description: Creation of a cloudflared deployment - a reverse tunnel for an environment
+    digest: 34912931ebda59527ced0920a0453b0b88ce691ce277ae632bff35d56f049241
+    home: https://github.com/lexfrei/charts/
+    icon: https://avatars.githubusercontent.com/u/314135
+    keywords:
+    - cloudflare
+    - cloudflared
+    - reverse-tunnel
+    - tunnel
+    - helm-chart
+    - kubernetes
+    - devops
+    - networking
+    - zero-trust
+    - proxy
+    - vpn
+    maintainers:
+    - email: f@lex.la
+      name: lexfrei
+      url: https://github.com/lexfrei
+    name: cloudflare-tunnel
+    sources:
+    - https://github.com/lexfrei/charts/
+    - https://github.com/cloudflare/cloudflared/
+    type: application
+    urls:
+    - cloudflare-tunnel-0.9.4.tgz
+    version: 0.9.4
+  - annotations:
+      artifacthub.io/category: networking
       artifacthub.io/changes: |
         - kind: changed
           description: Update documentation to clarify usage of official Cloudflare image
@@ -498,4 +540,4 @@ entries:
     urls:
     - https://lexfrei.github.io/charts/transmission-0.1.0.tgz
     version: 0.1.0
-generated: "2025-09-22T00:07:14.108811183Z"
+generated: "2025-09-22T15:04:20.17825374Z"
