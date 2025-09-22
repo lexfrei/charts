@@ -2,29 +2,24 @@ annotations:
   artifacthub.io/category: networking
   # Valid kinds for changes: added, changed, deprecated, removed, fixed, security
   # See: https://artifacthub.io/docs/topics/annotations/helm/
-  artifacthub.io/changes: |
+  artifacthub.io/changes: |-
     - kind: changed
-      description: Update documentation to clarify usage of official Cloudflare image
+      description: Update appVersion to 2025.9.1
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
       url: https://github.com/lexfrei/charts/
     - name: Cloudflare Cloudflared
       url: https://github.com/cloudflare/cloudflared/
-
 apiVersion: v2
 name: cloudflare-tunnel
 description: Creation of a cloudflared deployment - a reverse tunnel for an environment
 type: application
-
-version: "0.9.3"
+version: "0.9.4"
 # renovate: datasource=github-releases depName=cloudflare/cloudflared
-appVersion: "2025.9.0"
-
+appVersion: "2025.9.1"
 icon: https://avatars.githubusercontent.com/u/314135
-
 home: https://github.com/lexfrei/charts/
-
 keywords:
   - cloudflare
   - cloudflared
@@ -37,12 +32,10 @@ keywords:
   - zero-trust
   - proxy
   - vpn
-
 maintainers:
   - name: lexfrei
     email: f@lex.la
     url: https://github.com/lexfrei
-
 sources:
   - https://github.com/lexfrei/charts/
   - https://github.com/cloudflare/cloudflared/
