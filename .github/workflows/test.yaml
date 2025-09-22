@@ -40,14 +40,17 @@ jobs:
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" && -n "${{ inputs.charts }}" ]]; then
             # Use manually provided charts list (parse JSON string)
-            charts_input="${{ inputs.charts }}"
-            # Validate JSON and use as-is since it should already be a JSON array
-            if echo "$charts_input" | jq . >/dev/null 2>&1; then
-              echo "charts=$charts_input" >> "$GITHUB_OUTPUT"
-              echo "Using manually provided charts: $charts_input"
+            charts_input='${{ inputs.charts }}'
+            echo "Raw input received: $charts_input"
+
+            # Validate JSON and normalize it
+            if charts_json=$(echo "$charts_input" | jq -c '.' 2>/dev/null); then
+              echo "charts=$charts_json" >> "$GITHUB_OUTPUT"
+              echo "Using manually provided charts: $charts_json"
             else
               echo "charts=[]" >> "$GITHUB_OUTPUT"
               echo "Invalid JSON provided in charts input: $charts_input"
+              echo "Setting charts to empty array"
             fi
           else
             # Auto-detect changed charts
