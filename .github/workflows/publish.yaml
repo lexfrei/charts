@@ -59,7 +59,15 @@ jobs:
           set -e
           
           # Get list of changed charts
-          changed_charts=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep 'charts/.*/Chart.yaml' | xargs -r dirname | sort -u || true)
+          # For workflow_dispatch, use the latest tag; for push events, use the before commit
+          if [ -n "${{ github.event.before }}" ]; then
+            base_ref="${{ github.event.before }}"
+          else
+            # Find the latest tag
+            base_ref=$(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)
+          fi
+          
+          changed_charts=$(git diff --name-only "$base_ref" ${{ github.sha }} | grep 'charts/.*/Chart.yaml' | xargs -r dirname | sort -u || true)
           
           if [ -z "$changed_charts" ]; then
             echo "No chart changes detected"
