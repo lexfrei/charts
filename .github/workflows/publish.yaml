@@ -38,23 +38,6 @@ jobs:
           sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           sudo chmod +x /usr/local/bin/yq
 
-      - name: Import GPG key and export for Helm
-        env:
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-        run: |
-          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
-          
-          # Export keys in legacy format for Helm (required by chart-releaser)
-          gpg --export >~/.gnupg/pubring.gpg
-          gpg --batch --pinentry-mode loopback --yes --passphrase "$GPG_PASSPHRASE" --export-secret-key >~/.gnupg/secring.gpg
-          
-          # Create passphrase file for chart-releaser
-          echo "$GPG_PASSPHRASE" > ~/.gpg-passphrase
-          chmod 600 ~/.gpg-passphrase
-          
-          echo "Exported GPG keys for Helm signing"
-
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.7.0
         with:
@@ -66,38 +49,8 @@ jobs:
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CR_RELEASE_NAME_TEMPLATE: "{{ .Name }}-{{ .Version }}"
-          CR_KEY: f@lex.la
-          CR_KEYRING: ~/.gnupg/secring.gpg
-          CR_PASSPHRASE_FILE: ~/.gpg-passphrase
 
-      - name: Upload provenance files to releases
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # Get list of changed charts
-          changed_charts=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep 'charts/.*/Chart.yaml' | xargs -r dirname | sort -u || true)
-          
-          if [ -z "$changed_charts" ]; then
-            echo "No chart changes detected"
-            exit 0
-          fi
-          
-          for chart_dir in $changed_charts; do
-            chart_name=$(basename "$chart_dir")
-            chart_file="$chart_dir/Chart.yaml"
-            chart_version=$(yq eval '.version' "$chart_file")
-            release_tag="${chart_name}-${chart_version}"
-            
-            # Find and upload provenance file
-            prov_file=$(find .cr-release-packages -name "${chart_name}-${chart_version}.tgz.prov" 2>/dev/null || true)
-            
-            if [ -n "$prov_file" ] && [ -f "$prov_file" ]; then
-              echo "Uploading provenance file for $release_tag"
-              gh release upload "$release_tag" "$prov_file" --clobber || echo "Failed to upload provenance file"
-            else
-              echo "No provenance file found for $release_tag"
-            fi
-          done
+
 
       - name: Update releases with changelog
         env:
@@ -171,20 +124,7 @@ jobs:
               rm -f "$temp_file"
             fi
             
-            # Add GPG verification instructions
-            release_body="${release_body}
-
-          ### 🔐 GPG Signature Verification
-
-          To verify the chart signature:
-          \`\`\`bash
-          # Import public key
-          curl -sSL https://raw.githubusercontent.com/lexfrei/charts/master/GPG_PUBLIC_KEY.asc | gpg --import
-
-          # Verify signature
-          helm verify ${chart_name}-${chart_version}.tgz
-          \`\`\`
-          "
+            
             
             # Get current release info
             release_info=$(gh release view "$release_tag" --json body,name,tagName 2>/dev/null || echo "")
