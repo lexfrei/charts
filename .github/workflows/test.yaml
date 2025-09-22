@@ -39,9 +39,19 @@ jobs:
         id: list-changed
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" && -n "${{ inputs.charts }}" ]]; then
-            # Use manually provided charts list
-            echo "charts=${{ inputs.charts }}" >> "$GITHUB_OUTPUT"
-            echo "Using manually provided charts: ${{ inputs.charts }}"
+            # Use manually provided charts list (parse JSON string)
+            charts_input='${{ inputs.charts }}'
+            echo "Raw input received: $charts_input"
+
+            # Validate JSON and normalize it
+            if charts_json=$(echo "$charts_input" | jq -c '.' 2>/dev/null); then
+              echo "charts=$charts_json" >> "$GITHUB_OUTPUT"
+              echo "Using manually provided charts: $charts_json"
+            else
+              echo "charts=[]" >> "$GITHUB_OUTPUT"
+              echo "Invalid JSON provided in charts input: $charts_input"
+              echo "Setting charts to empty array"
+            fi
           else
             # Auto-detect changed charts
             changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --chart-dirs charts)
