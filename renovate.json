@@ -6,21 +6,30 @@
   "packageRules": [
     {
       "description": "Auto-bump chart version when appVersion changes",
-      "matchManagers": ["regex"],
-      "matchFiles": ["charts/**/Chart.yaml"],
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchFileNames": [
+        "charts/**/Chart.yaml"
+      ],
       "bumpVersions": [
         {
-          "filePatterns": ["{{{packageFileDir}}}/Chart.{yaml,yml}"],
-          "matchStrings": ["version:\\s+[\"']?(?<version>[^\"'\\s]+)[\"']?"],
+          "filePatterns": [
+            "{{{packageFileDir}}}/Chart.{yaml,yml}"
+          ],
+          "matchStrings": [
+            "version:\\s+[\"']?(?<version>[^\"'\\s]+)[\"']?"
+          ],
           "bumpType": "{{#if isPatch}}patch{{else}}minor{{/if}}"
         }
       ]
     }
   ],
-  "regexManagers": [
+  "customManagers": [
     {
-      "fileMatch": [
-        "(^|/)Chart\\.yaml$"
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/(^|/)Chart\\.yaml$/"
       ],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\\n.*?appVersion: \"(?<currentValue>.*?)\""
