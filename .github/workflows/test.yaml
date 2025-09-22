@@ -9,6 +9,12 @@ on:
       - master
     paths:
       - 'charts/**'
+  workflow_dispatch:
+    inputs:
+      charts:
+        description: 'JSON array of chart paths to test (optional)'
+        required: false
+        type: string
 
 jobs:
   detect-changes:
@@ -29,16 +35,25 @@ jobs:
       - name: Set up chart-testing
         uses: helm/chart-testing-action@v2.7.0
 
-      - name: Run chart-testing (list-changed)
+      - name: Run chart-testing (list-changed) or use manual input
         id: list-changed
         run: |
-          changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --chart-dirs charts)
-          if [[ -n "$changed" ]]; then
-            # Convert newline-separated list to JSON array
-            charts_json=$(echo "$changed" | jq -R -s -c 'split("\n") | map(select(length > 0))')
-            echo "charts=$charts_json" >> "$GITHUB_OUTPUT"
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && -n "${{ inputs.charts }}" ]]; then
+            # Use manually provided charts list
+            echo "charts=${{ inputs.charts }}" >> "$GITHUB_OUTPUT"
+            echo "Using manually provided charts: ${{ inputs.charts }}"
           else
-            echo "charts=[]" >> "$GITHUB_OUTPUT"
+            # Auto-detect changed charts
+            changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --chart-dirs charts)
+            if [[ -n "$changed" ]]; then
+              # Convert newline-separated list to JSON array
+              charts_json=$(echo "$changed" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+              echo "charts=$charts_json" >> "$GITHUB_OUTPUT"
+              echo "Auto-detected changed charts: $charts_json"
+            else
+              echo "charts=[]" >> "$GITHUB_OUTPUT"
+              echo "No changed charts detected"
+            fi
           fi
 
   lint-test:
