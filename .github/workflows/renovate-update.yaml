@@ -97,8 +97,7 @@ jobs:
         if: steps.update.outputs.changes_made == 'true'
         run: |
           # Get list of changed charts from the update step
-          changed_charts=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep 'Chart.yaml
- | sed 's|/Chart.yaml||' | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          changed_charts=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep 'Chart.yaml$' | sed 's|/Chart.yaml||' | jq -R -s -c 'split("\n") | map(select(length > 0))')
           
           echo "Triggering tests for charts: $changed_charts"
           
