@@ -58,8 +58,8 @@ jobs:
             echo "AppVersion: $new_app_version"
             
             # Update changelog annotation using yq with proper escaping
-            yq eval -i --arg version "$new_app_version" \
-              '.annotations."artifacthub.io/changes" = "- kind: changed\n  description: Update appVersion to " + $version' \
+            export new_app_version
+            yq eval -i '.annotations."artifacthub.io/changes" = "- kind: changed\n  description: Update appVersion to " + env(new_app_version)' \
               "$chart_file"
             
             echo "✅ Updated changelog for $chart_dir"
