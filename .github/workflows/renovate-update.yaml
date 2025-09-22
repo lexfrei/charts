@@ -101,9 +101,15 @@ jobs:
           
           echo "Triggering tests for charts: $changed_charts"
           
-          # Trigger the test workflow with the changed charts
-          gh workflow run test.yaml \
-            --ref ${{ github.head_ref }} \
-            --field charts="$changed_charts"
+          # Only trigger if we have charts to test
+          if [[ "$changed_charts" != "[]" ]]; then
+            # Trigger the test workflow with the changed charts
+            gh workflow run test.yaml \
+              --ref ${{ github.head_ref }} \
+              --field charts="$changed_charts"
+            echo "✅ Test workflow triggered successfully"
+          else
+            echo "ℹ️ No charts to test, skipping workflow trigger"
+          fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
