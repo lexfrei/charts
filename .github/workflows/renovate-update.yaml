@@ -1,4 +1,4 @@
-name: Update Renovate PR Changelog
+name: Update Renovate PR
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
       - 'charts/**/Chart.yaml'
 
 jobs:
-  update-changelog:
+  update-renovate-pr:
     # Only run on Renovate PRs
     if: startsWith(github.head_ref, 'renovate/')
     runs-on: ubuntu-latest
@@ -23,16 +23,24 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
-      - name: Install yq
+      - name: Install tools
         run: |
+          # Install yq
           sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           sudo chmod +x /usr/local/bin/yq
+          
+          # Install helm-docs
+          HELM_DOCS_VERSION="1.14.2"
+          wget -q https://github.com/norwoodj/helm-docs/releases/download/v${HELM_DOCS_VERSION}/helm-docs_${HELM_DOCS_VERSION}_Linux_x86_64.tar.gz
+          tar -xzf helm-docs_${HELM_DOCS_VERSION}_Linux_x86_64.tar.gz
+          sudo mv helm-docs /usr/local/bin/
+          sudo chmod +x /usr/local/bin/helm-docs
 
-      - name: Update changelog for changed charts
+      - name: Update charts
         id: update
         run: |
           set -e
-          CHARTS_UPDATED=false
+          CHANGES_MADE=false
           
           # Find all changed Chart.yaml files
           for chart_file in $(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep 'Chart.yaml$' || true); do
@@ -49,25 +57,38 @@ jobs:
             echo "Version: $chart_version"
             echo "AppVersion: $new_app_version"
             
-            # Update changelog annotation using yq
-            yq eval -i '.annotations."artifacthub.io/changes" = "- kind: changed\n  description: Update appVersion to '"$new_app_version"'"' "$chart_file"
+            # Update changelog annotation using yq with proper escaping
+            yq eval -i --arg version "$new_app_version" \
+              '.annotations."artifacthub.io/changes" = "- kind: changed\n  description: Update appVersion to " + $version' \
+              "$chart_file"
             
-            CHARTS_UPDATED=true
+            echo "✅ Updated changelog for $chart_dir"
+            
+            # Generate documentation if README.md.gotmpl exists
+            if [ -f "$chart_dir/README.md.gotmpl" ]; then
+              echo "📚 Generating documentation for $chart_dir"
+              helm-docs "$chart_dir"
+              echo "✅ Generated documentation for $chart_dir"
+            else
+              echo "ℹ️  No README.md.gotmpl found in $chart_dir, skipping documentation generation"
+            fi
+            
+            CHANGES_MADE=true
           done
           
-          echo "charts_updated=$CHARTS_UPDATED" >> $GITHUB_OUTPUT
+          echo "changes_made=$CHANGES_MADE" >> $GITHUB_OUTPUT
 
       - name: Commit changes
-        if: steps.update.outputs.charts_updated == 'true'
+        if: steps.update.outputs.changes_made == 'true'
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           
-          git add charts/**/Chart.yaml
+          git add charts/**/Chart.yaml charts/**/README.md
           
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "chore: update changelog annotations [skip ci]"
+            git commit -m "chore: update changelog and documentation [skip ci]"
             git push
           fi
