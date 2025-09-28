@@ -1,6 +1,6 @@
 # cloudflare-tunnel
 
-![Version: 0.9.4](https://img.shields.io/badge/Version-0.9.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.9.1](https://img.shields.io/badge/AppVersion-2025.9.1-informational?style=flat-square)
+![Version: 0.10.0](https://img.shields.io/badge/Version-0.10.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.9.1](https://img.shields.io/badge/AppVersion-2025.9.1-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -145,6 +145,92 @@ cloudflare:
       service: https://backend-service:443
 ```
 
+### Protocol and Network Configuration
+
+```yaml
+cloudflare:
+  account: "your-account-id"
+  tunnelName: "protocol-tunnel"
+  tunnelId: "tunnel-id"
+  secret: "tunnel-secret"
+  # Protocol selection (auto/quic/http2)
+  protocol: "quic"
+  # Enable post-quantum cryptography for QUIC
+  postQuantum: true
+  # Cloudflare region selection (us/empty for global)
+  region: "us"
+  # Connection retries on errors
+  retries: 3
+  # IP version preference (auto/4/6)
+  edgeIpVersion: "auto"
+  # Graceful shutdown timeout
+  gracePeriod: "30s"
+  # Bind outgoing connections to specific IP
+  edgeBindAddress: "192.168.1.100"
+  # Tags for tunnel identification and monitoring
+  tags:
+    environment: production
+    team: platform
+    service: web-frontend
+  ingress:
+    - hostname: fast.example.com
+      service: http://my-service:80
+```
+
+### Post-Quantum Cryptography Example
+
+```yaml
+cloudflare:
+  account: "your-account-id"
+  tunnelName: "quantum-safe-tunnel"
+  tunnelId: "tunnel-id"
+  secret: "tunnel-secret"
+  # Use QUIC with post-quantum cryptography
+  protocol: "quic"
+  postQuantum: true
+  ingress:
+    - hostname: secure.example.com
+      service: https://backend:443
+```
+
+### Regional Edge Selection
+
+```yaml
+cloudflare:
+  account: "your-account-id"
+  tunnelName: "us-tunnel"
+  tunnelId: "tunnel-id"
+  secret: "tunnel-secret"
+  # Force US-based edge servers for compliance
+  region: "us"
+  # Optimize for IPv4 connectivity
+  edgeIpVersion: "4"
+  ingress:
+    - hostname: us-only.example.com
+      service: http://compliance-service:8080
+```
+
+### High-Reliability Configuration
+
+```yaml
+cloudflare:
+  account: "your-account-id"
+  tunnelName: "reliable-tunnel"
+  tunnelId: "tunnel-id"
+  secret: "tunnel-secret"
+  # Aggressive retry policy
+  retries: 5
+  # Extended graceful shutdown for long-running requests
+  gracePeriod: "60s"
+  # Tag for monitoring and alerting
+  tags:
+    criticality: high
+    monitoring: enabled
+  ingress:
+    - hostname: critical.example.com
+      service: http://critical-service:80
+```
+
 ### High Availability Setup
 
 ```yaml
@@ -206,6 +292,64 @@ cloudflare:
   ingress:
     - hostname: app.example.com
       service: http://my-service:80
+```
+
+## ⚙️ Advanced Protocol Configuration
+
+### Protocol Selection
+
+The chart supports three transport protocols:
+
+- **`auto`** (default): Automatically selects the best protocol
+- **`quic`**: Uses QUIC protocol for improved performance
+- **`http2`**: Uses HTTP/2 for compatibility with older networks
+
+### Post-Quantum Cryptography
+
+When using QUIC protocol, you can enable post-quantum cryptography for enhanced security:
+
+```yaml
+cloudflare:
+  protocol: "quic"
+  postQuantum: true
+```
+
+**Important**: Post-quantum cryptography is only available with QUIC protocol. The chart includes validation to prevent incompatible combinations.
+
+### Regional Edge Selection
+
+Control which Cloudflare edge servers your tunnel connects to:
+
+- **`""` (empty, default)**: Global edge selection (best performance)
+- **`"us"`**: US-only edge servers (compliance requirements)
+
+### IP Version Control
+
+Configure IP version preference for edge connections:
+
+- **`auto`** (default): Automatically select IPv4 or IPv6
+- **`4`**: Force IPv4 connections only
+- **`6`**: Force IPv6 connections only
+
+### Connection Reliability
+
+Fine-tune connection behavior:
+
+- **`retries`**: Number of connection retries on errors (default: 5)
+- **`gracePeriod`**: Graceful shutdown timeout (default: "30s")
+- **`edgeBindAddress`**: Bind outgoing connections to specific IP address
+
+### Tagging and Monitoring
+
+Add metadata tags to your tunnel for identification and monitoring:
+
+```yaml
+cloudflare:
+  tags:
+    environment: production
+    team: platform
+    cost-center: engineering
+    monitoring: prometheus
 ```
 
 ## 🔍 Deployment Modes
@@ -307,7 +451,10 @@ If experiencing port exhaustion on nodes:
 | cloudflare.tunnelId | string | `""` | The ID of the above tunnel |
 | cloudflare.tunnelName | string | `""` | The name of the tunnel this instance will serve |
 | deploymentMode | string | `"deployment"` | Deployment mode: "deployment" or "daemonset" DaemonSet mode ensures one tunnel pod per node, useful for: - Preventing port exhaustion from multiple pods on same node - Following Cloudflare's recommendation to limit instances per node - Ensuring predictable distribution and node-level reliability |
+| edgeBindAddress | string | `""` | Edge bind address for outgoing connections Specify the outgoing IP address for tunnel connections to Cloudflare edge Useful for multi-homed servers with multiple network interfaces Leave empty to use system default |
+| edgeIpVersion | string | `""` | IP version for edge connections (auto, 4, 6) auto: Cloudflare selects optimal IP version automatically 4: Force IPv4 connections to Cloudflare edge 6: Force IPv6 connections to Cloudflare edge Leave empty to use cloudflared default |
 | fullnameOverride | string | `""` |  |
+| gracePeriod | string | `""` | Graceful shutdown timeout (e.g., 30s, 1m) Time to wait for connections to close gracefully during shutdown Format: number followed by time unit (s for seconds, m for minutes) Leave empty to use cloudflared default |
 | image | object | `{"pullPolicy":"IfNotPresent","repository":"cloudflare/cloudflared","tag":""}` | The image to use |
 | image.tag | string | `""` | If supplied, this overrides "appVersion" |
 | imagePullSecrets | list | `[]` |  |
@@ -325,9 +472,13 @@ If experiencing port exhaustion on nodes:
 | podDisruptionBudget.minAvailable | int | `1` | Minimum number of available pods (conflicts with maxUnavailable) |
 | podLabels | object | `{}` | Additional labels to add to pods |
 | podSecurityContext | object | `{"runAsNonRoot":true,"runAsUser":65532}` | Security items common to everything in the pod.  Here we require that it does not run as the user defined in the image, literally named "nonroot" |
+| postQuantum | bool | `false` | Enable post-quantum cryptography for QUIC connections Only works with 'quic' or 'auto' protocol, conflicts with 'http2' See: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/configure-tunnels/cloudflared-parameters/run-parameters/#post-quantum |
 | priorityClassName | string | `""` | Priority class name for pod scheduling priority See https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/ |
+| protocol | string | `""` | Transport protocol for cloudflared (auto, quic, http2) auto: Cloudflare selects the best protocol automatically quic: Force QUIC transport (fastest, most reliable) http2: Force HTTP/2 transport (wider compatibility) Leave empty to use cloudflared default |
+| region | string | `""` | Cloudflare region (us for US-only, empty for global) When set to "us", cloudflared will only connect to US Cloudflare edge servers Leave empty for global edge selection |
 | replicaCount | int | `2` | The version of the image to use |
 | resources | object | `{}` |  |
+| retries | string | `""` | Maximum retries for connection/protocol errors Number of retries cloudflared will attempt for network errors Leave empty to use cloudflared default (5) |
 | securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true}` | Security items for one container. We lock it down |
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account |
 | serviceAccount.name | string | `""` | The name of the service account to use If not set and create is true, a name is generated using the fullname template |
@@ -336,6 +487,7 @@ If experiencing port exhaustion on nodes:
 | serviceMonitor.jobLabel | string | `""` | Job label for the ServiceMonitor |
 | serviceMonitor.metricRelabelings | list | `[]` | Metric relabelings for the ServiceMonitor |
 | serviceMonitor.relabelings | list | `[]` | Relabelings for the ServiceMonitor |
+| tags | object | `{}` | Tags for tunnel identification and monitoring Key-value pairs for tagging tunnel instances in Cloudflare dashboard Useful for grouping, monitoring, and analytics Example: {"environment": "production", "team": "backend"} |
 | tolerations | list | `[]` |  |
 | topologySpreadConstraints | list | `[]` | Topology spread constraints for pod distribution across zones/nodes See https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/ |
 

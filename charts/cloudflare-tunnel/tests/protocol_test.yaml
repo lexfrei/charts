@@ -1,0 +1,726 @@
+suite: test protocol and postQuantum configuration
+templates:
+  - deployment.yaml
+  - daemonset.yaml
+  - configmap.yaml
+  - secret.yaml
+values:
+  - ../values.yaml
+tests:
+  # Default behavior tests - no env vars when not specified
+  - it: should not set protocol env vars by default in deployment mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+    asserts:
+      - template: deployment.yaml
+        notExists:
+          path: spec.template.spec.containers[0].env
+
+  - it: should not set protocol env vars by default in daemonset mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+    asserts:
+      - template: daemonset.yaml
+        notExists:
+          path: spec.template.spec.containers[0].env
+
+  # Protocol tests - auto
+  - it: should set TUNNEL_TRANSPORT_PROTOCOL to auto in deployment mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      protocol: auto
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TRANSPORT_PROTOCOL
+            value: auto
+
+  - it: should set TUNNEL_TRANSPORT_PROTOCOL to auto in daemonset mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+      protocol: auto
+    asserts:
+      - template: daemonset.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TRANSPORT_PROTOCOL
+            value: auto
+
+  # Protocol tests - quic
+  - it: should set TUNNEL_TRANSPORT_PROTOCOL to quic in deployment mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      protocol: quic
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TRANSPORT_PROTOCOL
+            value: quic
+
+  - it: should set TUNNEL_TRANSPORT_PROTOCOL to quic in daemonset mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+      protocol: quic
+    asserts:
+      - template: daemonset.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TRANSPORT_PROTOCOL
+            value: quic
+
+  # Protocol tests - http2
+  - it: should set TUNNEL_TRANSPORT_PROTOCOL to http2 in deployment mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      protocol: http2
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TRANSPORT_PROTOCOL
+            value: http2
+
+  - it: should set TUNNEL_TRANSPORT_PROTOCOL to http2 in daemonset mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+      protocol: http2
+    asserts:
+      - template: daemonset.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TRANSPORT_PROTOCOL
+            value: http2
+
+  # PostQuantum tests - true
+  - it: should set TUNNEL_POST_QUANTUM to true in deployment mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      postQuantum: true
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_POST_QUANTUM
+            value: "true"
+
+  - it: should set TUNNEL_POST_QUANTUM to true in daemonset mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+      postQuantum: true
+    asserts:
+      - template: daemonset.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_POST_QUANTUM
+            value: "true"
+
+  # PostQuantum tests - false (should NOT set env var)
+  - it: should not set TUNNEL_POST_QUANTUM when false in deployment mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      postQuantum: false
+    asserts:
+      - template: deployment.yaml
+        notExists:
+          path: spec.template.spec.containers[0].env
+
+  - it: should not set TUNNEL_POST_QUANTUM when false in daemonset mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+      postQuantum: false
+    asserts:
+      - template: daemonset.yaml
+        notExists:
+          path: spec.template.spec.containers[0].env
+
+  # Combined protocol and postQuantum tests - valid combinations
+  - it: should set both protocol auto and postQuantum true in deployment mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      protocol: auto
+      postQuantum: true
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TRANSPORT_PROTOCOL
+            value: auto
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_POST_QUANTUM
+            value: "true"
+
+  - it: should set both protocol quic and postQuantum true in deployment mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      protocol: quic
+      postQuantum: true
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TRANSPORT_PROTOCOL
+            value: quic
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_POST_QUANTUM
+            value: "true"
+
+  - it: should set both protocol auto and postQuantum true in daemonset mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+      protocol: auto
+      postQuantum: true
+    asserts:
+      - template: daemonset.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TRANSPORT_PROTOCOL
+            value: auto
+      - template: daemonset.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_POST_QUANTUM
+            value: "true"
+
+  - it: should set both protocol quic and postQuantum true in daemonset mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+      protocol: quic
+      postQuantum: true
+    asserts:
+      - template: daemonset.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TRANSPORT_PROTOCOL
+            value: quic
+      - template: daemonset.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_POST_QUANTUM
+            value: "true"
+
+  # Conflict validation tests - http2 + postQuantum should fail
+  - it: should fail when protocol http2 and postQuantum true in deployment mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      protocol: http2
+      postQuantum: true
+    asserts:
+      - template: deployment.yaml
+        failedTemplate:
+          errorMessage: "postQuantum cannot be enabled with http2 protocol. Use 'auto' or 'quic' instead."
+
+  - it: should fail when protocol http2 and postQuantum true in daemonset mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+      protocol: http2
+      postQuantum: true
+    asserts:
+      - template: daemonset.yaml
+        failedTemplate:
+          errorMessage: "postQuantum cannot be enabled with http2 protocol. Use 'auto' or 'quic' instead."
+
+  # Test that protocol http2 alone works (no postQuantum)
+  - it: should allow protocol http2 without postQuantum in deployment mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      protocol: http2
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TRANSPORT_PROTOCOL
+            value: http2
+
+  - it: should allow protocol http2 without postQuantum in daemonset mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+      protocol: http2
+    asserts:
+      - template: daemonset.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TRANSPORT_PROTOCOL
+            value: http2
+
+  # Test mixed with existing logLevel functionality
+  - it: should work with both protocol and logLevel in deployment mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      protocol: quic
+      logLevel: debug
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TRANSPORT_PROTOCOL
+            value: quic
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_LOGLEVEL
+            value: debug
+
+  - it: should work with protocol, postQuantum and logLevel in daemonset mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+      protocol: auto
+      postQuantum: true
+      logLevel: info
+    asserts:
+      - template: daemonset.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TRANSPORT_PROTOCOL
+            value: auto
+      - template: daemonset.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_POST_QUANTUM
+            value: "true"
+      - template: daemonset.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_LOGLEVEL
+            value: info
+
+  # Edge case tests - empty string protocol
+  - it: should not set TUNNEL_TRANSPORT_PROTOCOL when protocol is empty string in deployment mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      protocol: ""
+    asserts:
+      - template: deployment.yaml
+        notExists:
+          path: spec.template.spec.containers[0].env
+
+  - it: should not set TUNNEL_TRANSPORT_PROTOCOL when protocol is empty string in daemonset mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+      protocol: ""
+    asserts:
+      - template: daemonset.yaml
+        notExists:
+          path: spec.template.spec.containers[0].env
+
+  # Edge case tests - null protocol
+  - it: should not set TUNNEL_TRANSPORT_PROTOCOL when protocol is null in deployment mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      protocol: null
+    asserts:
+      - template: deployment.yaml
+        notExists:
+          path: spec.template.spec.containers[0].env
+
+  - it: should not set TUNNEL_TRANSPORT_PROTOCOL when protocol is null in daemonset mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+      protocol: null
+    asserts:
+      - template: daemonset.yaml
+        notExists:
+          path: spec.template.spec.containers[0].env
+
+  # Independent environment variable tests - only logLevel set
+  - it: should set only TUNNEL_LOGLEVEL when only logLevel is specified in deployment mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      logLevel: debug
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_LOGLEVEL
+            value: debug
+      - template: deployment.yaml
+        notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TRANSPORT_PROTOCOL
+      - template: deployment.yaml
+        notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_POST_QUANTUM
+
+  - it: should set only TUNNEL_LOGLEVEL when only logLevel is specified in daemonset mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+      logLevel: info
+    asserts:
+      - template: daemonset.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_LOGLEVEL
+            value: info
+      - template: daemonset.yaml
+        notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TRANSPORT_PROTOCOL
+      - template: daemonset.yaml
+        notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_POST_QUANTUM
+
+  # Independent environment variable tests - only protocol set
+  - it: should set only TUNNEL_TRANSPORT_PROTOCOL when only protocol is specified in deployment mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      protocol: quic
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TRANSPORT_PROTOCOL
+            value: quic
+      - template: deployment.yaml
+        notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_LOGLEVEL
+      - template: deployment.yaml
+        notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_POST_QUANTUM
+
+  - it: should set only TUNNEL_TRANSPORT_PROTOCOL when only protocol is specified in daemonset mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+      protocol: auto
+    asserts:
+      - template: daemonset.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TRANSPORT_PROTOCOL
+            value: auto
+      - template: daemonset.yaml
+        notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_LOGLEVEL
+      - template: daemonset.yaml
+        notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_POST_QUANTUM
+
+  # Independent environment variable tests - only postQuantum set
+  - it: should set only TUNNEL_POST_QUANTUM when only postQuantum is specified in deployment mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      postQuantum: true
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_POST_QUANTUM
+            value: "true"
+      - template: deployment.yaml
+        notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_LOGLEVEL
+      - template: deployment.yaml
+        notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TRANSPORT_PROTOCOL
+
+  - it: should set only TUNNEL_POST_QUANTUM when only postQuantum is specified in daemonset mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+      postQuantum: true
+    asserts:
+      - template: daemonset.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_POST_QUANTUM
+            value: "true"
+      - template: daemonset.yaml
+        notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_LOGLEVEL
+      - template: daemonset.yaml
+        notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TRANSPORT_PROTOCOL

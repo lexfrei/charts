@@ -31,7 +31,8 @@
         },
         "enableWarp": {
           "type": "boolean",
-          "description": "If true, turn on WARP routing for TCP."
+          "description": "If true, turn on WARP routing for TCP.",
+          "default": false
         },
         "ingress": {
           "type": "array",
@@ -50,7 +51,8 @@
         },
         "enableDefault404": {
           "type": "boolean",
-          "description": "Enable the default 404 page."
+          "description": "Enable the default 404 page.",
+          "default": true
         },
         "originRequest": {
           "type": "object",
@@ -130,11 +132,13 @@
       "properties": {
         "repository": {
           "type": "string",
-          "description": "Docker repository for the image."
+          "description": "Docker repository for the image.",
+          "default": "cloudflare/cloudflared"
         },
         "pullPolicy": {
           "type": "string",
-          "description": "Pull policy for the image."
+          "description": "Pull policy for the image.",
+          "default": "IfNotPresent"
         },
         "tag": {
           "type": [
@@ -147,7 +151,8 @@
     },
     "replicaCount": {
       "type": "integer",
-      "description": "Number of replicas to deploy."
+      "description": "Number of replicas to deploy.",
+      "default": 2
     },
     "imagePullSecrets": {
       "type": "array",
@@ -178,10 +183,12 @@
       "type": "object",
       "properties": {
         "runAsNonRoot": {
-          "type": "boolean"
+          "type": "boolean",
+          "default": true
         },
         "runAsUser": {
-          "type": "integer"
+          "type": "integer",
+          "default": 65532
         }
       }
     },
@@ -189,7 +196,8 @@
       "type": "object",
       "properties": {
         "allowPrivilegeEscalation": {
-          "type": "boolean"
+          "type": "boolean",
+          "default": false
         },
         "capabilities": {
           "type": "object",
@@ -198,12 +206,14 @@
               "type": "array",
               "items": {
                 "type": "string"
-              }
+              },
+              "default": ["ALL"]
             }
           }
         },
         "readOnlyRootFilesystem": {
-          "type": "boolean"
+          "type": "boolean",
+          "default": true
         }
       }
     },
@@ -228,7 +238,8 @@
       "properties": {
         "enabled": {
           "type": "boolean",
-          "description": "Enable prometheus Service Monitor."
+          "description": "Enable prometheus Service Monitor.",
+          "default": false
         },
         "jobLabel": {
           "type": "string",
@@ -253,11 +264,13 @@
       "properties": {
         "enabled": {
           "type": "boolean",
-          "description": "Enable Pod Disruption Budget."
+          "description": "Enable Pod Disruption Budget.",
+          "default": false
         },
         "minAvailable": {
           "type": ["integer", "string"],
-          "description": "Minimum number of available pods."
+          "description": "Minimum number of available pods.",
+          "default": 1
         },
         "maxUnavailable": {
           "type": ["integer", "string"],
@@ -336,6 +349,55 @@
       "description": "Deployment mode: deployment or daemonset.",
       "enum": ["deployment", "daemonset"],
       "default": "deployment"
+    },
+    "protocol": {
+      "type": "string",
+      "description": "Transport protocol for cloudflared",
+      "enum": ["auto", "quic", "http2", ""],
+      "default": ""
+    },
+    "postQuantum": {
+      "type": "boolean",
+      "description": "Enable post-quantum cryptography for QUIC connections (only works with quic/auto protocol)",
+      "default": false
+    },
+    "region": {
+      "type": "string",
+      "description": "Cloudflare region (us for US-only, empty for global)",
+      "enum": ["us", ""],
+      "default": ""
+    },
+    "retries": {
+      "type": "string",
+      "description": "Maximum retries for connection/protocol errors",
+      "pattern": "^([1-9][0-9]*|)$",
+      "default": ""
+    },
+    "edgeIpVersion": {
+      "type": "string",
+      "description": "IP version for edge connections",
+      "enum": ["auto", "4", "6", ""],
+      "default": ""
+    },
+    "gracePeriod": {
+      "type": "string",
+      "description": "Graceful shutdown timeout (e.g., 30s, 1m)",
+      "pattern": "^([0-9]+[smh]([0-9]+[smh])*|[0-9]+[smh]?|)$",
+      "default": ""
+    },
+    "edgeBindAddress": {
+      "type": "string",
+      "description": "Edge bind address for outgoing connections",
+      "pattern": "^(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}|)$",
+      "default": ""
+    },
+    "tags": {
+      "type": "object",
+      "description": "Tags for tunnel identification and monitoring",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "default": {}
     }
   },
   "required": [

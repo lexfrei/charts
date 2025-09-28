@@ -147,6 +147,92 @@ cloudflare:
       service: https://backend-service:443
 ```
 
+### Protocol and Network Configuration
+
+```yaml
+cloudflare:
+  account: "your-account-id"
+  tunnelName: "protocol-tunnel"
+  tunnelId: "tunnel-id"
+  secret: "tunnel-secret"
+  # Protocol selection (auto/quic/http2)
+  protocol: "quic"
+  # Enable post-quantum cryptography for QUIC
+  postQuantum: true
+  # Cloudflare region selection (us/empty for global)
+  region: "us"
+  # Connection retries on errors
+  retries: 3
+  # IP version preference (auto/4/6)
+  edgeIpVersion: "auto"
+  # Graceful shutdown timeout
+  gracePeriod: "30s"
+  # Bind outgoing connections to specific IP
+  edgeBindAddress: "192.168.1.100"
+  # Tags for tunnel identification and monitoring
+  tags:
+    environment: production
+    team: platform
+    service: web-frontend
+  ingress:
+    - hostname: fast.example.com
+      service: http://my-service:80
+```
+
+### Post-Quantum Cryptography Example
+
+```yaml
+cloudflare:
+  account: "your-account-id"
+  tunnelName: "quantum-safe-tunnel"
+  tunnelId: "tunnel-id"
+  secret: "tunnel-secret"
+  # Use QUIC with post-quantum cryptography
+  protocol: "quic"
+  postQuantum: true
+  ingress:
+    - hostname: secure.example.com
+      service: https://backend:443
+```
+
+### Regional Edge Selection
+
+```yaml
+cloudflare:
+  account: "your-account-id"
+  tunnelName: "us-tunnel"
+  tunnelId: "tunnel-id"
+  secret: "tunnel-secret"
+  # Force US-based edge servers for compliance
+  region: "us"
+  # Optimize for IPv4 connectivity
+  edgeIpVersion: "4"
+  ingress:
+    - hostname: us-only.example.com
+      service: http://compliance-service:8080
+```
+
+### High-Reliability Configuration
+
+```yaml
+cloudflare:
+  account: "your-account-id"
+  tunnelName: "reliable-tunnel"
+  tunnelId: "tunnel-id"
+  secret: "tunnel-secret"
+  # Aggressive retry policy
+  retries: 5
+  # Extended graceful shutdown for long-running requests
+  gracePeriod: "60s"
+  # Tag for monitoring and alerting
+  tags:
+    criticality: high
+    monitoring: enabled
+  ingress:
+    - hostname: critical.example.com
+      service: http://critical-service:80
+```
+
 ### High Availability Setup
 
 ```yaml
@@ -208,6 +294,64 @@ cloudflare:
   ingress:
     - hostname: app.example.com
       service: http://my-service:80
+```
+
+## ⚙️ Advanced Protocol Configuration
+
+### Protocol Selection
+
+The chart supports three transport protocols:
+
+- **`auto`** (default): Automatically selects the best protocol
+- **`quic`**: Uses QUIC protocol for improved performance
+- **`http2`**: Uses HTTP/2 for compatibility with older networks
+
+### Post-Quantum Cryptography
+
+When using QUIC protocol, you can enable post-quantum cryptography for enhanced security:
+
+```yaml
+cloudflare:
+  protocol: "quic"
+  postQuantum: true
+```
+
+**Important**: Post-quantum cryptography is only available with QUIC protocol. The chart includes validation to prevent incompatible combinations.
+
+### Regional Edge Selection
+
+Control which Cloudflare edge servers your tunnel connects to:
+
+- **`""` (empty, default)**: Global edge selection (best performance)
+- **`"us"`**: US-only edge servers (compliance requirements)
+
+### IP Version Control
+
+Configure IP version preference for edge connections:
+
+- **`auto`** (default): Automatically select IPv4 or IPv6
+- **`4`**: Force IPv4 connections only
+- **`6`**: Force IPv6 connections only
+
+### Connection Reliability
+
+Fine-tune connection behavior:
+
+- **`retries`**: Number of connection retries on errors (default: 5)
+- **`gracePeriod`**: Graceful shutdown timeout (default: "30s")
+- **`edgeBindAddress`**: Bind outgoing connections to specific IP address
+
+### Tagging and Monitoring
+
+Add metadata tags to your tunnel for identification and monitoring:
+
+```yaml
+cloudflare:
+  tags:
+    environment: production
+    team: platform
+    cost-center: engineering
+    monitoring: prometheus
 ```
 
 ## 🔍 Deployment Modes

@@ -1,0 +1,391 @@
+suite: test additional cloudflared parameters
+templates:
+  - deployment.yaml
+  - daemonset.yaml
+  - configmap.yaml
+  - secret.yaml
+  - _helpers.tpl
+set:
+  cloudflare:
+    account: "test-account"
+    tunnelName: "test-tunnel"
+    tunnelId: "test-tunnel-id"
+    secret: "test-secret"
+    ingress:
+      - hostname: test.example.com
+        service: http://test-service:80
+tests:
+  # Default behavior tests - no env vars when empty/not set
+  - it: should not set TUNNEL_REGION env var when region is empty in deployment mode
+    set:
+      deploymentMode: deployment
+      region: ""
+    template: deployment.yaml
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].env
+
+  - it: should not set TUNNEL_REGION env var when region is not set in deployment mode
+    set:
+      deploymentMode: deployment
+    template: deployment.yaml
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].env
+
+  - it: should not set TUNNEL_RETRIES env var when retries is empty in deployment mode
+    set:
+      deploymentMode: deployment
+      retries: ""
+    template: deployment.yaml
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].env
+
+  - it: should not set TUNNEL_RETRIES env var when retries is not set in deployment mode
+    set:
+      deploymentMode: deployment
+    template: deployment.yaml
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].env
+
+  - it: should not set TUNNEL_EDGE_IP_VERSION env var when edgeIpVersion is empty in deployment mode
+    set:
+      deploymentMode: deployment
+      edgeIpVersion: ""
+    template: deployment.yaml
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].env
+
+  - it: should not set TUNNEL_EDGE_IP_VERSION env var when edgeIpVersion is not set in deployment mode
+    set:
+      deploymentMode: deployment
+    template: deployment.yaml
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].env
+
+  - it: should not set TUNNEL_GRACE_PERIOD env var when gracePeriod is empty in deployment mode
+    set:
+      deploymentMode: deployment
+      gracePeriod: ""
+    template: deployment.yaml
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].env
+
+  - it: should not set TUNNEL_GRACE_PERIOD env var when gracePeriod is not set in deployment mode
+    set:
+      deploymentMode: deployment
+    template: deployment.yaml
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].env
+
+  # Valid values tests - deployment mode
+  - it: should set TUNNEL_REGION to "us" when region is "us" in deployment mode
+    set:
+      deploymentMode: deployment
+      region: "us"
+    template: deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_REGION
+            value: "us"
+
+  - it: should set TUNNEL_RETRIES to "3" when retries is "3" in deployment mode
+    set:
+      deploymentMode: deployment
+      retries: "3"
+    template: deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_RETRIES
+            value: "3"
+
+  - it: should set TUNNEL_RETRIES to "10" when retries is "10" in deployment mode
+    set:
+      deploymentMode: deployment
+      retries: "10"
+    template: deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_RETRIES
+            value: "10"
+
+  - it: should set TUNNEL_EDGE_IP_VERSION to "auto" when edgeIpVersion is "auto" in deployment mode
+    set:
+      deploymentMode: deployment
+      edgeIpVersion: "auto"
+    template: deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_EDGE_IP_VERSION
+            value: "auto"
+
+  - it: should set TUNNEL_EDGE_IP_VERSION to "4" when edgeIpVersion is "4" in deployment mode
+    set:
+      deploymentMode: deployment
+      edgeIpVersion: "4"
+    template: deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_EDGE_IP_VERSION
+            value: "4"
+
+  - it: should set TUNNEL_EDGE_IP_VERSION to "6" when edgeIpVersion is "6" in deployment mode
+    set:
+      deploymentMode: deployment
+      edgeIpVersion: "6"
+    template: deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_EDGE_IP_VERSION
+            value: "6"
+
+  - it: should set TUNNEL_GRACE_PERIOD to "30s" when gracePeriod is "30s" in deployment mode
+    set:
+      deploymentMode: deployment
+      gracePeriod: "30s"
+    template: deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_GRACE_PERIOD
+            value: "30s"
+
+  - it: should set TUNNEL_GRACE_PERIOD to "1m" when gracePeriod is "1m" in deployment mode
+    set:
+      deploymentMode: deployment
+      gracePeriod: "1m"
+    template: deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_GRACE_PERIOD
+            value: "1m"
+
+  - it: should set TUNNEL_GRACE_PERIOD to "2m30s" when gracePeriod is "2m30s" in deployment mode
+    set:
+      deploymentMode: deployment
+      gracePeriod: "2m30s"
+    template: deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_GRACE_PERIOD
+            value: "2m30s"
+
+  # Test multiple parameters together - deployment mode
+  - it: should set multiple new env vars when multiple parameters are set in deployment mode
+    set:
+      deploymentMode: deployment
+      region: "us"
+      retries: "5"
+      edgeIpVersion: "auto"
+      gracePeriod: "45s"
+    template: deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_REGION
+            value: "us"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_RETRIES
+            value: "5"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_EDGE_IP_VERSION
+            value: "auto"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_GRACE_PERIOD
+            value: "45s"
+
+  # Test independence from other env vars - deployment mode
+  - it: should set new env vars independently of existing logLevel and protocol in deployment mode
+    set:
+      deploymentMode: deployment
+      logLevel: "debug"
+      protocol: "quic"
+      region: "us"
+      retries: "7"
+    template: deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_LOGLEVEL
+            value: "debug"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TRANSPORT_PROTOCOL
+            value: "quic"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_REGION
+            value: "us"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_RETRIES
+            value: "7"
+
+  # Test independence - new vars don't affect existing ones
+  - it: should not affect existing env vars when only new parameters are set in deployment mode
+    set:
+      deploymentMode: deployment
+      region: "us"
+      retries: "8"
+    template: deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_REGION
+            value: "us"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_RETRIES
+            value: "8"
+      - notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_LOGLEVEL
+      - notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TRANSPORT_PROTOCOL
+      - notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_POST_QUANTUM
+
+  # DaemonSet mode tests - repeat key scenarios
+  - it: should not set new env vars when empty in daemonset mode
+    set:
+      deploymentMode: daemonset
+      region: ""
+      retries: ""
+      edgeIpVersion: ""
+      gracePeriod: ""
+    template: daemonset.yaml
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].env
+
+  - it: should set TUNNEL_REGION to "us" in daemonset mode
+    set:
+      deploymentMode: daemonset
+      region: "us"
+    template: daemonset.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_REGION
+            value: "us"
+
+  - it: should set TUNNEL_RETRIES to "3" in daemonset mode
+    set:
+      deploymentMode: daemonset
+      retries: "3"
+    template: daemonset.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_RETRIES
+            value: "3"
+
+  - it: should set TUNNEL_EDGE_IP_VERSION to "4" in daemonset mode
+    set:
+      deploymentMode: daemonset
+      edgeIpVersion: "4"
+    template: daemonset.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_EDGE_IP_VERSION
+            value: "4"
+
+  - it: should set TUNNEL_GRACE_PERIOD to "1m30s" in daemonset mode
+    set:
+      deploymentMode: daemonset
+      gracePeriod: "1m30s"
+    template: daemonset.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_GRACE_PERIOD
+            value: "1m30s"
+
+  - it: should set multiple new env vars in daemonset mode
+    set:
+      deploymentMode: daemonset
+      region: "us"
+      retries: "6"
+      edgeIpVersion: "6"
+      gracePeriod: "2m"
+    template: daemonset.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_REGION
+            value: "us"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_RETRIES
+            value: "6"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_EDGE_IP_VERSION
+            value: "6"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_GRACE_PERIOD
+            value: "2m"
+
+  # Edge cases - null values
+  - it: should not set env vars when values are null in deployment mode
+    set:
+      deploymentMode: deployment
+      region: null
+      retries: null
+      edgeIpVersion: null
+      gracePeriod: null
+    template: deployment.yaml
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].env

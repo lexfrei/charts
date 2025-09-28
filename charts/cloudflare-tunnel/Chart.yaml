@@ -3,8 +3,24 @@ annotations:
   # Valid kinds for changes: added, changed, deprecated, removed, fixed, security
   # See: https://artifacthub.io/docs/topics/annotations/helm/
   artifacthub.io/changes: |-
-    - kind: changed
-      description: Update appVersion to 2025.9.1
+    - kind: added
+      description: Add protocol customization support (auto/quic/http2)
+    - kind: added
+      description: Add postQuantum cryptography support for QUIC connections
+    - kind: added
+      description: Add region parameter for Cloudflare edge selection (us/global)
+    - kind: added
+      description: Add retries parameter for connection error handling
+    - kind: added
+      description: Add edgeIpVersion parameter for IP version control (auto/4/6)
+    - kind: added
+      description: Add gracePeriod parameter for graceful shutdown timeout
+    - kind: added
+      description: Add edgeBindAddress parameter for outgoing connection binding
+    - kind: added
+      description: Add tags parameter for tunnel identification and monitoring
+    - kind: added
+      description: Add comprehensive validation preventing incompatible protocol combinations
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -15,7 +31,7 @@ apiVersion: v2
 name: cloudflare-tunnel
 description: Creation of a cloudflared deployment - a reverse tunnel for an environment
 type: application
-version: "0.9.4"
+version: "0.10.0"
 # renovate: datasource=github-releases depName=cloudflare/cloudflared
 appVersion: "2025.9.1"
 icon: https://avatars.githubusercontent.com/u/314135

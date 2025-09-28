@@ -1,4 +1,7 @@
 {{- if eq .Values.deploymentMode "deployment" }}
+{{- if and .Values.postQuantum (eq .Values.protocol "http2") }}
+{{- fail "postQuantum cannot be enabled with http2 protocol. Use 'auto' or 'quic' instead." }}
+{{- end }}
 # Here we deploy cloudflared images. The tunnel credentials are stored in
 # a k8s secret, and the configuration is stored in a k8s configmap.
 apiVersion: apps/v1
@@ -43,10 +46,44 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          {{- if .Values.logLevel }}
+          {{- if or (and .Values.logLevel (ne .Values.logLevel "")) (and .Values.protocol (ne .Values.protocol "")) .Values.postQuantum (and .Values.region (ne .Values.region "")) (and .Values.retries (ne .Values.retries "")) (and .Values.edgeIpVersion (ne .Values.edgeIpVersion "")) (and .Values.gracePeriod (ne .Values.gracePeriod "")) (and .Values.edgeBindAddress (ne .Values.edgeBindAddress "")) (and .Values.tags (gt (len .Values.tags) 0)) }}
           env:
+            {{- if and .Values.logLevel (ne .Values.logLevel "") }}
             - name: TUNNEL_LOGLEVEL
               value: {{ .Values.logLevel }}
+            {{- end }}
+            {{- if and .Values.protocol (ne .Values.protocol "") }}
+            - name: TUNNEL_TRANSPORT_PROTOCOL
+              value: {{ .Values.protocol }}
+            {{- end }}
+            {{- if .Values.postQuantum }}
+            - name: TUNNEL_POST_QUANTUM
+              value: "true"
+            {{- end }}
+            {{- if and .Values.region (ne .Values.region "") }}
+            - name: TUNNEL_REGION
+              value: {{ .Values.region | quote }}
+            {{- end }}
+            {{- if and .Values.retries (ne .Values.retries "") }}
+            - name: TUNNEL_RETRIES
+              value: {{ .Values.retries | quote }}
+            {{- end }}
+            {{- if and .Values.edgeIpVersion (ne .Values.edgeIpVersion "") }}
+            - name: TUNNEL_EDGE_IP_VERSION
+              value: {{ .Values.edgeIpVersion | quote }}
+            {{- end }}
+            {{- if and .Values.gracePeriod (ne .Values.gracePeriod "") }}
+            - name: TUNNEL_GRACE_PERIOD
+              value: {{ .Values.gracePeriod | quote }}
+            {{- end }}
+            {{- if and .Values.edgeBindAddress (ne .Values.edgeBindAddress "") }}
+            - name: TUNNEL_EDGE_BIND_ADDRESS
+              value: {{ .Values.edgeBindAddress | quote }}
+            {{- end }}
+            {{- if and .Values.tags (gt (len .Values.tags) 0) }}
+            - name: TUNNEL_TAG
+              value: {{ $tags := list }}{{- range $key, $value := .Values.tags }}{{ $tags = append $tags (printf "%s=%s" $key $value) }}{{- end }}{{ join "," $tags }}
+            {{- end }}
           {{- end }}
           args:
             - tunnel

@@ -1,0 +1,352 @@
+suite: test edge bind address and tags configuration
+templates:
+  - deployment.yaml
+  - daemonset.yaml
+  - configmap.yaml
+  - secret.yaml
+values:
+  - ../values.yaml
+tests:
+  # Default behavior tests - no env vars when not specified
+  - it: should not set edge bind address env vars by default in deployment mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+    asserts:
+      - template: deployment.yaml
+        notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_EDGE_BIND_ADDRESS
+
+  - it: should not set tags env vars by default in deployment mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+    asserts:
+      - template: deployment.yaml
+        notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TAG
+
+  - it: should not set edge bind address env vars by default in daemonset mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+    asserts:
+      - template: daemonset.yaml
+        notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_EDGE_BIND_ADDRESS
+
+  - it: should not set tags env vars by default in daemonset mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+    asserts:
+      - template: daemonset.yaml
+        notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TAG
+
+  # Edge bind address tests
+  - it: should set TUNNEL_EDGE_BIND_ADDRESS when edgeBindAddress is specified in deployment mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      edgeBindAddress: "192.168.1.100"
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_EDGE_BIND_ADDRESS
+            value: "192.168.1.100"
+
+  - it: should set TUNNEL_EDGE_BIND_ADDRESS when edgeBindAddress is specified in daemonset mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+      edgeBindAddress: "10.0.0.50"
+    asserts:
+      - template: daemonset.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_EDGE_BIND_ADDRESS
+            value: "10.0.0.50"
+
+  - it: should support IPv6 edge bind address in deployment mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      edgeBindAddress: "2001:db8::1"
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_EDGE_BIND_ADDRESS
+            value: "2001:db8::1"
+
+  # Tags tests - single tag
+  - it: should set TUNNEL_TAG when single tag is specified in deployment mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      tags:
+        environment: production
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TAG
+            value: "environment=production"
+
+  - it: should set TUNNEL_TAG when single tag is specified in daemonset mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+      tags:
+        team: backend
+    asserts:
+      - template: daemonset.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TAG
+            value: "team=backend"
+
+  # Tags tests - multiple tags
+  - it: should set TUNNEL_TAG when multiple tags are specified in deployment mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      tags:
+        environment: staging
+        team: frontend
+        version: "1.2.3"
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TAG
+            value: "environment=staging,team=frontend,version=1.2.3"
+
+  - it: should set TUNNEL_TAG when multiple tags are specified in daemonset mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+      tags:
+        datacenter: us-east
+        cluster: prod
+    asserts:
+      - template: daemonset.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TAG
+            value: "cluster=prod,datacenter=us-east"
+
+  # Edge cases - empty values
+  - it: should not set TUNNEL_EDGE_BIND_ADDRESS when edgeBindAddress is empty in deployment mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      edgeBindAddress: ""
+    asserts:
+      - template: deployment.yaml
+        notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_EDGE_BIND_ADDRESS
+
+  - it: should not set TUNNEL_TAG when tags is empty object in deployment mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      tags: {}
+    asserts:
+      - template: deployment.yaml
+        notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TAG
+
+  # Combined tests
+  - it: should set both edgeBindAddress and tags when specified in deployment mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      edgeBindAddress: "172.16.0.10"
+      tags:
+        service: api
+        region: west
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_EDGE_BIND_ADDRESS
+            value: "172.16.0.10"
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TAG
+            value: "region=west,service=api"
+
+  # Independence tests
+  - it: should set only TUNNEL_EDGE_BIND_ADDRESS when only edgeBindAddress is specified in deployment mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      edgeBindAddress: "10.10.10.10"
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_EDGE_BIND_ADDRESS
+            value: "10.10.10.10"
+      - template: deployment.yaml
+        notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TAG
+      - template: deployment.yaml
+        notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_LOGLEVEL
+
+  - it: should set only TUNNEL_TAG when only tags are specified in daemonset mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+      tags:
+        deployment: canary
+    asserts:
+      - template: daemonset.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TAG
+            value: "deployment=canary"
+      - template: daemonset.yaml
+        notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_EDGE_BIND_ADDRESS
+      - template: daemonset.yaml
+        notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TRANSPORT_PROTOCOL
