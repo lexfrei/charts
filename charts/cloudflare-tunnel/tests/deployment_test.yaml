@@ -29,7 +29,7 @@ tests:
       - template: deployment.yaml
         equal:
           path: spec.template.spec.containers[0].image
-          value: "cloudflare/cloudflared:2025.9.0"
+          value: "cloudflare/cloudflared:2025.9.1"
 
   - it: should use custom image tag when specified
     set:

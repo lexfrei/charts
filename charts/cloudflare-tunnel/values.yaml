@@ -165,3 +165,50 @@ podLabels: {}
 # - Following Cloudflare's recommendation to limit instances per node
 # - Ensuring predictable distribution and node-level reliability
 deploymentMode: deployment
+
+# -- Transport protocol for cloudflared (auto, quic, http2)
+# auto: Cloudflare selects the best protocol automatically
+# quic: Force QUIC transport (fastest, most reliable)
+# http2: Force HTTP/2 transport (wider compatibility)
+# Leave empty to use cloudflared default
+protocol: ""
+
+# -- Enable post-quantum cryptography for QUIC connections
+# Only works with 'quic' or 'auto' protocol, conflicts with 'http2'
+# See: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/configure-tunnels/cloudflared-parameters/run-parameters/#post-quantum
+postQuantum: false
+
+# -- Cloudflare region (us for US-only, empty for global)
+# When set to "us", cloudflared will only connect to US Cloudflare edge servers
+# Leave empty for global edge selection
+region: ""
+
+# -- Maximum retries for connection/protocol errors
+# Number of retries cloudflared will attempt for network errors
+# Leave empty to use cloudflared default (5)
+retries: ""
+
+# -- IP version for edge connections (auto, 4, 6)
+# auto: Cloudflare selects optimal IP version automatically
+# 4: Force IPv4 connections to Cloudflare edge
+# 6: Force IPv6 connections to Cloudflare edge
+# Leave empty to use cloudflared default
+edgeIpVersion: ""
+
+# -- Graceful shutdown timeout (e.g., 30s, 1m)
+# Time to wait for connections to close gracefully during shutdown
+# Format: number followed by time unit (s for seconds, m for minutes)
+# Leave empty to use cloudflared default
+gracePeriod: ""
+
+# -- Edge bind address for outgoing connections
+# Specify the outgoing IP address for tunnel connections to Cloudflare edge
+# Useful for multi-homed servers with multiple network interfaces
+# Leave empty to use system default
+edgeBindAddress: ""
+
+# -- Tags for tunnel identification and monitoring
+# Key-value pairs for tagging tunnel instances in Cloudflare dashboard
+# Useful for grouping, monitoring, and analytics
+# Example: {"environment": "production", "team": "backend"}
+tags: {}
