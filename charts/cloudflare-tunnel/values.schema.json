@@ -322,7 +322,7 @@
         "initialDelaySeconds": {
           "type": "integer",
           "description": "Initial delay before liveness probe starts.",
-          "default": 10
+          "default": 30
         },
         "periodSeconds": {
           "type": "integer",

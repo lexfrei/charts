@@ -1,6 +1,6 @@
 # cloudflare-tunnel
 
-![Version: 0.10.0](https://img.shields.io/badge/Version-0.10.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.9.1](https://img.shields.io/badge/AppVersion-2025.9.1-informational?style=flat-square)
+![Version: 0.11.0](https://img.shields.io/badge/Version-0.11.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.9.1](https://img.shields.io/badge/AppVersion-2025.9.1-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -458,9 +458,9 @@ If experiencing port exhaustion on nodes:
 | image | object | `{"pullPolicy":"IfNotPresent","repository":"cloudflare/cloudflared","tag":""}` | The image to use |
 | image.tag | string | `""` | If supplied, this overrides "appVersion" |
 | imagePullSecrets | list | `[]` |  |
-| livenessProbe | object | `{"failureThreshold":1,"initialDelaySeconds":10,"periodSeconds":10}` | Liveness probe configuration |
+| livenessProbe | object | `{"failureThreshold":1,"initialDelaySeconds":30,"periodSeconds":10}` | Liveness probe configuration |
 | livenessProbe.failureThreshold | int | `1` | Failure threshold for liveness probe |
-| livenessProbe.initialDelaySeconds | int | `10` | Initial delay before liveness probe starts |
+| livenessProbe.initialDelaySeconds | int | `30` | Initial delay before liveness probe starts |
 | livenessProbe.periodSeconds | int | `10` | Period between liveness probe checks |
 | logLevel | string | `""` | Log level for cloudflared (debug, info, warn, error, fatal) |
 | metricsPort | int | `2000` | Metrics port for Prometheus metrics and readiness probe |

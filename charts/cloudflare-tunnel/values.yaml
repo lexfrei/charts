@@ -147,7 +147,7 @@ livenessProbe:
   # -- Failure threshold for liveness probe
   failureThreshold: 1
   # -- Initial delay before liveness probe starts
-  initialDelaySeconds: 10
+  initialDelaySeconds: 30
   # -- Period between liveness probe checks
   periodSeconds: 10
   # -- Timeout for liveness probe
