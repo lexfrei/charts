@@ -26,5 +26,18 @@ ingress:
         - path: /
           pathType: ImplementationSpecific
   tls: []
+httpRoute:
+  enabled: false
+  annotations: {}
+  parentRefs:
+    - name: gateway
+      namespace: gateway-system
+  hostnames:
+    - example.local
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
 vpa:
   enabled: true
