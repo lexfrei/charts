@@ -141,6 +141,79 @@
         "tls"
       ]
     },
+    "httpRoute": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "annotations": {
+          "type": "object"
+        },
+        "parentRefs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "namespace": {
+                "type": "string"
+              },
+              "group": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name"
+            ]
+          }
+        },
+        "hostnames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "matches": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "filters": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "weight": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "matches"
+            ]
+          }
+        }
+      },
+      "required": [
+        "enabled",
+        "annotations",
+        "parentRefs",
+        "hostnames",
+        "rules"
+      ]
+    },
     "vpa": {
       "type": "object",
       "properties": {
@@ -159,6 +232,7 @@
     "containerPort",
     "servicePort",
     "ingress",
+    "httpRoute",
     "vpa"
   ]
 }

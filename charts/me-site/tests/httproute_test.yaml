@@ -1,0 +1,372 @@
+suite: test httproute
+templates:
+  - httproute.yaml
+tests:
+  - it: should not create HTTPRoute when disabled
+    set:
+      httpRoute.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should create HTTPRoute when enabled
+    set:
+      httpRoute.enabled: true
+      httpRoute.parentRefs:
+        - name: test-gateway
+          namespace: gateway-system
+      httpRoute.hostnames:
+        - test.example.com
+      httpRoute.rules:
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /
+      servicePort: 8080
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: HTTPRoute
+      - equal:
+          path: apiVersion
+          value: gateway.networking.k8s.io/v1
+      - equal:
+          path: metadata.name
+          value: me-site
+      - equal:
+          path: metadata.labels.app
+          value: me-site
+
+  - it: should set parentRefs correctly
+    set:
+      httpRoute.enabled: true
+      httpRoute.parentRefs:
+        - name: test-gateway
+          namespace: gateway-system
+          kind: Gateway
+      httpRoute.hostnames:
+        - test.example.com
+      httpRoute.rules:
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /
+    asserts:
+      - equal:
+          path: spec.parentRefs[0].name
+          value: test-gateway
+      - equal:
+          path: spec.parentRefs[0].namespace
+          value: gateway-system
+      - equal:
+          path: spec.parentRefs[0].kind
+          value: Gateway
+
+  - it: should set hostnames correctly
+    set:
+      httpRoute.enabled: true
+      httpRoute.parentRefs:
+        - name: test-gateway
+      httpRoute.hostnames:
+        - test1.example.com
+        - test2.example.com
+      httpRoute.rules:
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /
+    asserts:
+      - equal:
+          path: spec.hostnames[0]
+          value: test1.example.com
+      - equal:
+          path: spec.hostnames[1]
+          value: test2.example.com
+
+  - it: should set rules with matches correctly
+    set:
+      httpRoute.enabled: true
+      httpRoute.parentRefs:
+        - name: test-gateway
+      httpRoute.hostnames:
+        - test.example.com
+      httpRoute.rules:
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /api
+            - path:
+                type: Exact
+                value: /health
+      servicePort: 8080
+    asserts:
+      - equal:
+          path: spec.rules[0].matches[0].path.type
+          value: PathPrefix
+      - equal:
+          path: spec.rules[0].matches[0].path.value
+          value: /api
+      - equal:
+          path: spec.rules[0].matches[1].path.type
+          value: Exact
+      - equal:
+          path: spec.rules[0].matches[1].path.value
+          value: /health
+
+  - it: should set backendRefs correctly
+    set:
+      httpRoute.enabled: true
+      httpRoute.parentRefs:
+        - name: test-gateway
+      httpRoute.hostnames:
+        - test.example.com
+      httpRoute.rules:
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /
+      servicePort: 9090
+    asserts:
+      - equal:
+          path: spec.rules[0].backendRefs[0].name
+          value: me-site
+      - equal:
+          path: spec.rules[0].backendRefs[0].port
+          value: 9090
+
+  - it: should set annotations when provided
+    set:
+      httpRoute.enabled: true
+      httpRoute.annotations:
+        test-annotation: test-value
+        another-annotation: another-value
+      httpRoute.parentRefs:
+        - name: test-gateway
+      httpRoute.hostnames:
+        - test.example.com
+      httpRoute.rules:
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /
+    asserts:
+      - equal:
+          path: metadata.annotations["test-annotation"]
+          value: test-value
+      - equal:
+          path: metadata.annotations["another-annotation"]
+          value: another-value
+
+  - it: should set filters when provided
+    set:
+      httpRoute.enabled: true
+      httpRoute.parentRefs:
+        - name: test-gateway
+      httpRoute.hostnames:
+        - test.example.com
+      httpRoute.rules:
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /
+          filters:
+            - type: RequestHeaderModifier
+              requestHeaderModifier:
+                add:
+                  - name: X-Custom-Header
+                    value: custom-value
+    asserts:
+      - equal:
+          path: spec.rules[0].filters[0].type
+          value: RequestHeaderModifier
+      - equal:
+          path: spec.rules[0].filters[0].requestHeaderModifier.add[0].name
+          value: X-Custom-Header
+
+  - it: should set weight when provided
+    set:
+      httpRoute.enabled: true
+      httpRoute.parentRefs:
+        - name: test-gateway
+      httpRoute.hostnames:
+        - test.example.com
+      httpRoute.rules:
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /
+          weight: 100
+      servicePort: 8080
+    asserts:
+      - equal:
+          path: spec.rules[0].backendRefs[0].weight
+          value: 100
+
+  - it: should support multiple rules with different paths
+    set:
+      httpRoute.enabled: true
+      httpRoute.parentRefs:
+        - name: test-gateway
+      httpRoute.hostnames:
+        - test.example.com
+      httpRoute.rules:
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /api
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /admin
+      servicePort: 8080
+    asserts:
+      - equal:
+          path: spec.rules[0].matches[0].path.value
+          value: /api
+      - equal:
+          path: spec.rules[1].matches[0].path.value
+          value: /admin
+      - lengthEqual:
+          path: spec.rules
+          count: 2
+
+  - it: should support multiple parentRefs
+    set:
+      httpRoute.enabled: true
+      httpRoute.parentRefs:
+        - name: gateway-1
+          namespace: gateway-system
+        - name: gateway-2
+          namespace: gateway-system
+      httpRoute.hostnames:
+        - test.example.com
+      httpRoute.rules:
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /
+    asserts:
+      - lengthEqual:
+          path: spec.parentRefs
+          count: 2
+      - equal:
+          path: spec.parentRefs[0].name
+          value: gateway-1
+      - equal:
+          path: spec.parentRefs[1].name
+          value: gateway-2
+
+  - it: should support custom parentRef with group and kind
+    set:
+      httpRoute.enabled: true
+      httpRoute.parentRefs:
+        - name: test-gateway
+          namespace: custom-ns
+          group: gateway.networking.k8s.io
+          kind: Gateway
+      httpRoute.hostnames:
+        - test.example.com
+      httpRoute.rules:
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /
+    asserts:
+      - equal:
+          path: spec.parentRefs[0].group
+          value: gateway.networking.k8s.io
+      - equal:
+          path: spec.parentRefs[0].kind
+          value: Gateway
+      - equal:
+          path: spec.parentRefs[0].namespace
+          value: custom-ns
+
+  - it: should not create HTTPRoute when both ingress and httpRoute are enabled
+    set:
+      ingress.enabled: true
+      httpRoute.enabled: true
+      httpRoute.parentRefs:
+        - name: test-gateway
+      httpRoute.hostnames:
+        - test.example.com
+      httpRoute.rules:
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: HTTPRoute
+
+  - it: should handle empty annotations
+    set:
+      httpRoute.enabled: true
+      httpRoute.annotations: {}
+      httpRoute.parentRefs:
+        - name: test-gateway
+      httpRoute.hostnames:
+        - test.example.com
+      httpRoute.rules:
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /
+    asserts:
+      - isNull:
+          path: metadata.annotations
+
+  - it: should support path match types Exact and PathPrefix
+    set:
+      httpRoute.enabled: true
+      httpRoute.parentRefs:
+        - name: test-gateway
+      httpRoute.hostnames:
+        - test.example.com
+      httpRoute.rules:
+        - matches:
+            - path:
+                type: Exact
+                value: /exact-path
+            - path:
+                type: PathPrefix
+                value: /prefix
+            - path:
+                type: RegularExpression
+                value: /regex.*
+    asserts:
+      - equal:
+          path: spec.rules[0].matches[0].path.type
+          value: Exact
+      - equal:
+          path: spec.rules[0].matches[1].path.type
+          value: PathPrefix
+      - equal:
+          path: spec.rules[0].matches[2].path.type
+          value: RegularExpression
+
+  - it: should reference correct service name and port
+    set:
+      httpRoute.enabled: true
+      httpRoute.parentRefs:
+        - name: test-gateway
+      httpRoute.hostnames:
+        - test.example.com
+      httpRoute.rules:
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /
+      servicePort: 9999
+    asserts:
+      - equal:
+          path: spec.rules[0].backendRefs[0].name
+          value: me-site
+      - equal:
+          path: spec.rules[0].backendRefs[0].port
+          value: 9999
+      - isNull:
+          path: spec.rules[0].backendRefs[0].weight

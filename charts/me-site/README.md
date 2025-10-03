@@ -1,6 +1,6 @@
 # me-site
 
-![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.0.0](https://img.shields.io/badge/AppVersion-1.0.0-informational?style=flat-square)
+![Version: 0.4.0](https://img.shields.io/badge/Version-0.4.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.0.0](https://img.shields.io/badge/AppVersion-1.0.0-informational?style=flat-square)
 
 A Helm chart for the Me-Site application
 
@@ -15,6 +15,13 @@ A Helm chart for the Me-Site application
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | containerPort | int | `8080` |  |
+| httpRoute.annotations | object | `{}` |  |
+| httpRoute.enabled | bool | `false` |  |
+| httpRoute.hostnames[0] | string | `"example.local"` |  |
+| httpRoute.parentRefs[0].name | string | `"gateway"` |  |
+| httpRoute.parentRefs[0].namespace | string | `"gateway-system"` |  |
+| httpRoute.rules[0].matches[0].path.type | string | `"PathPrefix"` |  |
+| httpRoute.rules[0].matches[0].path.value | string | `"/"` |  |
 | image.pullPolicy | string | `"Always"` |  |
 | image.repository | string | `"ghcr.io/lexfrei/me-site"` |  |
 | image.tag | string | `"latest"` |  |
