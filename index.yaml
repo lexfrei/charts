@@ -481,6 +481,24 @@ entries:
     - https://lexfrei.github.io/charts/frame-0.1.0.tgz
     version: 0.1.0
   me-site:
+  - annotations:
+      artifacthub.io/changes: |
+        - kind: added
+          description: Add HTTPRoute/Gateway API support for Kubernetes Gateway API integration
+    apiVersion: v2
+    appVersion: 1.0.0
+    created: "2025-10-03T16:58:20.472047205Z"
+    description: A Helm chart for the Me-Site application
+    digest: c9fd4fb43fc807f8c7d5c213dceee9478ff096ec2403ceaf578f28d2ba75577f
+    maintainers:
+    - email: f@lex.la
+      name: lexfrei
+      url: https://github.com/lexfrei
+    name: me-site
+    type: application
+    urls:
+    - me-site-0.4.0.tgz
+    version: 0.4.0
   - apiVersion: v2
     appVersion: 1.0.0
     created: "2025-10-02T17:19:22.230989584Z"
@@ -640,4 +658,4 @@ entries:
     urls:
     - https://lexfrei.github.io/charts/transmission-0.1.0.tgz
     version: 0.1.0
-generated: "2025-10-02T17:19:22.21988055Z"
+generated: "2025-10-03T16:58:20.472100735Z"
