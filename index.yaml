@@ -420,6 +420,24 @@ entries:
     - https://lexfrei.github.io/charts/cloudflare-tunnel-0.4.0.tgz
     version: 0.4.0
   frame:
+  - annotations:
+      artifacthub.io/changes: |
+        - kind: changed
+          description: "Replace nginx image with gcr.io/google-containers/pause:3.9 placeholder"
+    apiVersion: v2
+    appVersion: 0.0.0
+    created: "2025-10-04T19:00:25.630613235Z"
+    description: A Helm chart for Kubernetes
+    digest: b8a9fa5840c18f85b70a5d663d7f6622fb834b24f83915f75299fef3d522a039
+    maintainers:
+    - email: f@lex.la
+      name: lexfrei
+      url: https://github.com/lexfrei
+    name: frame
+    type: application
+    urls:
+    - frame-0.4.0.tgz
+    version: 0.4.0
   - apiVersion: v2
     appVersion: 0.0.0
     created: "2025-10-03T16:58:22.18388038Z"
@@ -658,4 +676,4 @@ entries:
     urls:
     - https://lexfrei.github.io/charts/transmission-0.1.0.tgz
     version: 0.1.0
-generated: "2025-10-03T16:58:22.173393699Z"
+generated: "2025-10-04T19:00:25.630689577Z"
