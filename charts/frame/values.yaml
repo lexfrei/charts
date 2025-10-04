@@ -5,9 +5,9 @@
 replicaCount: 1
 
 image:
-  repository: nginx
+  repository: gcr.io/google-containers/pause
   pullPolicy: IfNotPresent
-  tag: latest
+  tag: "3.9"
 
 imagePullSecrets: []
 nameOverride: ""
