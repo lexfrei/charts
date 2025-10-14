@@ -4,7 +4,7 @@ annotations:
   # See: https://artifacthub.io/docs/topics/annotations/helm/
   artifacthub.io/changes: |-
     - kind: changed
-      description: Increase liveness probe initialDelaySeconds from 10s to 30s for better stability
+      description: Update appVersion to 2025.10.0
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
