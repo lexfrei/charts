@@ -646,6 +646,45 @@ entries:
   transmission:
   - annotations:
       artifacthub.io/category: storage
+      artifacthub.io/changes: |-
+        - kind: changed
+          description: Update appVersion to 4.0.6
+      artifacthub.io/license: BSD-3-Clause
+      artifacthub.io/links: |
+        - name: Chart Repository
+          url: https://github.com/lexfrei/charts/
+        - name: Transmission
+          url: https://transmissionbt.com/
+    apiVersion: v2
+    appVersion: 4.0.6
+    created: "2025-10-16T23:39:55.033446479Z"
+    description: Transmission BitTorrent client Helm chart for Kubernetes
+    digest: 03715a0038a93e633e2e0232b828860fcf09a5200bf36d61730fdefa225d9e96
+    home: https://github.com/lexfrei/charts/
+    icon: https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/transmission-icon.png
+    keywords:
+    - transmission
+    - bittorrent
+    - torrent
+    - download
+    - p2p
+    - helm-chart
+    - kubernetes
+    maintainers:
+    - email: f@lex.la
+      name: lexfrei
+      url: https://github.com/lexfrei
+    name: transmission
+    sources:
+    - https://github.com/lexfrei/charts/
+    - https://github.com/transmission/transmission
+    - https://github.com/linuxserver/docker-transmission
+    type: application
+    urls:
+    - transmission-0.1.3.tgz
+    version: 0.1.3
+  - annotations:
+      artifacthub.io/category: storage
       artifacthub.io/changes: |
         - kind: added
           description: Add values.schema.json for input validation
@@ -761,4 +800,4 @@ entries:
     urls:
     - https://lexfrei.github.io/charts/transmission-0.1.0.tgz
     version: 0.1.0
-generated: "2025-10-16T21:29:50.667695382Z"
+generated: "2025-10-16T23:39:55.033518063Z"
