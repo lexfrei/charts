@@ -6,6 +6,7 @@ on:
       - master
     paths:
       - 'charts/**'
+      - '!charts/system-upgrade-controller/**'
   workflow_dispatch:
 
 permissions:
