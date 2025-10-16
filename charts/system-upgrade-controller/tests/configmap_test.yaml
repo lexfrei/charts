@@ -1,0 +1,122 @@
+suite: test ConfigMap
+templates:
+  - configmap.yaml
+tests:
+  - it: should create ConfigMap
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: ConfigMap
+
+  - it: should have correct name and namespace
+    set:
+      namespace.name: system-upgrade
+    asserts:
+      - equal:
+          path: metadata.name
+          value: default-controller-env
+      - equal:
+          path: metadata.namespace
+          value: system-upgrade
+
+  - it: should have debug setting from values
+    set:
+      controller.debug: true
+    asserts:
+      - equal:
+          path: data.SYSTEM_UPGRADE_CONTROLLER_DEBUG
+          value: "true"
+
+  - it: should have debug false by default
+    set:
+      controller.debug: false
+    asserts:
+      - equal:
+          path: data.SYSTEM_UPGRADE_CONTROLLER_DEBUG
+          value: "false"
+
+  - it: should have threads setting from values
+    set:
+      controller.threads: 4
+    asserts:
+      - equal:
+          path: data.SYSTEM_UPGRADE_CONTROLLER_THREADS
+          value: "4"
+
+  - it: should have default threads value
+    asserts:
+      - equal:
+          path: data.SYSTEM_UPGRADE_CONTROLLER_THREADS
+          value: "2"
+
+  - it: should have leader elect setting
+    set:
+      controller.leaderElect: false
+    asserts:
+      - equal:
+          path: data.SYSTEM_UPGRADE_CONTROLLER_LEADER_ELECT
+          value: "false"
+
+  - it: should have job active deadline seconds
+    set:
+      job.activeDeadlineSeconds: 1200
+    asserts:
+      - equal:
+          path: data.SYSTEM_UPGRADE_JOB_ACTIVE_DEADLINE_SECONDS
+          value: "1200"
+
+  - it: should have job backoff limit
+    set:
+      job.backoffLimit: 50
+    asserts:
+      - equal:
+          path: data.SYSTEM_UPGRADE_JOB_BACKOFF_LIMIT
+          value: "50"
+
+  - it: should have job image pull policy
+    set:
+      job.imagePullPolicy: IfNotPresent
+    asserts:
+      - equal:
+          path: data.SYSTEM_UPGRADE_JOB_IMAGE_PULL_POLICY
+          value: IfNotPresent
+
+  - it: should have kubectl image
+    set:
+      job.kubectlImage: rancher/kubectl:v1.30.0
+    asserts:
+      - equal:
+          path: data.SYSTEM_UPGRADE_JOB_KUBECTL_IMAGE
+          value: rancher/kubectl:v1.30.0
+
+  - it: should have job privileged setting
+    set:
+      job.privileged: false
+    asserts:
+      - equal:
+          path: data.SYSTEM_UPGRADE_JOB_PRIVILEGED
+          value: "false"
+
+  - it: should have job TTL
+    set:
+      job.ttlSecondsAfterFinish: 600
+    asserts:
+      - equal:
+          path: data.SYSTEM_UPGRADE_JOB_TTL_SECONDS_AFTER_FINISH
+          value: "600"
+
+  - it: should have plan polling interval
+    set:
+      plan.pollingInterval: 30m
+    asserts:
+      - equal:
+          path: data.SYSTEM_UPGRADE_PLAN_POLLING_INTERVAL
+          value: 30m
+
+  - it: should have standard helm labels
+    asserts:
+      - isNotNull:
+          path: metadata.labels["helm.sh/chart"]
+      - isNotNull:
+          path: metadata.labels["app.kubernetes.io/name"]

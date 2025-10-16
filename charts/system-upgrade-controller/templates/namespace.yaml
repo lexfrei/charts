@@ -1,0 +1,9 @@
+{{- if .Values.namespace.create }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ include "system-upgrade-controller.namespace" . }}
+  labels:
+    pod-security.kubernetes.io/enforce: privileged
+    {{- include "system-upgrade-controller.labels" . | nindent 4 }}
+{{- end }}

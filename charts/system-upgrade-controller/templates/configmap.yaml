@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: default-controller-env
+  namespace: {{ include "system-upgrade-controller.namespace" . }}
+  labels:
+    {{- include "system-upgrade-controller.labels" . | nindent 4 }}
+data:
+  SYSTEM_UPGRADE_CONTROLLER_DEBUG: {{ .Values.controller.debug | quote }}
+  SYSTEM_UPGRADE_CONTROLLER_THREADS: {{ .Values.controller.threads | quote }}
+  SYSTEM_UPGRADE_CONTROLLER_LEADER_ELECT: {{ .Values.controller.leaderElect | quote }}
+  SYSTEM_UPGRADE_JOB_ACTIVE_DEADLINE_SECONDS: {{ .Values.job.activeDeadlineSeconds | quote }}
+  SYSTEM_UPGRADE_JOB_BACKOFF_LIMIT: {{ .Values.job.backoffLimit | quote }}
+  SYSTEM_UPGRADE_JOB_IMAGE_PULL_POLICY: {{ .Values.job.imagePullPolicy | quote }}
+  SYSTEM_UPGRADE_JOB_KUBECTL_IMAGE: {{ .Values.job.kubectlImage | quote }}
+  SYSTEM_UPGRADE_JOB_PRIVILEGED: {{ .Values.job.privileged | quote }}
+  SYSTEM_UPGRADE_JOB_TTL_SECONDS_AFTER_FINISH: {{ .Values.job.ttlSecondsAfterFinish | quote }}
+  SYSTEM_UPGRADE_PLAN_POLLING_INTERVAL: {{ .Values.plan.pollingInterval | quote }}

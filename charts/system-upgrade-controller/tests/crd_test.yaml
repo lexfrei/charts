@@ -1,0 +1,84 @@
+suite: test CRD
+templates:
+  - crd.yaml
+tests:
+  - it: should create CRD when enabled
+    set:
+      crd.install: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: CustomResourceDefinition
+
+  - it: should not create CRD when disabled
+    set:
+      crd.install: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should have correct CRD name
+    set:
+      crd.install: true
+    asserts:
+      - equal:
+          path: metadata.name
+          value: plans.upgrade.cattle.io
+
+  - it: should have correct group
+    set:
+      crd.install: true
+    asserts:
+      - equal:
+          path: spec.group
+          value: upgrade.cattle.io
+
+  - it: should have correct scope
+    set:
+      crd.install: true
+    asserts:
+      - equal:
+          path: spec.scope
+          value: Namespaced
+
+  - it: should have correct plural name
+    set:
+      crd.install: true
+    asserts:
+      - equal:
+          path: spec.names.plural
+          value: plans
+
+  - it: should have correct singular name
+    set:
+      crd.install: true
+    asserts:
+      - equal:
+          path: spec.names.singular
+          value: plan
+
+  - it: should have correct kind
+    set:
+      crd.install: true
+    asserts:
+      - equal:
+          path: spec.names.kind
+          value: Plan
+
+  - it: should have v1 version
+    set:
+      crd.install: true
+    asserts:
+      - contains:
+          path: spec.versions
+          content:
+            name: v1
+          any: true
+
+  - it: should have additional printer columns
+    set:
+      crd.install: true
+    asserts:
+      - isNotEmpty:
+          path: spec.versions[0].additionalPrinterColumns

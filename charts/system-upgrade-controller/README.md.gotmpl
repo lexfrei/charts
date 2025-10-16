@@ -1,0 +1,172 @@
+{{ template "chart.header" . }}
+
+{{ template "chart.deprecationWarning" . }}
+
+{{ template "chart.badgesSection" . }}
+
+{{ template "chart.description" . }}
+
+{{ template "chart.homepageLine" . }}
+
+{{ template "chart.maintainersSection" . }}
+
+{{ template "chart.sourcesSection" . }}
+
+{{ template "chart.requirementsSection" . }}
+
+## Introduction
+
+This chart deploys the [Rancher System Upgrade Controller](https://github.com/rancher/system-upgrade-controller) on a Kubernetes cluster using the Helm package manager. The System Upgrade Controller is a Kubernetes-native upgrade controller that enables automated upgrades of cluster nodes through declarative Plans.
+
+## Features
+
+- Declarative node upgrade plans using Custom Resource Definitions (CRDs)
+- Automated rolling upgrades with configurable concurrency
+- Node drain and cordon support
+- Suitable for k3s, RKE2, and other Kubernetes distributions
+- Highly configurable job parameters
+- Full RBAC support
+
+## Installing the Chart
+
+### From OCI Registry (GHCR)
+
+This chart is published to GitHub Container Registry as an OCI artifact.
+
+```bash
+# Install latest version
+helm install system-upgrade-controller \
+  oci://ghcr.io/lexfrei/charts/system-upgrade-controller
+
+# Install specific version
+helm install system-upgrade-controller \
+  oci://ghcr.io/lexfrei/charts/system-upgrade-controller \
+  --version 0.1.0
+
+# Install with custom values
+helm install system-upgrade-controller \
+  oci://ghcr.io/lexfrei/charts/system-upgrade-controller \
+  --version 0.1.0 \
+  --values custom-values.yaml
+```
+
+### Chart Verification
+
+This chart is signed with [cosign](https://github.com/sigstore/cosign) using keyless signing. Verify the signature before installation:
+
+```bash
+cosign verify \
+  ghcr.io/lexfrei/charts/system-upgrade-controller:0.1.0 \
+  --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-system-upgrade-controller.yaml@refs/heads/master" \
+  --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
+```
+
+The signature is stored in the [Rekor transparency log](https://rekor.sigstore.dev/) for public verification.
+
+## Uninstalling the Chart
+
+```bash
+helm delete system-upgrade-controller
+```
+
+{{ template "chart.valuesSection" . }}
+
+## Example Configurations
+
+### Basic k3s Upgrade Plan
+
+After installing the controller, create a Plan to upgrade k3s:
+
+```yaml
+apiVersion: upgrade.cattle.io/v1
+kind: Plan
+metadata:
+  name: k3s-server
+  namespace: system-upgrade
+spec:
+  concurrency: 1
+  cordon: true
+  nodeSelector:
+    matchExpressions:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+  serviceAccountName: system-upgrade
+  upgrade:
+    image: rancher/k3s-upgrade
+  version: v1.28.5+k3s1
+```
+
+### Custom Namespace
+
+```yaml
+namespace:
+  name: my-upgrade-namespace
+  create: true
+```
+
+### Increased Job Timeout
+
+```yaml
+job:
+  activeDeadlineSeconds: 1800  # 30 minutes
+  ttlSecondsAfterFinish: 1800
+```
+
+### Debug Mode
+
+```yaml
+controller:
+  debug: true
+```
+
+### Disable CRD Installation
+
+If CRDs are managed separately:
+
+```yaml
+crd:
+  install: false
+```
+
+## Configuration and Installation Details
+
+### RBAC
+
+The chart creates the following RBAC resources:
+- ClusterRole for controller operations
+- ClusterRole for node draining operations
+- Role for namespace-scoped job management
+- Corresponding bindings for the service account
+
+### Security
+
+The controller runs with a restricted security context:
+- Non-root user (UID 65534)
+- No privilege escalation
+- All capabilities dropped
+- RuntimeDefault seccomp profile
+
+### Affinity and Tolerations
+
+By default, the controller is configured to run on control-plane nodes with appropriate tolerations and pod anti-affinity rules.
+
+## Upgrading the Chart
+
+```bash
+# Upgrade to latest version
+helm upgrade system-upgrade-controller \
+  oci://ghcr.io/lexfrei/charts/system-upgrade-controller
+
+# Upgrade to specific version
+helm upgrade system-upgrade-controller \
+  oci://ghcr.io/lexfrei/charts/system-upgrade-controller \
+  --version 0.2.0
+```
+
+## Resources
+
+- [System Upgrade Controller Documentation](https://github.com/rancher/system-upgrade-controller)
+- [k3s Automated Upgrades](https://docs.k3s.io/upgrades/automated)
+- [Plan CRD Reference](https://github.com/rancher/system-upgrade-controller/blob/master/pkg/apis/upgrade.cattle.io/v1/types.go)
+
+{{ template "helm-docs.versionFooter" . }}
