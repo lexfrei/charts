@@ -42,29 +42,49 @@ jobs:
         run: |
           set -e
           CHANGES_MADE=false
-          
-          # Find all changed Chart.yaml files
-          for chart_file in $(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep 'Chart.yaml$' || true); do
-            echo "Processing $chart_file"
-            
-            # Extract chart directory
-            chart_dir=$(dirname "$chart_file")
-            
-            # Get the new appVersion from the PR
-            new_app_version=$(yq eval '.appVersion' "$chart_file")
-            chart_version=$(yq eval '.version' "$chart_file")
-            
-            echo "Chart: $chart_dir"
-            echo "Version: $chart_version"
-            echo "AppVersion: $new_app_version"
-            
-            # Update changelog annotation using yq with proper escaping
-            export new_app_version
-            yq eval -i '.annotations."artifacthub.io/changes" = "- kind: changed\n  description: Update appVersion to " + env(new_app_version)' \
-              "$chart_file"
-            
-            echo "✅ Updated changelog for $chart_dir"
-            
+
+          # Collect all unique chart directories that have changes
+          changed_charts=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | \
+            grep -E '^charts/.+/(Chart\.yaml|values\.yaml)$' | \
+            sed 's|/[^/]*$||' | \
+            sort -u || true)
+
+          if [ -z "$changed_charts" ]; then
+            echo "No chart changes detected"
+            echo "changes_made=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          for chart_dir in $changed_charts; do
+            echo "Processing chart: $chart_dir"
+
+            chart_file="$chart_dir/Chart.yaml"
+
+            if [ ! -f "$chart_file" ]; then
+              echo "⚠️  Chart.yaml not found in $chart_dir, skipping"
+              continue
+            fi
+
+            # Check if Chart.yaml was changed (for changelog update)
+            if git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -q "^$chart_file\$"; then
+              # Get the new appVersion from the PR
+              new_app_version=$(yq eval '.appVersion' "$chart_file")
+              chart_version=$(yq eval '.version' "$chart_file")
+
+              echo "Chart: $chart_dir"
+              echo "Version: $chart_version"
+              echo "AppVersion: $new_app_version"
+
+              # Update changelog annotation using yq with proper escaping
+              export new_app_version
+              yq eval -i '.annotations."artifacthub.io/changes" = "- kind: changed\n  description: Update appVersion to " + env(new_app_version)' \
+                "$chart_file"
+
+              echo "✅ Updated changelog for $chart_dir"
+            else
+              echo "ℹ️  Chart.yaml not changed, skipping changelog update"
+            fi
+
             # Generate documentation if README.md.gotmpl exists
             if [ -f "$chart_dir/README.md.gotmpl" ]; then
               echo "📚 Generating documentation for $chart_dir"
@@ -73,10 +93,10 @@ jobs:
             else
               echo "ℹ️  No README.md.gotmpl found in $chart_dir, skipping documentation generation"
             fi
-            
+
             CHANGES_MADE=true
           done
-          
+
           echo "changes_made=$CHANGES_MADE" >> $GITHUB_OUTPUT
 
       - name: Commit changes
@@ -98,10 +118,14 @@ jobs:
         if: steps.update.outputs.changes_made == 'true'
         run: |
           # Get list of changed charts from the update step
-          changed_charts=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep 'Chart.yaml$' | sed 's|/Chart.yaml||' | jq -R -s -c 'split("\n") | map(select(length > 0))')
-          
+          changed_charts=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | \
+            grep -E '^charts/.+/(Chart\.yaml|values\.yaml)$' | \
+            sed 's|/[^/]*$||' | \
+            sort -u | \
+            jq -R -s -c 'split("\n") | map(select(length > 0))')
+
           echo "Triggering tests for charts: $changed_charts"
-          
+
           # Only trigger if we have charts to test
           if [[ "$changed_charts" != "[]" ]]; then
             # Trigger the test workflow with the changed charts
