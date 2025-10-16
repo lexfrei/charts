@@ -5,6 +5,7 @@ on:
     types: [opened, synchronize]
     paths:
       - 'charts/**/Chart.yaml'
+      - 'charts/**/values.yaml'
 
 jobs:
   update-renovate-pr:
