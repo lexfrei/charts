@@ -92,8 +92,16 @@ jobs:
               # Bump version
               yq eval -i ".version = \"$new_version\"" "$chart_file"
 
-              # Update changelog annotation
-              yq eval -i '.annotations."artifacthub.io/changes" = "- kind: changed\n  description: Update container images in values.yaml"' \
+              # Extract description from PR title
+              # Format: "chore(deps): update rancher/kubectl docker tag to v1.34.1" -> "Update rancher/kubectl docker tag to v1.34.1"
+              pr_title="${{ github.event.pull_request.title }}"
+              # Remove conventional commit prefix (e.g., "chore(deps): ")
+              changelog_desc=$(echo "$pr_title" | sed -E 's/^[^:]+:\s*//' | sed 's/^./\U&/')
+              chart_name=$(basename "$chart_dir")
+
+              # Update changelog annotation with PR description
+              export changelog_desc chart_name
+              yq eval -i '.annotations."artifacthub.io/changes" = "- kind: changed\n  description: " + env(changelog_desc) + " in " + env(chart_name)' \
                 "$chart_file"
 
               echo "✅ Bumped version and updated changelog for values.yaml change"
