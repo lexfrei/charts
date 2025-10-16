@@ -5,6 +5,9 @@
   ],
   "automerge": true,
   "platformAutomerge": true,
+  "automergeType": "pr",
+  "automergeStrategy": "squash",
+  "ignoreTests": false,
   "packageRules": [
     {
       "description": "Auto-bump chart version when appVersion changes",
