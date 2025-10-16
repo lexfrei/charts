@@ -1,0 +1,136 @@
+# Default values for system-upgrade-controller
+
+# -- Image configuration
+image:
+  repository: rancher/system-upgrade-controller
+  pullPolicy: IfNotPresent
+  # -- Overrides the image tag whose default is the chart appVersion
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# -- Namespace where the controller will be deployed
+namespace:
+  # -- Name of the namespace
+  name: system-upgrade
+  # -- Create the namespace
+  create: true
+
+# -- Service account configuration
+serviceAccount:
+  # -- Specifies whether a service account should be created
+  create: true
+  # -- Annotations to add to the service account
+  annotations: {}
+  # -- The name of the service account to use
+  name: system-upgrade
+
+# -- Controller configuration
+controller:
+  # -- Enable debug logging
+  debug: false
+  # -- Number of threads for the controller
+  threads: 2
+  # -- Enable leader election
+  leaderElect: true
+  # -- Controller name (from metadata labels)
+  name: system-upgrade-controller
+
+# -- Job configuration for upgrade plans
+job:
+  # -- Active deadline seconds for jobs
+  activeDeadlineSeconds: 900
+  # -- Backoff limit for job failures
+  backoffLimit: 99
+  # -- Image pull policy for upgrade jobs
+  imagePullPolicy: Always
+  # -- kubectl image for upgrade jobs
+  kubectlImage: rancher/kubectl:v1.30.3
+  # -- Run upgrade jobs as privileged
+  privileged: true
+  # -- TTL seconds after job finish
+  ttlSecondsAfterFinish: 900
+
+# -- Plan polling configuration
+plan:
+  # -- Polling interval for checking plan updates
+  pollingInterval: 15m
+
+# -- Pod annotations
+podAnnotations: {}
+
+# -- Pod labels
+podLabels: {}
+
+# -- Security context for the pod
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65534
+  runAsGroup: 65534
+
+# -- Security context for the container
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  seccompProfile:
+    type: RuntimeDefault
+
+# -- Resource limits and requests
+resources: {}
+  # requests:
+  #   memory: "128Mi"
+  #   cpu: "100m"
+  # limits:
+  #   memory: "256Mi"
+  #   cpu: "200m"
+
+# -- Node selector for the controller deployment
+nodeSelector: {}
+
+# -- Tolerations for the controller deployment
+tolerations:
+  - key: "CriticalAddonsOnly"
+    operator: "Exists"
+  - key: "node-role.kubernetes.io/master"
+    operator: "Exists"
+    effect: "NoSchedule"
+  - key: "node-role.kubernetes.io/controlplane"
+    operator: "Exists"
+    effect: "NoSchedule"
+  - key: "node-role.kubernetes.io/control-plane"
+    operator: "Exists"
+    effect: "NoSchedule"
+  - key: "node-role.kubernetes.io/etcd"
+    operator: "Exists"
+    effect: "NoExecute"
+
+# -- Affinity for the controller deployment
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: "node-role.kubernetes.io/control-plane"
+              operator: "Exists"
+            - key: "kubernetes.io/os"
+              operator: "In"
+              values:
+                - "linux"
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - topologyKey: "kubernetes.io/hostname"
+        labelSelector:
+          matchExpressions:
+            - key: "app.kubernetes.io/name"
+              operator: "In"
+              values:
+                - "system-upgrade-controller"
+
+# -- CRD installation
+crd:
+  # -- Install the CRD (Plans)
+  install: true

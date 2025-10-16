@@ -18,6 +18,28 @@ Helm chart for deploying Cloudflare Tunnel (cloudflared) in Kubernetes. This cha
 
 [📖 Documentation](./charts/cloudflare-tunnel/README.md) | [🔧 Values](./charts/cloudflare-tunnel/values.yaml)
 
+### [system-upgrade-controller](./charts/system-upgrade-controller)
+
+Kubernetes-native upgrade controller for automated node upgrades using declarative Plans. Based on [Rancher System Upgrade Controller](https://github.com/rancher/system-upgrade-controller).
+
+**Key Features:**
+
+- Declarative node upgrade plans using CRDs
+- Automated rolling upgrades with configurable concurrency
+- Node drain and cordon support
+- Suitable for k3s, RKE2, and other Kubernetes distributions
+- Highly configurable job parameters
+- **Published to GHCR as OCI artifact** with cosign signatures
+
+**Installation (OCI)**:
+```bash
+helm install system-upgrade-controller \
+  oci://ghcr.io/lexfrei/charts/system-upgrade-controller \
+  --version 0.1.0
+```
+
+[📖 Documentation](./charts/system-upgrade-controller/README.md) | [🔧 Values](./charts/system-upgrade-controller/values.yaml)
+
 ## Installation
 
 ### Add Helm Repository

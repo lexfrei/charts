@@ -1,0 +1,54 @@
+suite: test Namespace
+templates:
+  - namespace.yaml
+tests:
+  - it: should create namespace when enabled
+    set:
+      namespace.create: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Namespace
+
+  - it: should not create namespace when disabled
+    set:
+      namespace.create: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should have correct namespace name from values
+    set:
+      namespace.create: true
+      namespace.name: system-upgrade
+    asserts:
+      - equal:
+          path: metadata.name
+          value: system-upgrade
+
+  - it: should support custom namespace name
+    set:
+      namespace.create: true
+      namespace.name: custom-namespace
+    asserts:
+      - equal:
+          path: metadata.name
+          value: custom-namespace
+
+  - it: should have pod-security label
+    set:
+      namespace.create: true
+    asserts:
+      - equal:
+          path: metadata.labels["pod-security.kubernetes.io/enforce"]
+          value: privileged
+
+  - it: should have standard helm labels
+    set:
+      namespace.create: true
+    asserts:
+      - isNotNull:
+          path: metadata.labels["helm.sh/chart"]
+      - isNotNull:
+          path: metadata.labels["app.kubernetes.io/managed-by"]

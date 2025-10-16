@@ -1,0 +1,230 @@
+name: Publish system-upgrade-controller to GHCR
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'charts/system-upgrade-controller/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write      # Create releases
+  packages: write      # Push to GHCR
+  id-token: write      # Keyless signing with OIDC
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: latest
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3.7.0
+
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Install helm-unittest plugin
+        run: |
+          helm plugin install https://github.com/helm-unittest/helm-unittest.git
+
+      - name: Install check-jsonschema
+        run: pip install check-jsonschema
+
+      - name: Get chart version
+        id: chart-version
+        run: |
+          CHART_VERSION=$(yq eval '.version' charts/system-upgrade-controller/Chart.yaml)
+          CHART_NAME=$(yq eval '.name' charts/system-upgrade-controller/Chart.yaml)
+          APP_VERSION=$(yq eval '.appVersion' charts/system-upgrade-controller/Chart.yaml)
+          echo "version=${CHART_VERSION}" >> $GITHUB_OUTPUT
+          echo "name=${CHART_NAME}" >> $GITHUB_OUTPUT
+          echo "app_version=${APP_VERSION}" >> $GITHUB_OUTPUT
+          echo "tag=${CHART_NAME}-${CHART_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Check if version already exists
+        id: check-version
+        run: |
+          if gh release view "${{ steps.chart-version.outputs.tag }}" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Release ${{ steps.chart-version.outputs.tag }} already exists"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Release ${{ steps.chart-version.outputs.tag }} does not exist"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run validation tests
+        if: steps.check-version.outputs.exists == 'false'
+        run: |
+          echo "Running validation for ${{ steps.chart-version.outputs.name }} v${{ steps.chart-version.outputs.version }}"
+
+          # Lint
+          helm lint charts/system-upgrade-controller
+
+          # Schema validation
+          check-jsonschema --schemafile charts/system-upgrade-controller/values.schema.json charts/system-upgrade-controller/values.yaml
+
+          # Unit tests
+          helm unittest charts/system-upgrade-controller --color
+
+      - name: Login to GitHub Container Registry
+        if: steps.check-version.outputs.exists == 'false'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Package and push chart
+        if: steps.check-version.outputs.exists == 'false'
+        id: push
+        run: |
+          # Package chart
+          helm package charts/system-upgrade-controller
+
+          # Push to GHCR
+          CHART_FILE="${{ steps.chart-version.outputs.name }}-${{ steps.chart-version.outputs.version }}.tgz"
+          helm push "${CHART_FILE}" oci://ghcr.io/${{ github.repository_owner }}/charts
+
+          # Get digest
+          DIGEST=$(helm show chart oci://ghcr.io/${{ github.repository_owner }}/charts/${{ steps.chart-version.outputs.name }} --version ${{ steps.chart-version.outputs.version }} 2>&1 | grep -oP 'sha256:[a-f0-9]{64}' | head -1)
+          echo "digest=${DIGEST}" >> $GITHUB_OUTPUT
+          echo "Pushed chart with digest: ${DIGEST}"
+
+      - name: Sign chart with cosign
+        if: steps.check-version.outputs.exists == 'false'
+        run: |
+          IMAGE_URI="ghcr.io/${{ github.repository_owner }}/charts/${{ steps.chart-version.outputs.name }}:${{ steps.chart-version.outputs.version }}"
+          echo "Signing ${IMAGE_URI}"
+          cosign sign --yes "${IMAGE_URI}"
+          echo "Chart signed successfully"
+
+      - name: Extract changelog
+        if: steps.check-version.outputs.exists == 'false'
+        id: changelog
+        run: |
+          CHANGELOG_RAW=$(yq eval '.annotations."artifacthub.io/changes"' charts/system-upgrade-controller/Chart.yaml)
+
+          RELEASE_BODY="## Chart: ${{ steps.chart-version.outputs.name }} v${{ steps.chart-version.outputs.version }}
+
+          **App Version**: ${{ steps.chart-version.outputs.app_version }}
+
+          ### Installation
+
+          \`\`\`bash
+          helm install system-upgrade-controller \\
+            oci://ghcr.io/${{ github.repository_owner }}/charts/system-upgrade-controller \\
+            --version ${{ steps.chart-version.outputs.version }}
+          \`\`\`
+
+          ### Verification
+
+          \`\`\`bash
+          cosign verify \\
+            ghcr.io/${{ github.repository_owner }}/charts/system-upgrade-controller:${{ steps.chart-version.outputs.version }} \\
+            --certificate-identity \"https://github.com/${{ github.repository }}/.github/workflows/publish-system-upgrade-controller.yaml@refs/heads/master\" \\
+            --certificate-oidc-issuer \"https://token.actions.githubusercontent.com\"
+          \`\`\`
+          "
+
+          if [ "$CHANGELOG_RAW" != "null" ] && [ -n "$CHANGELOG_RAW" ]; then
+            RELEASE_BODY="${RELEASE_BODY}
+
+          ### Changelog
+
+          "
+            TEMP_FILE=$(mktemp)
+            SEPARATOR="|"
+            echo "$CHANGELOG_RAW" | yq eval ".[] | .kind + \"${SEPARATOR}\" + .description" - > "$TEMP_FILE"
+
+            while IFS="${SEPARATOR}" read -r kind description; do
+              case "$kind" in
+                "added")
+                  emoji="✨"
+                  ;;
+                "changed")
+                  emoji="🔄"
+                  ;;
+                "deprecated")
+                  emoji="⚠️"
+                  ;;
+                "removed")
+                  emoji="🗑️"
+                  ;;
+                "fixed")
+                  emoji="🐛"
+                  ;;
+                "security")
+                  emoji="🔒"
+                  ;;
+                *)
+                  emoji="📝"
+                  ;;
+              esac
+              RELEASE_BODY="${RELEASE_BODY}- ${emoji} ${description}
+          "
+            done < "$TEMP_FILE"
+
+            rm -f "$TEMP_FILE"
+          fi
+
+          RELEASE_BODY="${RELEASE_BODY}
+
+          ---
+
+          📦 **Published to**: \`ghcr.io/${{ github.repository_owner }}/charts/system-upgrade-controller:${{ steps.chart-version.outputs.version }}\`
+          🔐 **Signed with**: cosign (keyless)
+          📝 **Transparency log**: [Rekor](https://rekor.sigstore.dev/)
+          "
+
+          # Save to file for gh release create
+          echo "$RELEASE_BODY" > release-notes.md
+
+      - name: Create GitHub Release
+        if: steps.check-version.outputs.exists == 'false'
+        run: |
+          gh release create "${{ steps.chart-version.outputs.tag }}" \
+            --title "${{ steps.chart-version.outputs.name }} v${{ steps.chart-version.outputs.version }}" \
+            --notes-file release-notes.md \
+            "${{ steps.chart-version.outputs.name }}-${{ steps.chart-version.outputs.version }}.tgz"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        if: steps.check-version.outputs.exists == 'false'
+        run: |
+          echo "## 🚀 Release Published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Chart**: ${{ steps.chart-version.outputs.name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: ${{ steps.chart-version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **App Version**: ${{ steps.chart-version.outputs.app_version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Registry**: \`ghcr.io/${{ github.repository_owner }}/charts/${{ steps.chart-version.outputs.name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Signed**: ✅ (cosign keyless)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Installation" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "helm install system-upgrade-controller \\" >> $GITHUB_STEP_SUMMARY
+          echo "  oci://ghcr.io/${{ github.repository_owner }}/charts/system-upgrade-controller \\" >> $GITHUB_STEP_SUMMARY
+          echo "  --version ${{ steps.chart-version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Version already exists
+        if: steps.check-version.outputs.exists == 'true'
+        run: |
+          echo "## ℹ️ Version Already Published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Release **${{ steps.chart-version.outputs.tag }}** already exists." >> $GITHUB_STEP_SUMMARY
+          echo "No action taken." >> $GITHUB_STEP_SUMMARY

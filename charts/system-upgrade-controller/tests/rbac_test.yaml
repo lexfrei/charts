@@ -1,0 +1,198 @@
+suite: test RBAC
+templates:
+  - clusterrole.yaml
+  - clusterrole-drainer.yaml
+  - role.yaml
+  - clusterrolebinding.yaml
+  - rolebinding.yaml
+tests:
+  # ClusterRole tests
+  - it: should create main ClusterRole
+    template: clusterrole.yaml
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: ClusterRole
+      - equal:
+          path: metadata.name
+          value: system-upgrade-controller
+
+  - it: ClusterRole should have batch/jobs permissions
+    template: clusterrole.yaml
+    asserts:
+      - contains:
+          path: rules
+          content:
+            apiGroups: ["batch"]
+            resources: ["jobs"]
+            verbs: ["get", "list", "watch"]
+
+  - it: ClusterRole should have CRD permissions
+    template: clusterrole.yaml
+    asserts:
+      - contains:
+          path: rules
+          content:
+            apiGroups: ["apiextensions.k8s.io"]
+            resources: ["customresourcedefinitions"]
+            verbs: ["get", "list", "watch", "create", "patch", "update"]
+
+  - it: ClusterRole should have plan permissions
+    template: clusterrole.yaml
+    asserts:
+      - contains:
+          path: rules
+          content:
+            apiGroups: ["upgrade.cattle.io"]
+            resources: ["plans", "plans/status"]
+            verbs: ["get", "list", "watch", "create", "patch", "update", "delete"]
+
+  # ClusterRole Drainer tests
+  - it: should create drainer ClusterRole
+    template: clusterrole-drainer.yaml
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: ClusterRole
+      - equal:
+          path: metadata.name
+          value: system-upgrade-controller-drainer
+
+  - it: drainer ClusterRole should have pod eviction permissions
+    template: clusterrole-drainer.yaml
+    asserts:
+      - contains:
+          path: rules
+          content:
+            apiGroups: [""]
+            resources: ["pods/eviction"]
+            verbs: ["create"]
+
+  - it: drainer ClusterRole should have node patch permissions
+    template: clusterrole-drainer.yaml
+    asserts:
+      - contains:
+          path: rules
+          content:
+            apiGroups: [""]
+            resources: ["nodes"]
+            verbs: ["get", "patch"]
+
+  # Role tests
+  - it: should create Role in namespace
+    template: role.yaml
+    set:
+      namespace.name: system-upgrade
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Role
+      - equal:
+          path: metadata.name
+          value: system-upgrade-controller
+      - equal:
+          path: metadata.namespace
+          value: system-upgrade
+
+  - it: Role should have job management permissions
+    template: role.yaml
+    asserts:
+      - contains:
+          path: rules
+          content:
+            apiGroups: ["batch"]
+            resources: ["jobs"]
+            verbs: ["create", "delete", "deletecollection", "patch", "update", "get", "list", "watch"]
+
+  - it: Role should have secret read permissions
+    template: role.yaml
+    asserts:
+      - contains:
+          path: rules
+          content:
+            apiGroups: [""]
+            resources: ["secrets"]
+            verbs: ["get", "list", "watch"]
+
+  # ClusterRoleBinding tests
+  - it: should create ClusterRoleBindings
+    template: clusterrolebinding.yaml
+    asserts:
+      - hasDocuments:
+          count: 2
+
+  - it: should create main ClusterRoleBinding
+    template: clusterrolebinding.yaml
+    documentIndex: 0
+    asserts:
+      - isKind:
+          of: ClusterRoleBinding
+      - equal:
+          path: metadata.name
+          value: system-upgrade
+
+  - it: should create drainer ClusterRoleBinding
+    template: clusterrolebinding.yaml
+    documentIndex: 1
+    asserts:
+      - isKind:
+          of: ClusterRoleBinding
+      - equal:
+          path: metadata.name
+          value: system-upgrade-drainer
+
+  - it: main ClusterRoleBinding should reference correct role
+    template: clusterrolebinding.yaml
+    documentIndex: 0
+    asserts:
+      - equal:
+          path: roleRef.kind
+          value: ClusterRole
+      - equal:
+          path: roleRef.name
+          value: system-upgrade-controller
+
+  - it: main ClusterRoleBinding should reference service account
+    template: clusterrolebinding.yaml
+    documentIndex: 0
+    set:
+      namespace.name: system-upgrade
+      serviceAccount.name: system-upgrade
+    asserts:
+      - contains:
+          path: subjects
+          content:
+            kind: ServiceAccount
+            name: system-upgrade
+            namespace: system-upgrade
+
+  # RoleBinding tests
+  - it: should create RoleBinding
+    template: rolebinding.yaml
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: RoleBinding
+
+  - it: RoleBinding should be in correct namespace
+    template: rolebinding.yaml
+    set:
+      namespace.name: system-upgrade
+    asserts:
+      - equal:
+          path: metadata.namespace
+          value: system-upgrade
+
+  - it: RoleBinding should reference correct role
+    template: rolebinding.yaml
+    asserts:
+      - equal:
+          path: roleRef.kind
+          value: Role
+      - equal:
+          path: roleRef.name
+          value: system-upgrade-controller

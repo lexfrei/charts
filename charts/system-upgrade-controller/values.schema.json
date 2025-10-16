@@ -1,0 +1,201 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "System Upgrade Controller Values",
+  "type": "object",
+  "properties": {
+    "image": {
+      "type": "object",
+      "properties": {
+        "repository": {
+          "type": "string",
+          "description": "Image repository"
+        },
+        "pullPolicy": {
+          "type": "string",
+          "enum": ["Always", "IfNotPresent", "Never"],
+          "description": "Image pull policy"
+        },
+        "tag": {
+          "type": "string",
+          "description": "Overrides the image tag whose default is the chart appVersion"
+        }
+      },
+      "required": ["repository", "pullPolicy"]
+    },
+    "imagePullSecrets": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Image pull secrets"
+    },
+    "nameOverride": {
+      "type": "string",
+      "description": "Override the name of the chart"
+    },
+    "fullnameOverride": {
+      "type": "string",
+      "description": "Override the fullname of the chart"
+    },
+    "namespace": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the namespace"
+        },
+        "create": {
+          "type": "boolean",
+          "description": "Create the namespace"
+        }
+      },
+      "required": ["name", "create"]
+    },
+    "serviceAccount": {
+      "type": "object",
+      "properties": {
+        "create": {
+          "type": "boolean",
+          "description": "Specifies whether a service account should be created"
+        },
+        "annotations": {
+          "type": "object",
+          "description": "Annotations to add to the service account"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the service account to use"
+        }
+      },
+      "required": ["create"]
+    },
+    "controller": {
+      "type": "object",
+      "properties": {
+        "debug": {
+          "type": "boolean",
+          "description": "Enable debug logging"
+        },
+        "threads": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of threads for the controller"
+        },
+        "leaderElect": {
+          "type": "boolean",
+          "description": "Enable leader election"
+        },
+        "name": {
+          "type": "string",
+          "description": "Controller name"
+        }
+      },
+      "required": ["debug", "threads", "leaderElect", "name"]
+    },
+    "job": {
+      "type": "object",
+      "properties": {
+        "activeDeadlineSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Active deadline seconds for jobs"
+        },
+        "backoffLimit": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Backoff limit for job failures"
+        },
+        "imagePullPolicy": {
+          "type": "string",
+          "enum": ["Always", "IfNotPresent", "Never"],
+          "description": "Image pull policy for upgrade jobs"
+        },
+        "kubectlImage": {
+          "type": "string",
+          "description": "kubectl image for upgrade jobs"
+        },
+        "privileged": {
+          "type": "boolean",
+          "description": "Run upgrade jobs as privileged"
+        },
+        "ttlSecondsAfterFinish": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "TTL seconds after job finish"
+        }
+      },
+      "required": [
+        "activeDeadlineSeconds",
+        "backoffLimit",
+        "imagePullPolicy",
+        "kubectlImage",
+        "privileged",
+        "ttlSecondsAfterFinish"
+      ]
+    },
+    "plan": {
+      "type": "object",
+      "properties": {
+        "pollingInterval": {
+          "type": "string",
+          "description": "Polling interval for checking plan updates"
+        }
+      },
+      "required": ["pollingInterval"]
+    },
+    "podAnnotations": {
+      "type": "object",
+      "description": "Pod annotations"
+    },
+    "podLabels": {
+      "type": "object",
+      "description": "Pod labels"
+    },
+    "podSecurityContext": {
+      "type": "object",
+      "description": "Security context for the pod"
+    },
+    "securityContext": {
+      "type": "object",
+      "description": "Security context for the container"
+    },
+    "resources": {
+      "type": "object",
+      "description": "Resource limits and requests"
+    },
+    "nodeSelector": {
+      "type": "object",
+      "description": "Node selector for the controller deployment"
+    },
+    "tolerations": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Tolerations for the controller deployment"
+    },
+    "affinity": {
+      "type": "object",
+      "description": "Affinity for the controller deployment"
+    },
+    "crd": {
+      "type": "object",
+      "properties": {
+        "install": {
+          "type": "boolean",
+          "description": "Install the CRD (Plans)"
+        }
+      },
+      "required": ["install"]
+    }
+  },
+  "required": [
+    "image",
+    "namespace",
+    "serviceAccount",
+    "controller",
+    "job",
+    "plan",
+    "crd"
+  ]
+}

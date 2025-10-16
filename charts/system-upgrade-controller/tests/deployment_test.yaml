@@ -1,0 +1,211 @@
+suite: test Deployment
+templates:
+  - deployment.yaml
+tests:
+  - it: should create Deployment
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Deployment
+
+  - it: should have correct name and namespace
+    set:
+      namespace.name: system-upgrade
+    asserts:
+      - equal:
+          path: metadata.name
+          value: system-upgrade-controller
+      - equal:
+          path: metadata.namespace
+          value: system-upgrade
+
+  - it: should have Recreate strategy
+    asserts:
+      - equal:
+          path: spec.strategy.type
+          value: Recreate
+
+  - it: should have correct selector labels
+    asserts:
+      - equal:
+          path: spec.selector.matchLabels["upgrade.cattle.io/controller"]
+          value: system-upgrade-controller
+
+  - it: should have pod labels
+    asserts:
+      - equal:
+          path: spec.template.metadata.labels["app.kubernetes.io/component"]
+          value: controller
+      - equal:
+          path: spec.template.metadata.labels["app.kubernetes.io/name"]
+          value: system-upgrade-controller
+      - equal:
+          path: spec.template.metadata.labels["upgrade.cattle.io/controller"]
+          value: system-upgrade-controller
+
+  - it: should use correct service account
+    set:
+      serviceAccount.name: system-upgrade
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: system-upgrade
+
+  - it: should have nodeAffinity for control-plane
+    asserts:
+      - isNotEmpty:
+          path: spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution
+
+  - it: should have podAntiAffinity
+    asserts:
+      - isNotEmpty:
+          path: spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution
+
+  - it: should have all tolerations
+    asserts:
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: "CriticalAddonsOnly"
+            operator: "Exists"
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: "node-role.kubernetes.io/control-plane"
+            operator: "Exists"
+            effect: "NoSchedule"
+
+  - it: should have correct security context
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext.runAsNonRoot
+          value: true
+      - equal:
+          path: spec.template.spec.securityContext.runAsUser
+          value: 65534
+      - equal:
+          path: spec.template.spec.securityContext.runAsGroup
+          value: 65534
+
+  - it: should have container security context
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.allowPrivilegeEscalation
+          value: false
+      - contains:
+          path: spec.template.spec.containers[0].securityContext.capabilities.drop
+          content: ALL
+
+  - it: should have correct image
+    set:
+      image.repository: test/repo
+      image.tag: v1.0.0
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: test/repo:v1.0.0
+
+  - it: should use appVersion as default tag
+    set:
+      image.repository: test/repo
+      image.tag: ""
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "^test/repo:v"
+
+  - it: should have envFrom with configMap
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            configMapRef:
+              name: default-controller-env
+
+  - it: should have env variables from field ref
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SYSTEM_UPGRADE_CONTROLLER_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.labels['upgrade.cattle.io/controller']
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SYSTEM_UPGRADE_CONTROLLER_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+
+  - it: should have all volume mounts
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: etc-ssl
+            mountPath: /etc/ssl
+            readOnly: true
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: etc-pki
+            mountPath: /etc/pki
+            readOnly: true
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: tmp
+            mountPath: /tmp
+
+  - it: should have all volumes
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: etc-ssl
+            hostPath:
+              path: /etc/ssl
+              type: DirectoryOrCreate
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: tmp
+            emptyDir: {}
+
+  - it: should support custom resources
+    set:
+      resources:
+        requests:
+          memory: "256Mi"
+          cpu: "200m"
+        limits:
+          memory: "512Mi"
+          cpu: "400m"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests.memory
+          value: 256Mi
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits.cpu
+          value: 400m
+
+  - it: should support custom pod annotations
+    set:
+      podAnnotations:
+        test: value
+    asserts:
+      - equal:
+          path: spec.template.metadata.annotations.test
+          value: value
+
+  - it: should support custom pod labels
+    set:
+      podLabels:
+        custom: label
+    asserts:
+      - equal:
+          path: spec.template.metadata.labels.custom
+          value: label
