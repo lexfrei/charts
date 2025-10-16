@@ -600,6 +600,49 @@ entries:
     urls:
     - https://lexfrei.github.io/charts/prometheus-ipmi-exporter-0.1.0.tgz
     version: 0.1.0
+  system-upgrade-controller:
+  - annotations:
+      artifacthub.io/category: infrastructure
+      artifacthub.io/changes: |-
+        - kind: added
+          description: Initial release of system-upgrade-controller Helm chart
+      artifacthub.io/license: BSD-3-Clause
+      artifacthub.io/links: |
+        - name: Chart Repository
+          url: https://github.com/lexfrei/charts/
+        - name: System Upgrade Controller
+          url: https://github.com/rancher/system-upgrade-controller/
+    apiVersion: v2
+    appVersion: v0.17.0
+    created: "2025-10-16T21:29:48.524826716Z"
+    description: Kubernetes-native upgrade controller for nodes using declarative
+      Plans
+    digest: 3b9c10bf75d4ea6d92dbcf98698e19a08f2061db6bf5e502cf63853182586d1a
+    home: https://github.com/lexfrei/charts/
+    icon: https://avatars.githubusercontent.com/u/9343010
+    keywords:
+    - system-upgrade
+    - upgrade
+    - controller
+    - node-upgrade
+    - k3s
+    - rancher
+    - helm-chart
+    - kubernetes
+    - infrastructure
+    - automation
+    maintainers:
+    - email: f@lex.la
+      name: lexfrei
+      url: https://github.com/lexfrei
+    name: system-upgrade-controller
+    sources:
+    - https://github.com/lexfrei/charts/
+    - https://github.com/rancher/system-upgrade-controller/
+    type: application
+    urls:
+    - system-upgrade-controller-0.1.0.tgz
+    version: 0.1.0
   transmission:
   - annotations:
       artifacthub.io/category: storage
@@ -718,4 +761,4 @@ entries:
     urls:
     - https://lexfrei.github.io/charts/transmission-0.1.0.tgz
     version: 0.1.0
-generated: "2025-10-15T00:42:13.29308033Z"
+generated: "2025-10-16T21:29:48.52489861Z"
