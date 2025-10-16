@@ -1,28 +1,23 @@
 annotations:
   artifacthub.io/category: infrastructure
   artifacthub.io/changes: |-
-    - kind: added
-      description: Initial release of system-upgrade-controller Helm chart
+    - kind: changed
+      description: Update appVersion to v0.17.0
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
       url: https://github.com/lexfrei/charts/
     - name: System Upgrade Controller
       url: https://github.com/rancher/system-upgrade-controller/
-
 apiVersion: v2
 name: system-upgrade-controller
 description: Kubernetes-native upgrade controller for nodes using declarative Plans
 type: application
-
-version: "0.1.0"
+version: "0.1.1"
 # renovate: datasource=github-releases depName=rancher/system-upgrade-controller
 appVersion: "v0.17.0"
-
 icon: https://avatars.githubusercontent.com/u/9343010
-
 home: https://github.com/lexfrei/charts/
-
 keywords:
   - system-upgrade
   - upgrade
@@ -34,12 +29,10 @@ keywords:
   - kubernetes
   - infrastructure
   - automation
-
 maintainers:
   - name: lexfrei
     email: f@lex.la
     url: https://github.com/lexfrei
-
 sources:
   - https://github.com/lexfrei/charts/
   - https://github.com/rancher/system-upgrade-controller/
