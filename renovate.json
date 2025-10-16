@@ -3,6 +3,8 @@
   "extends": [
     "config:recommended"
   ],
+  "automerge": true,
+  "platformAutomerge": true,
   "packageRules": [
     {
       "description": "Auto-bump chart version when appVersion changes",
