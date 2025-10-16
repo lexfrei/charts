@@ -95,7 +95,7 @@ jobs:
               # Extract description from PR title
               # Format: "chore(deps): update rancher/kubectl docker tag to v1.34.1" -> "Update rancher/kubectl docker tag to v1.34.1"
               pr_title="${{ github.event.pull_request.title }}"
-              # Remove conventional commit prefix (e.g., "chore(deps): ")
+              # Remove conventional commit prefix (e.g., "chore(deps): ") and capitalize first letter (GNU sed)
               changelog_desc=$(echo "$pr_title" | sed -E 's/^[^:]+:\s*//' | sed 's/^./\U&/')
               chart_name=$(basename "$chart_dir")
 
