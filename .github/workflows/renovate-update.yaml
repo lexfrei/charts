@@ -15,6 +15,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      actions: write
     
     steps:
       - name: Checkout
@@ -65,24 +66,39 @@ jobs:
               continue
             fi
 
-            # Check if Chart.yaml was changed (for changelog update)
-            if git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -q "^$chart_file\$"; then
-              # Get the new appVersion from the PR
+            # Check what was changed
+            chart_yaml_changed=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -q "^$chart_file\$" && echo "true" || echo "false")
+            values_yaml_changed=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -q "^$chart_dir/values\.yaml\$" && echo "true" || echo "false")
+
+            current_version=$(yq eval '.version' "$chart_file")
+            echo "Current chart version: $current_version"
+
+            if [ "$chart_yaml_changed" = "true" ]; then
+              # Chart.yaml was changed - update changelog with appVersion
               new_app_version=$(yq eval '.appVersion' "$chart_file")
-              chart_version=$(yq eval '.version' "$chart_file")
+              echo "AppVersion updated to: $new_app_version"
 
-              echo "Chart: $chart_dir"
-              echo "Version: $chart_version"
-              echo "AppVersion: $new_app_version"
-
-              # Update changelog annotation using yq with proper escaping
+              # Update changelog annotation
               export new_app_version
               yq eval -i '.annotations."artifacthub.io/changes" = "- kind: changed\n  description: Update appVersion to " + env(new_app_version)' \
                 "$chart_file"
 
-              echo "✅ Updated changelog for $chart_dir"
+              echo "✅ Updated changelog for appVersion change"
+            elif [ "$values_yaml_changed" = "true" ]; then
+              # Only values.yaml changed - bump patch version and update changelog
+              new_version=$(echo "$current_version" | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
+              echo "Bumping chart version: $current_version -> $new_version"
+
+              # Bump version
+              yq eval -i ".version = \"$new_version\"" "$chart_file"
+
+              # Update changelog annotation
+              yq eval -i '.annotations."artifacthub.io/changes" = "- kind: changed\n  description: Update container images in values.yaml"' \
+                "$chart_file"
+
+              echo "✅ Bumped version and updated changelog for values.yaml change"
             else
-              echo "ℹ️  Chart.yaml not changed, skipping changelog update"
+              echo "ℹ️  No relevant changes detected"
             fi
 
             # Generate documentation if README.md.gotmpl exists
