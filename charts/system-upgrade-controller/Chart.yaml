@@ -2,7 +2,7 @@ annotations:
   artifacthub.io/category: infrastructure
   artifacthub.io/changes: |-
     - kind: changed
-      description: Update container images in values.yaml
+      description: Update appVersion to v0.17.0
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
