@@ -66,48 +66,26 @@ jobs:
               continue
             fi
 
-            # Check what was changed
-            chart_yaml_changed=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -q "^$chart_file\$" && echo "true" || echo "false")
-            values_yaml_changed=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -q "^$chart_dir/values\.yaml\$" && echo "true" || echo "false")
-
             current_version=$(yq eval '.version' "$chart_file")
             echo "Current chart version: $current_version"
 
-            if [ "$chart_yaml_changed" = "true" ]; then
-              # Chart.yaml was changed - update changelog with appVersion
-              new_app_version=$(yq eval '.appVersion' "$chart_file")
-              echo "AppVersion updated to: $new_app_version"
+            # Bump patch version
+            new_version=$(echo "$current_version" | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
+            echo "Bumping chart version: $current_version -> $new_version"
+            yq eval -i ".version = \"$new_version\"" "$chart_file"
 
-              # Update changelog annotation
-              export new_app_version
-              yq eval -i '.annotations."artifacthub.io/changes" = "- kind: changed\n  description: Update appVersion to " + env(new_app_version)' \
-                "$chart_file"
+            # Extract description from PR title
+            # Format: "chore(deps): update rancher/kubectl docker tag to v1.34.1" -> "Update rancher/kubectl docker tag to v1.34.1"
+            pr_title="${{ github.event.pull_request.title }}"
+            # Remove conventional commit prefix (e.g., "chore(deps): ") and capitalize first letter (GNU sed)
+            changelog_desc=$(echo "$pr_title" | sed -E 's/^[^:]+:\s*//' | sed 's/^./\U&/')
 
-              echo "✅ Updated changelog for appVersion change"
-            elif [ "$values_yaml_changed" = "true" ]; then
-              # Only values.yaml changed - bump patch version and update changelog
-              new_version=$(echo "$current_version" | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
-              echo "Bumping chart version: $current_version -> $new_version"
+            # Update changelog annotation with PR description
+            export changelog_desc
+            yq eval -i '.annotations."artifacthub.io/changes" = "- kind: changed\n  description: " + env(changelog_desc)' \
+              "$chart_file"
 
-              # Bump version
-              yq eval -i ".version = \"$new_version\"" "$chart_file"
-
-              # Extract description from PR title
-              # Format: "chore(deps): update rancher/kubectl docker tag to v1.34.1" -> "Update rancher/kubectl docker tag to v1.34.1"
-              pr_title="${{ github.event.pull_request.title }}"
-              # Remove conventional commit prefix (e.g., "chore(deps): ") and capitalize first letter (GNU sed)
-              changelog_desc=$(echo "$pr_title" | sed -E 's/^[^:]+:\s*//' | sed 's/^./\U&/')
-              chart_name=$(basename "$chart_dir")
-
-              # Update changelog annotation with PR description
-              export changelog_desc chart_name
-              yq eval -i '.annotations."artifacthub.io/changes" = "- kind: changed\n  description: " + env(changelog_desc) + " in " + env(chart_name)' \
-                "$chart_file"
-
-              echo "✅ Bumped version and updated changelog for values.yaml change"
-            else
-              echo "ℹ️  No relevant changes detected"
-            fi
+            echo "✅ Updated Chart.yaml with version and changelog"
 
             # Generate documentation if README.md.gotmpl exists
             if [ -f "$chart_dir/README.md.gotmpl" ]; then
