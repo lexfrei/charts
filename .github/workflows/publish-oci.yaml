@@ -58,7 +58,7 @@ jobs:
             if [[ "${{ github.event_name }}" == "push" ]]; then
               # For push events, compare with the commit before push
               echo "Comparing with commit before push: ${{ github.event.before }}"
-              changed=$(ct list-changed --since ${{ github.event.before }} --chart-dirs charts)
+              changed=$(ct list-changed --since ${{ github.event.before }} --target-branch ${{ github.event.repository.default_branch }} --chart-dirs charts)
             else
               # For pull_request and other events, compare with target branch
               echo "Comparing with target branch: ${{ github.event.repository.default_branch }}"
