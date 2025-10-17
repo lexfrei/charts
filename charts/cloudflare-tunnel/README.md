@@ -1,6 +1,6 @@
 # cloudflare-tunnel
 
-![Version: 0.12.0](https://img.shields.io/badge/Version-0.12.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.10.0](https://img.shields.io/badge/AppVersion-2025.10.0-informational?style=flat-square)
+![Version: 0.12.1](https://img.shields.io/badge/Version-0.12.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.10.0](https://img.shields.io/badge/AppVersion-2025.10.0-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -52,12 +52,7 @@ This Helm chart uses the **official Cloudflare Docker image**:
 
 ## 🚀 Installation
 
-### Add Helm Repository
-
-```bash
-helm repo add lexfrei https://lexfrei.github.io/charts/
-helm repo update
-```
+This chart is published to GitHub Container Registry (GHCR) as an OCI artifact.
 
 ### Create Cloudflare Tunnel
 
@@ -67,17 +62,39 @@ Before installing the chart, create a tunnel in Cloudflare:
 2. Navigate to Networks → Tunnels
 3. Create a new tunnel and note the Tunnel ID and Secret
 
-### Install Chart
+### Install Chart from GHCR
 
 ```bash
-helm install cloudflare-tunnel lexfrei/cloudflare-tunnel \
+# Install with inline configuration
+helm install cloudflare-tunnel \
+  oci://ghcr.io/lexfrei/charts/cloudflare-tunnel \
+  --version 0.12.1 \
   --set cloudflare.account=YOUR_ACCOUNT_ID \
   --set cloudflare.tunnelName=YOUR_TUNNEL_NAME \
   --set cloudflare.tunnelId=YOUR_TUNNEL_ID \
   --set cloudflare.secret=YOUR_TUNNEL_SECRET \
   --set cloudflare.ingress[0].hostname=example.com \
   --set cloudflare.ingress[0].service=http://my-service:80
+
+# Install with values file
+helm install cloudflare-tunnel \
+  oci://ghcr.io/lexfrei/charts/cloudflare-tunnel \
+  --version 0.12.1 \
+  --values values.yaml
 ```
+
+### Chart Verification
+
+This chart is signed with [cosign](https://github.com/sigstore/cosign) using keyless signing. Verify the signature before installation:
+
+```bash
+cosign verify \
+  ghcr.io/lexfrei/charts/cloudflare-tunnel:0.12.1 \
+  --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
+  --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
+```
+
+The signature is stored in the [Rekor transparency log](https://rekor.sigstore.dev/) for public verification.
 
 ## 📝 Configuration Examples
 

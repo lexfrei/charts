@@ -1,6 +1,6 @@
 # transmission
 
-![Version: 0.1.3](https://img.shields.io/badge/Version-0.1.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.0.6](https://img.shields.io/badge/AppVersion-4.0.6-informational?style=flat-square)
+![Version: 0.1.4](https://img.shields.io/badge/Version-0.1.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.0.6](https://img.shields.io/badge/AppVersion-4.0.6-informational?style=flat-square)
 
 Transmission BitTorrent client Helm chart for Kubernetes
 
@@ -20,9 +20,30 @@ Transmission BitTorrent client Helm chart for Kubernetes
 
 ## Installing the Chart
 
+This chart is published to GitHub Container Registry (GHCR) as an OCI artifact.
+
 ```bash
-helm repo add lexfrei https://lexfrei.github.io/charts
-helm install transmission lexfrei/transmission
+# Install from GHCR
+helm install transmission \
+  oci://ghcr.io/lexfrei/charts/transmission \
+  --version 0.1.4
+
+# Install with custom values
+helm install transmission \
+  oci://ghcr.io/lexfrei/charts/transmission \
+  --version 0.1.4 \
+  --values values.yaml
+```
+
+### Chart Verification
+
+This chart is signed with [cosign](https://github.com/sigstore/cosign) using keyless signing:
+
+```bash
+cosign verify \
+  ghcr.io/lexfrei/charts/transmission:0.1.4 \
+  --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
+  --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
 
 ## Uninstalling the Chart

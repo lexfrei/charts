@@ -59,8 +59,8 @@ This chart is signed with [cosign](https://github.com/sigstore/cosign) using key
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/system-upgrade-controller:0.1.0 \
-  --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-system-upgrade-controller.yaml@refs/heads/master" \
+  ghcr.io/lexfrei/charts/system-upgrade-controller:0.1.2 \
+  --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
 
