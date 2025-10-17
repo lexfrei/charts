@@ -2,6 +2,11 @@
 
 ![Version: 0.1.4](https://img.shields.io/badge/Version-0.1.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.0.6](https://img.shields.io/badge/AppVersion-4.0.6-informational?style=flat-square)
 
+## 📊 Status & Metrics
+
+[![Lint and Test](https://github.com/lexfrei/charts/actions/workflows/test.yaml/badge.svg)](https://github.com/lexfrei/charts/actions/workflows/test.yaml)
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/lexfrei-charts)](https://artifacthub.io/packages/search?repo=lexfrei-charts)
+
 Transmission BitTorrent client Helm chart for Kubernetes
 
 **Homepage:** <https://github.com/lexfrei/charts/>
