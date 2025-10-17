@@ -6,9 +6,8 @@ This file provides repository-specific guidance to Claude Code (claude.ai/code) 
 
 ## Repository Overview
 
-This is a Helm charts repository containing multiple Kubernetes application charts:
+This is a Helm charts repository containing multiple Kubernetes application charts, all published to GHCR as OCI artifacts:
 - **cloudflare-tunnel**: Main chart for deploying Cloudflare tunnels
-- **frame**: Frame application deployment
 - **me-site**: Personal site deployment
 - **system-upgrade-controller**: Kubernetes-native node upgrade controller using declarative Plans
 - **transmission**: Transmission BitTorrent client deployment
@@ -211,28 +210,54 @@ spec:
 ### GitHub Actions Workflows
 
 - **test.yaml**: Runs lint, tests, and validation on chart changes
-- **publish.yaml**: Publishes charts to GitHub Pages (chart-releaser for legacy charts)
-- **publish-system-upgrade-controller.yaml**: Modern OCI + cosign workflow for system-upgrade-controller
+- **publish-oci.yaml**: Unified OCI publishing workflow for all charts
 - **renovate-update.yaml**: Handles dependency updates
 
 ### Change Detection
 
-The test workflow automatically detects changed charts using `ct list-changed` or accepts manual chart specification via `workflow_dispatch` with JSON array input.
+Workflows automatically detect changed charts using `ct list-changed` or accept manual chart specification via `workflow_dispatch` with JSON array input.
 
 ### Manual Workflow Dispatch
 
-To manually trigger tests for specific charts:
-
 ```bash
-# Using GitHub CLI
+# Manually trigger tests for specific charts
 gh workflow run test.yaml --field charts='["charts/cloudflare-tunnel"]'
+
+# Manually trigger publishing for specific charts
+gh workflow run publish-oci.yaml --field charts='["charts/cloudflare-tunnel"]'
 ```
 
 ## Publishing Charts
 
-### Modern OCI Publishing (system-upgrade-controller)
+All charts are published to GitHub Container Registry (GHCR) as OCI artifacts using a unified matrix-based workflow.
 
-The `system-upgrade-controller` chart uses a modern publishing pipeline with:
+### Architecture
+
+**Unified Workflow** (`.github/workflows/publish-oci.yaml`):
+- Single matrix-based workflow for all charts
+- Automatic change detection via `ct list-changed`
+- Per-chart validation, signing, and release
+- Independent chart publishing (fail-fast disabled)
+
+**Charts**:
+- cloudflare-tunnel
+- me-site
+- system-upgrade-controller
+- transmission
+
+### Publishing Process
+
+1. **Detect Changed Charts**: Automatically detect changed charts or use manual input
+2. **For Each Changed Chart**:
+   - Extract chart metadata (name, version, appVersion)
+   - Check if version already exists (idempotent)
+   - Validate: `helm lint` + schema validation + `helm unittest`
+   - Package chart with `helm package`
+   - Push to GHCR: `oci://ghcr.io/lexfrei/charts/<chart-name>`
+   - Sign with cosign (keyless OIDC)
+   - Create GitHub Release with formatted changelog
+
+### Features
 
 **Publishing to GHCR (GitHub Container Registry)**:
 - OCI-native Helm chart storage
@@ -244,64 +269,82 @@ The `system-upgrade-controller` chart uses a modern publishing pipeline with:
 - GitHub OIDC for ephemeral credentials
 - No key management required
 
-**Installation**:
-```bash
-# Install from GHCR
-helm install system-upgrade-controller \
-  oci://ghcr.io/lexfrei/charts/system-upgrade-controller \
-  --version 0.1.0
-```
-
-**Verification**:
-```bash
-# Verify signature
-cosign verify \
-  ghcr.io/lexfrei/charts/system-upgrade-controller:0.1.0 \
-  --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-system-upgrade-controller.yaml@refs/heads/master" \
-  --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
-```
-
 **Workflow Features**:
 - Validates chart with lint + unittest + schema before publishing
 - Checks if version already exists (idempotent)
 - Creates GitHub Release with formatted changelog
 - Provides installation and verification instructions
+- Matrix-based for scalability
 
-**Triggering Publication**:
+### Installation
+
 ```bash
-# Manual trigger
-gh workflow run publish-system-upgrade-controller.yaml
+# Install any chart from GHCR
+helm install <release-name> \
+  oci://ghcr.io/lexfrei/charts/<chart-name> \
+  --version <version>
 
-# Automatic: Push changes to charts/system-upgrade-controller/** on master branch
+# Examples:
+helm install my-tunnel \
+  oci://ghcr.io/lexfrei/charts/cloudflare-tunnel \
+  --version 0.12.0
+
+helm install system-upgrade-controller \
+  oci://ghcr.io/lexfrei/charts/system-upgrade-controller \
+  --version 0.1.2
 ```
 
-### Legacy Publishing (other charts)
+### Verification
 
-Other charts still use `chart-releaser` action publishing to GitHub Pages at `https://charts.lex.la`.
+```bash
+# Verify any chart signature
+cosign verify \
+  ghcr.io/lexfrei/charts/<chart-name>:<version> \
+  --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
+  --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
+
+# Example:
+cosign verify \
+  ghcr.io/lexfrei/charts/cloudflare-tunnel:0.12.0 \
+  --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
+  --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
+```
+
+### Triggering Publication
+
+```bash
+# Manual trigger (all changed charts)
+gh workflow run publish-oci.yaml
+
+# Manual trigger (specific charts)
+gh workflow run publish-oci.yaml --field charts='["charts/cloudflare-tunnel","charts/me-site"]'
+
+# Automatic: Push changes to charts/** on master branch (excludes .deploy/)
+```
 
 ## Project Structure
 
 ```
 charts/
-├── cloudflare-tunnel/          # Main chart - Cloudflare tunnel deployment
+├── cloudflare-tunnel/          # Cloudflare tunnel deployment
 │   ├── Chart.yaml             # Chart metadata and version
 │   ├── values.yaml            # Default values
 │   ├── values.schema.json     # Values validation schema
+│   ├── README.md.gotmpl       # README template for helm-docs
 │   ├── templates/             # Kubernetes resource templates
 │   └── tests/                 # Unit tests
-├── frame/                      # Frame application chart
-├── me-site/                    # Personal site chart
-└── transmission/               # Transmission BitTorrent client chart
+├── me-site/                    # Personal site deployment
+├── system-upgrade-controller/  # K8s node upgrade controller
+└── transmission/               # BitTorrent client
 
 .github/
 ├── workflows/                  # CI/CD workflows
 │   ├── test.yaml              # Testing pipeline
-│   ├── publish.yaml           # Chart publishing
+│   ├── publish-oci.yaml       # Unified OCI publishing
 │   └── renovate-update.yaml   # Dependency updates
 ├── PULL_REQUEST_TEMPLATE.md    # PR checklist template
 └── linters/                    # Linting configuration
 
-test-workflow.sh               # Local testing script for workflow logic
 TESTING.md                     # Comprehensive testing documentation
 ```
 
@@ -315,16 +358,18 @@ To validate locally:
 check-jsonschema --schemafile charts/<chart-name>/values.schema.json charts/<chart-name>/values.yaml
 ```
 
-## Chart Publishing
+## Chart Publishing Summary
 
-Charts are automatically published to the Helm repository at `https://charts.lex.la` when changes are merged to the master branch.
+Charts are automatically published to GHCR (GitHub Container Registry) as OCI artifacts when changes are merged to master.
 
 Publishing process:
 
-1. PR merged to master triggers publish workflow
-2. Chart packages are built
-3. Index is updated
-4. Charts are pushed to repository
+1. PR merged to master triggers `publish-oci.yaml` workflow
+2. Changed charts are auto-detected via `ct list-changed`
+3. For each chart: validate → package → push to GHCR → sign with cosign → create GitHub Release
+4. Charts available at: `oci://ghcr.io/lexfrei/charts/<chart-name>`
+
+**Note**: Legacy GitHub Pages repository (`https://charts.lex.la`) is maintained for backward compatibility but new charts should use OCI installation.
 
 ## Quick Reference
 

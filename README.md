@@ -1,8 +1,10 @@
 # Helm Charts Repository
 
-A collection of Helm charts for Kubernetes deployments.
+A collection of Helm charts for Kubernetes deployments, published to GitHub Container Registry (GHCR) as OCI artifacts.
 
 ## Available Charts
+
+All charts are published to GHCR with cosign signatures for verification.
 
 ### [cloudflare-tunnel](./charts/cloudflare-tunnel)
 
@@ -15,8 +17,15 @@ Helm chart for deploying Cloudflare Tunnel (cloudflared) in Kubernetes. This cha
 - ServiceMonitor support for Prometheus metrics
 - High availability with replica management
 - Security-focused defaults
+- OCI artifact with cosign signatures
 
 [📖 Documentation](./charts/cloudflare-tunnel/README.md) | [🔧 Values](./charts/cloudflare-tunnel/values.yaml)
+
+### [me-site](./charts/me-site)
+
+Helm chart for personal site deployment.
+
+[📖 Documentation](./charts/me-site/README.md) | [🔧 Values](./charts/me-site/values.yaml)
 
 ### [system-upgrade-controller](./charts/system-upgrade-controller)
 
@@ -29,31 +38,62 @@ Kubernetes-native upgrade controller for automated node upgrades using declarati
 - Node drain and cordon support
 - Suitable for k3s, RKE2, and other Kubernetes distributions
 - Highly configurable job parameters
-- **Published to GHCR as OCI artifact** with cosign signatures
-
-**Installation (OCI)**:
-```bash
-helm install system-upgrade-controller \
-  oci://ghcr.io/lexfrei/charts/system-upgrade-controller \
-  --version 0.1.0
-```
+- OCI artifact with cosign signatures
 
 [📖 Documentation](./charts/system-upgrade-controller/README.md) | [🔧 Values](./charts/system-upgrade-controller/values.yaml)
 
+### [transmission](./charts/transmission)
+
+Helm chart for Transmission BitTorrent client deployment.
+
+[📖 Documentation](./charts/transmission/README.md) | [🔧 Values](./charts/transmission/values.yaml)
+
 ## Installation
 
-### Add Helm Repository
-
-```bash
-helm repo add lexfrei https://charts.lex.la
-helm repo update
-```
+All charts are published to GitHub Container Registry as OCI artifacts.
 
 ### Install a Chart
 
 ```bash
 # Install cloudflare-tunnel chart
-helm install my-tunnel lexfrei/cloudflare-tunnel --values values.yaml
+helm install my-tunnel \
+  oci://ghcr.io/lexfrei/charts/cloudflare-tunnel \
+  --version 0.12.0 \
+  --values values.yaml
+
+# Install system-upgrade-controller
+helm install system-upgrade-controller \
+  oci://ghcr.io/lexfrei/charts/system-upgrade-controller \
+  --version 0.1.2
+
+# Install transmission
+helm install transmission \
+  oci://ghcr.io/lexfrei/charts/transmission \
+  --version 0.1.3
+
+# Install me-site
+helm install me-site \
+  oci://ghcr.io/lexfrei/charts/me-site \
+  --version 0.4.0
+```
+
+### Verify Chart Signatures
+
+All charts are signed with cosign using keyless signing:
+
+```bash
+cosign verify \
+  ghcr.io/lexfrei/charts/<chart-name>:<version> \
+  --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
+  --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
+```
+
+Example:
+```bash
+cosign verify \
+  ghcr.io/lexfrei/charts/cloudflare-tunnel:0.12.0 \
+  --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
+  --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
 
 ## Testing
