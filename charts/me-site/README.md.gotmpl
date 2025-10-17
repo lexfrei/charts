@@ -25,13 +25,13 @@ This chart is published to GitHub Container Registry (GHCR) as an OCI artifact.
 
 ```bash
 # Install from GHCR
-helm install transmission \
-  oci://ghcr.io/lexfrei/charts/transmission \
+helm install me-site \
+  oci://ghcr.io/lexfrei/charts/me-site \
   --version {{ template "chart.version" . }}
 
 # Install with custom values
-helm install transmission \
-  oci://ghcr.io/lexfrei/charts/transmission \
+helm install me-site \
+  oci://ghcr.io/lexfrei/charts/me-site \
   --version {{ template "chart.version" . }} \
   --values values.yaml
 ```
@@ -42,7 +42,7 @@ This chart is signed with [cosign](https://github.com/sigstore/cosign) using key
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/transmission:{{ template "chart.version" . }} \
+  ghcr.io/lexfrei/charts/me-site:{{ template "chart.version" . }} \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -50,31 +50,45 @@ cosign verify \
 ## Uninstalling the Chart
 
 ```bash
-helm delete transmission
+helm delete me-site
 ```
 
 {{ template "chart.valuesSection" . }}
 
 ## Example Configurations
 
-### Using NFS for downloads
+### Basic deployment with Ingress
 
 ```yaml
-persistence:
-  downloads:
-    type: nfs
-    nfsServer: your-nfs-server.local
-    nfsPath: /mnt/downloads
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: me.example.com
+      paths:
+        - path: /
+          pathType: Prefix
 ```
 
-### Using PVC for downloads
+### Using Gateway API (HTTPRoute)
 
 ```yaml
-persistence:
-  downloads:
-    type: pvc
-    storageClassName: your-storage-class
-    size: 500Gi
+httpRoute:
+  enabled: true
+  hostnames:
+    - me.example.com
+  parentRefs:
+    - name: my-gateway
+      namespace: gateway-system
+```
+
+### With Tor Onion Service
+
+```yaml
+onionService:
+  enabled: true
+  privateKeySecretName: me-site-onion-secret
+  backends: 2
 ```
 
 {{ template "helm-docs.versionFooter" . }}

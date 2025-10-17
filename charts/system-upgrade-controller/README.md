@@ -2,6 +2,11 @@
 
 ![Version: 0.1.2](https://img.shields.io/badge/Version-0.1.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.17.0](https://img.shields.io/badge/AppVersion-v0.17.0-informational?style=flat-square)
 
+## 📊 Status & Metrics
+
+[![Lint and Test](https://github.com/lexfrei/charts/actions/workflows/test.yaml/badge.svg)](https://github.com/lexfrei/charts/actions/workflows/test.yaml)
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/lexfrei-charts)](https://artifacthub.io/packages/search?repo=lexfrei-charts)
+
 Kubernetes-native upgrade controller for nodes using declarative Plans
 
 **Homepage:** <https://github.com/lexfrei/charts/>
