@@ -4,6 +4,8 @@ annotations:
   # See: https://artifacthub.io/docs/topics/annotations/helm/
   artifacthub.io/changes: |-
     - kind: changed
+      description: Migrate to OCI publishing in GHCR with cosign signatures
+    - kind: changed
       description: Update appVersion to 2025.10.0
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
@@ -15,7 +17,7 @@ apiVersion: v2
 name: cloudflare-tunnel
 description: Creation of a cloudflared deployment - a reverse tunnel for an environment
 type: application
-version: "0.12.0"
+version: "0.12.1"
 # renovate: datasource=github-releases depName=cloudflare/cloudflared
 appVersion: "2025.10.0"
 icon: https://avatars.githubusercontent.com/u/314135
