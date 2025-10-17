@@ -2,7 +2,7 @@ annotations:
   artifacthub.io/category: infrastructure
   artifacthub.io/changes: |-
     - kind: changed
-      description: Update appVersion to v0.17.0
+      description: Attach chart README to OCI artifact for proper GHCR display
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -13,7 +13,7 @@ apiVersion: v2
 name: system-upgrade-controller
 description: Kubernetes-native upgrade controller for nodes using declarative Plans
 type: application
-version: "0.1.1"
+version: "0.1.2"
 # renovate: datasource=github-releases depName=rancher/system-upgrade-controller
 appVersion: "v0.17.0"
 icon: https://avatars.githubusercontent.com/u/9343010

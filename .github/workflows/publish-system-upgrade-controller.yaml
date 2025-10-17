@@ -30,6 +30,15 @@ jobs:
       - name: Install cosign
         uses: sigstore/cosign-installer@v4.0.0
 
+      - name: Install oras
+        run: |
+          VERSION="1.2.2"
+          curl --location --remote-name "https://github.com/oras-project/oras/releases/download/v${VERSION}/oras_${VERSION}_linux_amd64.tar.gz"
+          mkdir --parents oras-install/
+          tar --extract --gzip --file oras_*.tar.gz --directory oras-install/
+          sudo mv oras-install/oras /usr/local/bin/
+          rm --recursive --force oras_*.tar.gz oras-install/
+
       - name: Install yq
         run: |
           sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
@@ -103,6 +112,18 @@ jobs:
           DIGEST=$(helm show chart oci://ghcr.io/${{ github.repository_owner }}/charts/${{ steps.chart-version.outputs.name }} --version ${{ steps.chart-version.outputs.version }} 2>&1 | grep -oP 'sha256:[a-f0-9]{64}' | head -1)
           echo "digest=${DIGEST}" >> $GITHUB_OUTPUT
           echo "Pushed chart with digest: ${DIGEST}"
+
+      - name: Attach README to OCI artifact
+        if: steps.check-version.outputs.exists == 'false'
+        run: |
+          IMAGE_URI="ghcr.io/${{ github.repository_owner }}/charts/${{ steps.chart-version.outputs.name }}:${{ steps.chart-version.outputs.version }}"
+
+          # Attach README as OCI artifact layer with proper media type
+          oras attach "${IMAGE_URI}" \
+            --artifact-type "application/vnd.cncf.helm.config.v1+json" \
+            charts/system-upgrade-controller/README.md:application/vnd.cncf.helm.chart.readme.v1+md
+
+          echo "README attached to ${IMAGE_URI}"
 
       - name: Sign chart with cosign
         if: steps.check-version.outputs.exists == 'false'
