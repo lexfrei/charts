@@ -46,11 +46,11 @@ jobs:
       - name: Set up chart-testing
         uses: helm/chart-testing-action@v2.7.0
 
-      - name: Run chart-testing (list-changed) or use manual input
+      - name: Determine charts to test
         id: list-changed
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" && -n "${{ inputs.charts }}" ]]; then
-            # Use manually provided charts list (parse JSON string)
+            # Manual override: use provided charts list
             charts_input='${{ inputs.charts }}'
             echo "Raw input received: $charts_input"
 
@@ -64,16 +64,24 @@ jobs:
               echo "Setting charts to empty array"
             fi
           else
-            # Auto-detect changed charts
+            # Check if there are any changes in charts directories
             changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --chart-dirs charts)
+
+            # Get all chart directories
+            all_charts=$(find charts -mindepth 1 -maxdepth 1 -type d -not -path 'charts/.deploy' | sort)
+            all_charts_json=$(echo "$all_charts" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+
             if [[ -n "$changed" ]]; then
-              # Convert newline-separated list to JSON array
+              # If charts changed, test only changed charts
               charts_json=$(echo "$changed" | jq -R -s -c 'split("\n") | map(select(length > 0))')
               echo "charts=$charts_json" >> "$GITHUB_OUTPUT"
-              echo "Auto-detected changed charts: $charts_json"
+              echo "📦 Testing changed charts only: $charts_json"
             else
-              echo "charts=[]" >> "$GITHUB_OUTPUT"
-              echo "No changed charts detected"
+              # If no charts changed but something else did (workflows, root files, etc.)
+              # Test ALL charts to ensure everything still works
+              echo "charts=$all_charts_json" >> "$GITHUB_OUTPUT"
+              echo "🔍 No chart changes detected, but other files changed"
+              echo "📦 Testing ALL charts to ensure compatibility: $all_charts_json"
             fi
           fi
 
