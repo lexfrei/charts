@@ -15,7 +15,7 @@ cloudflare:
   # -- If true, turn on WARP routing for TCP
   enableWarp: false
   # -- Define ingress rules for the tunnel
-  # See https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress
+  # See <https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress>
   ingress:
     []
     # The first rule proxies traffic to the httpbin sample service named web-server at port 80
@@ -29,7 +29,7 @@ cloudflare:
   # -- If true, enable the default 404 page. Needs to be false if you want to use a '*' wildcard rule.
   enableDefault404: true
   # -- Global originRequest configuration for all ingress rules
-  # See https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress#origin-request
+  # See <https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress#origin-request>
   originRequest: {}
     # connectTimeout: 30s
     # tlsTimeout: 10s
@@ -126,7 +126,7 @@ podDisruptionBudget:
   # maxUnavailable: 1
 
 # -- Topology spread constraints for pod distribution across zones/nodes
-# See https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
+# See <https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/>
 topologySpreadConstraints: []
   # - maxSkew: 1
   #   topologyKey: topology.kubernetes.io/zone
@@ -136,7 +136,7 @@ topologySpreadConstraints: []
   #       app.kubernetes.io/name: cloudflare-tunnel
 
 # -- Priority class name for pod scheduling priority
-# See https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/
+# See <https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/>
 priorityClassName: ""
 
 # -- Metrics port for Prometheus metrics and readiness probe
@@ -175,7 +175,7 @@ protocol: ""
 
 # -- Enable post-quantum cryptography for QUIC connections
 # Only works with 'quic' or 'auto' protocol, conflicts with 'http2'
-# See: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/configure-tunnels/cloudflared-parameters/run-parameters/#post-quantum
+# See: <https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/configure-tunnels/cloudflared-parameters/run-parameters/#post-quantum>
 postQuantum: false
 
 # -- Cloudflare region (us for US-only, empty for global)

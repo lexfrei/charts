@@ -40,6 +40,7 @@
 ## 🐳 Docker Image
 
 This Helm chart uses the **official Cloudflare Docker image**:
+
 - **Image**: [`cloudflare/cloudflared`](https://hub.docker.com/r/cloudflare/cloudflared)
 - **Maintained by**: Cloudflare
 - **Auto-updated**: Via Renovate bot to track latest releases
@@ -407,6 +408,7 @@ This chart implements several security best practices:
 The chart exposes Prometheus metrics on port 2000 (configurable via `metricsPort`). When `serviceMonitor.enabled` is set to `true`, a ServiceMonitor resource is created for automatic Prometheus discovery.
 
 Available metrics include:
+
 - `cloudflared_tunnel_total_requests` - Total number of requests
 - `cloudflared_tunnel_request_errors` - Number of request errors
 - `cloudflared_tunnel_concurrent_requests_per_tunnel` - Current concurrent requests
@@ -425,9 +427,11 @@ Available metrics include:
 If experiencing port exhaustion on nodes:
 
 1. Switch to DaemonSet mode:
+
    ```yaml
    deploymentMode: daemonset
    ```
+
 2. Reduce number of replicas per node
 
 ### Metrics Not Appearing
@@ -445,7 +449,9 @@ If experiencing port exhaustion on nodes:
 
 {{ template "chart.maintainersSection" . }}
 
+<!-- markdownlint-disable MD004 -->
 {{ template "chart.sourcesSection" . }}
+<!-- markdownlint-enable MD004 -->
 
 {{ template "chart.requirementsSection" . }}
 
