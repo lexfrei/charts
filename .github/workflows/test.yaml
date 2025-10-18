@@ -4,7 +4,9 @@ on:
   pull_request:
     # Run on all PRs to validate charts and workflow changes
   push:
-    # Run on all pushes to validate charts and workflow changes
+    # Run only on pushes to master to validate after merge
+    branches:
+      - master
   workflow_dispatch:
     inputs:
       charts:
