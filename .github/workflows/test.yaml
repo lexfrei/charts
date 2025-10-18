@@ -2,13 +2,9 @@ name: Lint and Test Charts
 
 on:
   pull_request:
-    paths:
-      - 'charts/**'
+    # Run on all PRs to validate charts and workflow changes
   push:
-    branches:
-      - master
-    paths:
-      - 'charts/**'
+    # Run on all pushes to validate charts and workflow changes
   workflow_dispatch:
     inputs:
       charts:
@@ -17,7 +13,22 @@ on:
         type: string
 
 jobs:
+  # Wait for renovate-update.yaml to complete on Renovate PRs
+  wait-for-renovate:
+    if: github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for Renovate update workflow
+        uses: lewagon/wait-on-check-action@v1.3.4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          check-name: 'update-renovate-pr'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 10
+
   detect-changes:
+    needs: [wait-for-renovate]
+    if: always() && (needs.wait-for-renovate.result == 'success' || needs.wait-for-renovate.result == 'skipped')
     runs-on: ubuntu-latest
     outputs:
       charts: ${{ steps.list-changed.outputs.charts }}
