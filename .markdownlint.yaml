@@ -5,17 +5,8 @@
 default: true
 
 # MD013/line-length - Line length
-MD013:
-  # Disable line length for helm-docs generated tables and code blocks
-  line_length: 120
-  # Number of characters for headings
-  heading_line_length: 80
-  # Number of characters for code blocks
-  code_block_line_length: 120
-  # Include code blocks
-  code_blocks: false
-  # Include tables
-  tables: false
+# Disabled because helm-docs generates long lines in tables
+MD013: false
 
 # MD033/no-inline-html - Inline HTML
 MD033:
