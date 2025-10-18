@@ -76,10 +76,6 @@ jobs:
         with:
           version: 'latest'
 
-      - name: Install helm-unittest plugin
-        run: |
-          helm plugin install https://github.com/helm-unittest/helm-unittest.git
-
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
@@ -88,101 +84,102 @@ jobs:
       - name: Set up chart-testing
         uses: helm/chart-testing-action@v2.7.0
 
-      - name: Install JSON Schema validator
-        run: pip install check-jsonschema
-
-      - name: Run Helm Lint
+      - name: Install tools
         run: |
-          helm lint ${{ matrix.chart }}
+          # helm-unittest
+          helm plugin install https://github.com/helm-unittest/helm-unittest.git
 
-      - name: Validate values.schema.json (if exists)
-        run: |
-          CHART_DIR="${{ matrix.chart }}"
-          SCHEMA_FILE="$CHART_DIR/values.schema.json"
-          VALUES_FILE="$CHART_DIR/values.yaml"
-          
-          if [ -f "$SCHEMA_FILE" ]; then
-            echo "Validating $VALUES_FILE against $SCHEMA_FILE"
-            check-jsonschema --schemafile "$SCHEMA_FILE" "$VALUES_FILE"
-          else
-            echo "No schema file found at $SCHEMA_FILE, skipping schema validation"
-          fi
+          # JSON schema validator
+          pip install check-jsonschema
 
-      - name: Run Helm Unittest
-        run: |
-          CHART_DIR="${{ matrix.chart }}"
-          if [ -d "$CHART_DIR/tests" ]; then
-            echo "Running unit tests for $CHART_DIR"
-            helm unittest $CHART_DIR --color --with-subchart=false
-          else
-            echo "No tests directory found in $CHART_DIR, skipping unit tests"
-          fi
-
-      - name: Run chart-testing (lint)
-        run: |
-          ct lint --charts ${{ matrix.chart }}
-
-      - name: Install Artifact Hub CLI
-        run: |
+          # Artifact Hub CLI
           # renovate: datasource=github-releases depName=artifacthub/hub
           AH_VERSION="1.21.0"
           wget -q https://github.com/artifacthub/hub/releases/download/v${AH_VERSION}/ah_${AH_VERSION}_linux_amd64.tar.gz
           tar -xzf ah_${AH_VERSION}_linux_amd64.tar.gz
           chmod +x ah
           sudo mv ah /usr/local/bin/ah
-          ah version
+
+          # helm-docs
+          # renovate: datasource=github-releases depName=norwoodj/helm-docs
+          HELM_DOCS_VERSION="1.14.2"
+          wget -q https://github.com/norwoodj/helm-docs/releases/download/v${HELM_DOCS_VERSION}/helm-docs_${HELM_DOCS_VERSION}_Linux_x86_64.tar.gz
+          tar -xzf helm-docs_${HELM_DOCS_VERSION}_Linux_x86_64.tar.gz
+          chmod +x helm-docs
+          sudo mv helm-docs /usr/local/bin/helm-docs
+
+          # markdownlint-cli
+          npm install -g markdownlint-cli
+
+      # Chain 1: Helm validation -> Unit tests -> Advanced linting
+      - name: Run Helm Lint
+        run: |
+          echo "🔍 Running Helm lint..."
+          helm lint ${{ matrix.chart }}
+
+      - name: Run Helm Unittest
+        run: |
+          CHART_DIR="${{ matrix.chart }}"
+          if [ -d "$CHART_DIR/tests" ]; then
+            echo "🧪 Running unit tests..."
+            helm unittest $CHART_DIR --color --with-subchart=false
+          else
+            echo "ℹ️  No tests directory found, skipping unit tests"
+          fi
+
+      - name: Run chart-testing (lint)
+        run: |
+          echo "📋 Running chart-testing lint..."
+          ct lint --charts ${{ matrix.chart }}
 
       - name: Run Artifact Hub Lint
         run: |
+          echo "🏛️  Running Artifact Hub lint..."
+          ah lint --kind helm --path "${{ matrix.chart }}"
+
+      # Chain 2: Schema validation -> README validation -> Markdown lint
+      - name: Validate values.schema.json
+        run: |
           CHART_DIR="${{ matrix.chart }}"
-          echo "Running Artifact Hub lint for $CHART_DIR"
-          ah lint --kind helm --path "$CHART_DIR"
+          SCHEMA_FILE="$CHART_DIR/values.schema.json"
+          VALUES_FILE="$CHART_DIR/values.yaml"
+
+          if [ -f "$SCHEMA_FILE" ]; then
+            echo "📐 Validating values.yaml against schema..."
+            check-jsonschema --schemafile "$SCHEMA_FILE" "$VALUES_FILE"
+          else
+            echo "ℹ️  No schema file found, skipping schema validation"
+          fi
 
       - name: Check README is up to date (helm-docs)
         run: |
           CHART_DIR="${{ matrix.chart }}"
-          
-          # Check if README.md.gotmpl exists
+
           if [ -f "$CHART_DIR/README.md.gotmpl" ]; then
-            echo "📚 Found README.md.gotmpl, checking if README.md is up to date..."
-            
-            # Install helm-docs
-            echo "⬇️  Installing helm-docs..."
-            # renovate: datasource=github-releases depName=norwoodj/helm-docs
-            HELM_DOCS_VERSION="1.14.2"
-            wget -q https://github.com/norwoodj/helm-docs/releases/download/v${HELM_DOCS_VERSION}/helm-docs_${HELM_DOCS_VERSION}_Linux_x86_64.tar.gz
-            tar -xzf helm-docs_${HELM_DOCS_VERSION}_Linux_x86_64.tar.gz
-            chmod +x helm-docs
-            
-            # Generate README
-            echo "🔄 Generating README.md..."
-            ./helm-docs "$CHART_DIR"
-            
-            # Check if there are changes
+            echo "📚 Checking if README.md is up to date..."
+            helm-docs "$CHART_DIR"
+
             if git diff --exit-code "$CHART_DIR/README.md" > /dev/null 2>&1; then
               echo "✅ README.md is up to date!"
             else
               echo ""
               echo "❌ ERROR: README.md is out of date!"
               echo ""
-              echo "The generated README.md differs from the committed version."
-              echo "This usually means you modified values.yaml, Chart.yaml, or README.md.gotmpl"
-              echo "but forgot to regenerate the README.md file."
+              echo "To fix, run: helm-docs charts/$(basename $CHART_DIR)"
               echo ""
-              echo "To fix this, please run the following command locally:"
-              echo ""
-              echo "  helm-docs charts/$(basename $CHART_DIR)"
-              echo ""
-              echo "Or if you don't have helm-docs installed:"
-              echo ""
-              echo "  docker run --rm -v \$(pwd):/helm-docs jnorwood/helm-docs:v${HELM_DOCS_VERSION} -c charts/$(basename $CHART_DIR)"
-              echo ""
-              echo "Then commit and push the changes."
-              echo ""
-              echo "Detected changes:"
               git diff "$CHART_DIR/README.md"
               exit 1
             fi
           else
-            echo "ℹ️  No README.md.gotmpl found in $CHART_DIR, skipping helm-docs check"
+            echo "ℹ️  No README.md.gotmpl found, skipping"
+          fi
+
+      - name: Run Markdown Lint
+        run: |
+          CHART_DIR="${{ matrix.chart }}"
+          if [ -f "$CHART_DIR/README.md" ]; then
+            echo "📝 Linting README.md..."
+            markdownlint "$CHART_DIR/README.md"
+          else
+            echo "ℹ️  No README.md found, skipping"
           fi
