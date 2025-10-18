@@ -2,6 +2,12 @@
 # This supports shell glob matching, relative path matching, and
 # negation (prefixed with !). Only one pattern per line.
 .DS_Store
+
+# Development and testing
+tests/
+*.test.yaml
+*.md.gotmpl
+
 # Common VCS dirs
 .git/
 .gitignore
@@ -10,21 +16,24 @@
 .hg/
 .hgignore
 .svn/
+
 # Common backup files
 *.swp
 *.bak
 *.tmp
 *.orig
 *~
+
 # Various IDEs
 .project
 .idea/
 *.tmproj
 .vscode/
-# CI files
+
+# CI/CD
 .github/
 .gitlab-ci.yml
 .travis.yml
-# Test files
-tests/
-*.test.yaml
+
+# Artifact Hub metadata (published separately)
+artifacthub-repo.yml

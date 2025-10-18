@@ -43,20 +43,20 @@ service:
 
 # -- Ingress configuration
 ingress:
-  enabled: true
+  enabled: false
   className: ""
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
     cert-manager.io/cluster-issuer: "cloudflare-issuer"
   hosts:
-    - host: transmission.home.lex.la
+    - host: transmission.example.com
       paths:
         - path: /
           pathType: Prefix
   tls:
     - secretName: transmission-tls
       hosts:
-        - transmission.home.lex.la
+        - transmission.example.com
 
 # -- Resource limits and requests
 resources:
@@ -73,7 +73,7 @@ persistence:
   config:
     enabled: true
     # -- Storage class name
-    storageClassName: truenas-nfs-csi
+    storageClassName: ""
     # -- Access mode
     accessMode: ReadWriteOnce
     # -- Size of the volume
@@ -87,9 +87,9 @@ persistence:
     # -- Type of storage (pvc or nfs)
     type: nfs
     # -- NFS server (when type is nfs)
-    nfsServer: truenas.home.lex.la
+    nfsServer: nfs-server.example.com
     # -- NFS path (when type is nfs)
-    nfsPath: /mnt/pool/Transmission
+    nfsPath: /mnt/downloads
     # -- Storage class (when type is pvc)
     storageClassName: ""
     # -- Access mode (when type is pvc)

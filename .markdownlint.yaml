@@ -1,0 +1,25 @@
+# Markdownlint configuration
+# See: https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
+
+# Default state for all rules
+default: true
+
+# MD013/line-length - Line length
+# Disabled because helm-docs generates long lines in badges, links, and tables
+MD013: false
+
+# MD024/no-duplicate-heading - Allow duplicate headings in different sections
+MD024:
+  siblings_only: true
+
+# MD033/no-inline-html - Inline HTML
+MD033:
+  # Allow specific HTML elements (needed for helm-docs)
+  allowed_elements:
+    - a
+    - br
+    - details
+    - summary
+
+# MD041/first-line-heading - First line in file should be a top level heading
+MD041: false

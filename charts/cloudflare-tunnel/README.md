@@ -1,11 +1,11 @@
 # cloudflare-tunnel
 
-![Version: 0.12.1](https://img.shields.io/badge/Version-0.12.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.10.0](https://img.shields.io/badge/AppVersion-2025.10.0-informational?style=flat-square)
+![Version: 0.12.2](https://img.shields.io/badge/Version-0.12.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.10.0](https://img.shields.io/badge/AppVersion-2025.10.0-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
 [![Lint and Test](https://github.com/lexfrei/charts/actions/workflows/test.yaml/badge.svg)](https://github.com/lexfrei/charts/actions/workflows/test.yaml)
-[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/lexfrei-charts)](https://artifacthub.io/packages/helm/lexfrei-charts/cloudflare-tunnel)
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/cloudflare-tunnel)](https://artifacthub.io/packages/search?repo=cloudflare-tunnel)
 [![License](https://img.shields.io/badge/License-BSD--3--Clause-blue.svg)](https://github.com/lexfrei/charts/blob/master/LICENSE)
 [![Helm Version](https://img.shields.io/badge/Helm-v3-informational?logo=helm)](https://helm.sh/)
 [![Kubernetes Version](https://img.shields.io/badge/Kubernetes-1.19%2B-blue?logo=kubernetes)](https://kubernetes.io/)
@@ -38,6 +38,7 @@ Creation of a cloudflared deployment - a reverse tunnel for an environment
 ## 🐳 Docker Image
 
 This Helm chart uses the **official Cloudflare Docker image**:
+
 - **Image**: [`cloudflare/cloudflared`](https://hub.docker.com/r/cloudflare/cloudflared)
 - **Maintained by**: Cloudflare
 - **Auto-updated**: Via Renovate bot to track latest releases
@@ -68,7 +69,7 @@ Before installing the chart, create a tunnel in Cloudflare:
 # Install with inline configuration
 helm install cloudflare-tunnel \
   oci://ghcr.io/lexfrei/charts/cloudflare-tunnel \
-  --version 0.12.1 \
+  --version 0.12.2 \
   --set cloudflare.account=YOUR_ACCOUNT_ID \
   --set cloudflare.tunnelName=YOUR_TUNNEL_NAME \
   --set cloudflare.tunnelId=YOUR_TUNNEL_ID \
@@ -79,7 +80,7 @@ helm install cloudflare-tunnel \
 # Install with values file
 helm install cloudflare-tunnel \
   oci://ghcr.io/lexfrei/charts/cloudflare-tunnel \
-  --version 0.12.1 \
+  --version 0.12.2 \
   --values values.yaml
 ```
 
@@ -89,7 +90,7 @@ This chart is signed with [cosign](https://github.com/sigstore/cosign) using key
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/cloudflare-tunnel:0.12.1 \
+  ghcr.io/lexfrei/charts/cloudflare-tunnel:0.12.2 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -405,6 +406,7 @@ This chart implements several security best practices:
 The chart exposes Prometheus metrics on port 2000 (configurable via `metricsPort`). When `serviceMonitor.enabled` is set to `true`, a ServiceMonitor resource is created for automatic Prometheus discovery.
 
 Available metrics include:
+
 - `cloudflared_tunnel_total_requests` - Total number of requests
 - `cloudflared_tunnel_request_errors` - Number of request errors
 - `cloudflared_tunnel_concurrent_requests_per_tunnel` - Current concurrent requests
@@ -423,9 +425,11 @@ Available metrics include:
 If experiencing port exhaustion on nodes:
 
 1. Switch to DaemonSet mode:
+
    ```yaml
    deploymentMode: daemonset
    ```
+
 2. Reduce number of replicas per node
 
 ### Metrics Not Appearing
@@ -447,10 +451,12 @@ If experiencing port exhaustion on nodes:
 | ---- | ------ | --- |
 | lexfrei | <f@lex.la> | <https://github.com/lexfrei> |
 
+<!-- markdownlint-disable MD004 -->
 ## Source Code
 
 * <https://github.com/lexfrei/charts/>
 * <https://github.com/cloudflare/cloudflared/>
+<!-- markdownlint-enable MD004 -->
 
 ## Values
 
@@ -461,8 +467,8 @@ If experiencing port exhaustion on nodes:
 | cloudflare.account | string | `""` | Your Cloudflare account number |
 | cloudflare.enableDefault404 | bool | `true` | If true, enable the default 404 page. Needs to be false if you want to use a '*' wildcard rule. |
 | cloudflare.enableWarp | bool | `false` | If true, turn on WARP routing for TCP |
-| cloudflare.ingress | list | `[]` | Define ingress rules for the tunnel See https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress |
-| cloudflare.originRequest | object | `{}` | Global originRequest configuration for all ingress rules See https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress#origin-request |
+| cloudflare.ingress | list | `[]` | Define ingress rules for the tunnel See <https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress> |
+| cloudflare.originRequest | object | `{}` | Global originRequest configuration for all ingress rules See <https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress#origin-request> |
 | cloudflare.secret | string | `""` | The secret for the tunnel |
 | cloudflare.secretName | string | `nil` | If defined, no secret is created for the credentials, and instead, the secret referenced is used |
 | cloudflare.tunnelId | string | `""` | The ID of the above tunnel |
@@ -489,8 +495,8 @@ If experiencing port exhaustion on nodes:
 | podDisruptionBudget.minAvailable | int | `1` | Minimum number of available pods (conflicts with maxUnavailable) |
 | podLabels | object | `{}` | Additional labels to add to pods |
 | podSecurityContext | object | `{"runAsNonRoot":true,"runAsUser":65532}` | Security items common to everything in the pod.  Here we require that it does not run as the user defined in the image, literally named "nonroot" |
-| postQuantum | bool | `false` | Enable post-quantum cryptography for QUIC connections Only works with 'quic' or 'auto' protocol, conflicts with 'http2' See: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/configure-tunnels/cloudflared-parameters/run-parameters/#post-quantum |
-| priorityClassName | string | `""` | Priority class name for pod scheduling priority See https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/ |
+| postQuantum | bool | `false` | Enable post-quantum cryptography for QUIC connections Only works with 'quic' or 'auto' protocol, conflicts with 'http2' See: <https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/configure-tunnels/cloudflared-parameters/run-parameters/#post-quantum> |
+| priorityClassName | string | `""` | Priority class name for pod scheduling priority See <https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/> |
 | protocol | string | `""` | Transport protocol for cloudflared (auto, quic, http2) auto: Cloudflare selects the best protocol automatically quic: Force QUIC transport (fastest, most reliable) http2: Force HTTP/2 transport (wider compatibility) Leave empty to use cloudflared default |
 | region | string | `""` | Cloudflare region (us for US-only, empty for global) When set to "us", cloudflared will only connect to US Cloudflare edge servers Leave empty for global edge selection |
 | replicaCount | int | `2` | The version of the image to use |
@@ -506,7 +512,7 @@ If experiencing port exhaustion on nodes:
 | serviceMonitor.relabelings | list | `[]` | Relabelings for the ServiceMonitor |
 | tags | object | `{}` | Tags for tunnel identification and monitoring Key-value pairs for tagging tunnel instances in Cloudflare dashboard Useful for grouping, monitoring, and analytics Example: {"environment": "production", "team": "backend"} |
 | tolerations | list | `[]` |  |
-| topologySpreadConstraints | list | `[]` | Topology spread constraints for pod distribution across zones/nodes See https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/ |
+| topologySpreadConstraints | list | `[]` | Topology spread constraints for pod distribution across zones/nodes See <https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/> |
 
 ## 🤝 Contributing
 

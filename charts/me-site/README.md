@@ -5,7 +5,6 @@
 ## 📊 Status & Metrics
 
 [![Lint and Test](https://github.com/lexfrei/charts/actions/workflows/test.yaml/badge.svg)](https://github.com/lexfrei/charts/actions/workflows/test.yaml)
-[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/lexfrei-charts)](https://artifacthub.io/packages/search?repo=lexfrei-charts)
 
 A Helm chart for the Me-Site application
 
