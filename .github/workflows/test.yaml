@@ -13,57 +13,15 @@ on:
         type: string
 
 jobs:
-  # Wait for renovate-update.yaml to complete on Renovate PRs
-  wait-for-renovate:
-    if: github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Wait for Renovate update workflow
-        uses: lewagon/wait-on-check-action@v1.3.4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          check-name: 'update-renovate-pr'
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 10
-
-  detect-changes:
-    needs: [wait-for-renovate]
-    if: always() && (needs.wait-for-renovate.result == 'success' || needs.wait-for-renovate.result == 'skipped')
-    runs-on: ubuntu-latest
-    outputs:
-      charts: ${{ steps.list-charts.outputs.charts }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: List all charts to test
-        id: list-charts
-        run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" && -n "${{ inputs.charts }}" ]]; then
-            # Manual override: use provided charts list
-            charts_input='${{ inputs.charts }}'
-            if charts_json=$(echo "$charts_input" | jq -c '.' 2>/dev/null); then
-              echo "charts=$charts_json" >> "$GITHUB_OUTPUT"
-              echo "📋 Testing manually specified charts: $charts_json"
-            else
-              echo "charts=[]" >> "$GITHUB_OUTPUT"
-              echo "❌ Invalid JSON provided: $charts_input"
-            fi
-          else
-            # Always test ALL charts - simple and reliable
-            all_charts=$(find charts -mindepth 1 -maxdepth 1 -type d -not -path 'charts/.deploy' | sort)
-            charts_json=$(echo "$all_charts" | jq -R -s -c 'split("\n") | map(select(length > 0))')
-            echo "charts=$charts_json" >> "$GITHUB_OUTPUT"
-            echo "📦 Testing ALL charts: $charts_json"
-          fi
-
   lint-test:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.charts != '[]'
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        chart: ${{ fromJson(needs.detect-changes.outputs.charts) }}
+        chart:
+          - charts/cloudflare-tunnel
+          - charts/me-site
+          - charts/system-upgrade-controller
+          - charts/transmission
       fail-fast: false
     steps:
       - name: Checkout
