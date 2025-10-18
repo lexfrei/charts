@@ -119,6 +119,7 @@ jobs:
 
       - name: Install Artifact Hub CLI
         run: |
+          # renovate: datasource=github-releases depName=artifacthub/hub
           AH_VERSION="1.21.0"
           wget -q https://github.com/artifacthub/hub/releases/download/v${AH_VERSION}/ah_${AH_VERSION}_linux_amd64.tar.gz
           tar -xzf ah_${AH_VERSION}_linux_amd64.tar.gz
