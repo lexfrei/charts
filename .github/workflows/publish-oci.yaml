@@ -111,6 +111,9 @@ jobs:
       - name: Install ORAS
         uses: oras-project/setup-oras@v1
 
+      - name: Install crane
+        uses: imjasonh/setup-crane@v0.4
+
       - name: Install yq
         run: |
           # renovate: datasource=github-releases depName=mikefarah/yq
@@ -226,11 +229,22 @@ jobs:
 
       - name: Sign chart with cosign
         if: steps.check-version.outputs.exists == 'false'
+        env:
+          COSIGN_EXPERIMENTAL: "true"
         run: |
           IMAGE_URI="ghcr.io/${{ github.repository_owner }}/charts/${{ steps.chart-metadata.outputs.name }}@${{ steps.push.outputs.digest }}"
           echo "Signing ${IMAGE_URI}"
-          cosign sign --yes "${IMAGE_URI}"
+          cosign sign --yes --verbose=9 "${IMAGE_URI}"
           echo "Chart signed successfully"
+
+          # Verify signature was created
+          SIG_TAG="sha256-$(echo '${{ steps.push.outputs.digest }}' | cut -d':' -f2).sig"
+          echo "Checking for signature tag: ${SIG_TAG}"
+          if crane manifest "ghcr.io/${{ github.repository_owner }}/charts/${{ steps.chart-metadata.outputs.name }}:${SIG_TAG}" >/dev/null 2>&1; then
+            echo "✓ Signature tag found in registry"
+          else
+            echo "⚠️  Warning: Signature tag not found in registry"
+          fi
 
       - name: Publish Artifact Hub metadata
         if: steps.check-version.outputs.exists == 'false'
