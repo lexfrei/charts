@@ -117,6 +117,15 @@ jobs:
       - name: Install check-jsonschema
         run: pip install check-jsonschema
 
+      - name: Install Artifact Hub CLI
+        run: |
+          AH_VERSION="1.21.0"
+          wget -q https://github.com/artifacthub/hub/releases/download/v${AH_VERSION}/ah_${AH_VERSION}_linux_amd64.tar.gz
+          tar -xzf ah_${AH_VERSION}_linux_amd64.tar.gz
+          chmod +x ah
+          sudo mv ah /usr/local/bin/ah
+          ah version
+
       - name: Get chart metadata
         id: chart-metadata
         run: |
@@ -170,6 +179,10 @@ jobs:
           else
             echo "No tests found, skipping unit tests"
           fi
+
+          # Artifact Hub lint
+          echo "Running Artifact Hub lint for ${CHART_NAME}"
+          ah lint --kind helm --path "${CHART_PATH}"
 
       - name: Login to GitHub Container Registry
         if: steps.check-version.outputs.exists == 'false'
