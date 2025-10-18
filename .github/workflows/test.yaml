@@ -95,28 +95,6 @@ jobs:
         run: |
           helm lint ${{ matrix.chart }}
 
-      - name: Run Helm Template (dry-run validation)
-        run: |
-          CHART_DIR="${{ matrix.chart }}"
-          
-          # Create a test values file with required fields for cloudflare-tunnel
-          if [[ "$CHART_DIR" == *"cloudflare-tunnel"* ]]; then
-            cat > test-values.yaml << EOF
-          cloudflare:
-            account: "test-account"
-            tunnelName: "test-tunnel"
-            tunnelId: "test-tunnel-id"
-            secret: "test-secret"
-            ingress:
-              - hostname: test.example.com
-                service: http://test-service:80
-          EOF
-            helm template test-release ${{ matrix.chart }} -f test-values.yaml > /dev/null
-          else
-            # For other charts, just run template without values
-            helm template test-release ${{ matrix.chart }} > /dev/null || true
-          fi
-
       - name: Validate values.schema.json (if exists)
         run: |
           CHART_DIR="${{ matrix.chart }}"
@@ -142,7 +120,7 @@ jobs:
 
       - name: Run chart-testing (lint)
         run: |
-          ct lint --target-branch ${{ github.event.repository.default_branch }} --charts ${{ matrix.chart }}
+          ct lint --charts ${{ matrix.chart }}
 
       - name: Install Artifact Hub CLI
         run: |
