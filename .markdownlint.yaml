@@ -12,6 +12,14 @@ MD004: false
 # Disabled because helm-docs generates long lines in tables
 MD013: false
 
+# MD024/no-duplicate-heading - Multiple headings with the same content
+# Disabled because documentation may have repeated section names
+MD024: false
+
+# MD031/blanks-around-fences - Fenced code blocks should be surrounded by blank lines
+# Disabled because helm-docs formatting varies
+MD031: false
+
 # MD032/blanks-around-lists - Lists should be surrounded by blank lines
 # Disabled because helm-docs formatting varies
 MD032: false
