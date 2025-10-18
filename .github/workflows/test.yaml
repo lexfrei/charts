@@ -190,6 +190,7 @@ jobs:
             
             # Install helm-docs
             echo "⬇️  Installing helm-docs..."
+            # renovate: datasource=github-releases depName=norwoodj/helm-docs
             HELM_DOCS_VERSION="1.14.2"
             wget -q https://github.com/norwoodj/helm-docs/releases/download/v${HELM_DOCS_VERSION}/helm-docs_${HELM_DOCS_VERSION}_Linux_x86_64.tar.gz
             tar -xzf helm-docs_${HELM_DOCS_VERSION}_Linux_x86_64.tar.gz
