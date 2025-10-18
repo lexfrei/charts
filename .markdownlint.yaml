@@ -4,9 +4,17 @@
 # Default state for all rules
 default: true
 
+# MD004/ul-style - Unordered list style
+# Disabled because helm-docs may use different list styles
+MD004: false
+
 # MD013/line-length - Line length
 # Disabled because helm-docs generates long lines in tables
 MD013: false
+
+# MD032/blanks-around-lists - Lists should be surrounded by blank lines
+# Disabled because helm-docs formatting varies
+MD032: false
 
 # MD033/no-inline-html - Inline HTML
 MD033:
