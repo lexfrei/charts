@@ -4,29 +4,16 @@
 # Default state for all rules
 default: true
 
-# MD004/ul-style - Unordered list style
-# Disabled because helm-docs may use different list styles
-MD004: false
-
 # MD013/line-length - Line length
-# Disabled because helm-docs generates long lines in tables
-MD013: false
+# Only disabled for tables and code blocks (helm-docs generates long lines)
+MD013:
+  line_length: 120
+  code_blocks: false
+  tables: false
 
-# MD024/no-duplicate-heading - Multiple headings with the same content
-# Disabled because documentation may have repeated section names
-MD024: false
-
-# MD031/blanks-around-fences - Fenced code blocks should be surrounded by blank lines
-# Disabled because helm-docs formatting varies
-MD031: false
-
-# MD032/blanks-around-lists - Lists should be surrounded by blank lines
-# Disabled because helm-docs formatting varies
-MD032: false
-
-# MD034/no-bare-urls - Bare URL used
-# Disabled because helm-docs generates bare URLs in documentation
-MD034: false
+# MD024/no-duplicate-heading - Allow duplicate headings in different sections
+MD024:
+  siblings_only: true
 
 # MD033/no-inline-html - Inline HTML
 MD033:
