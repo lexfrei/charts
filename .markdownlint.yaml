@@ -16,6 +16,10 @@ MD013: false
 # Disabled because helm-docs formatting varies
 MD032: false
 
+# MD034/no-bare-urls - Bare URL used
+# Disabled because helm-docs generates bare URLs in documentation
+MD034: false
+
 # MD033/no-inline-html - Inline HTML
 MD033:
   # Allow specific HTML elements (needed for helm-docs)
