@@ -5,11 +5,8 @@
 default: true
 
 # MD013/line-length - Line length
-# Only disabled for tables and code blocks (helm-docs generates long lines)
-MD013:
-  line_length: 120
-  code_blocks: false
-  tables: false
+# Disabled because helm-docs generates long lines in badges, links, and tables
+MD013: false
 
 # MD024/no-duplicate-heading - Allow duplicate headings in different sections
 MD024:
