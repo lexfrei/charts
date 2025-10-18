@@ -5,7 +5,6 @@
 ## 📊 Status & Metrics
 
 [![Lint and Test](https://github.com/lexfrei/charts/actions/workflows/test.yaml/badge.svg)](https://github.com/lexfrei/charts/actions/workflows/test.yaml)
-[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/lexfrei-charts)](https://artifacthub.io/packages/search?repo=lexfrei-charts)
 
 Transmission BitTorrent client Helm chart for Kubernetes
 
@@ -70,20 +69,20 @@ helm delete transmission
 | image | object | `{"pullPolicy":"IfNotPresent","repository":"linuxserver/transmission","tag":""}` | Image configuration |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion |
 | imagePullSecrets | list | `[]` |  |
-| ingress | object | `{"annotations":{"cert-manager.io/cluster-issuer":"cloudflare-issuer","traefik.ingress.kubernetes.io/router.entrypoints":"websecure"},"className":"","enabled":true,"hosts":[{"host":"transmission.home.lex.la","paths":[{"path":"/","pathType":"Prefix"}]}],"tls":[{"hosts":["transmission.home.lex.la"],"secretName":"transmission-tls"}]}` | Ingress configuration |
+| ingress | object | `{"annotations":{"cert-manager.io/cluster-issuer":"cloudflare-issuer","traefik.ingress.kubernetes.io/router.entrypoints":"websecure"},"className":"","enabled":false,"hosts":[{"host":"transmission.example.com","paths":[{"path":"/","pathType":"Prefix"}]}],"tls":[{"hosts":["transmission.example.com"],"secretName":"transmission-tls"}]}` | Ingress configuration |
 | nameOverride | string | `""` |  |
 | nodeSelector | object | `{}` |  |
-| persistence | object | `{"config":{"accessMode":"ReadWriteOnce","enabled":true,"existingClaim":"","size":"1Gi","storageClassName":"truenas-nfs-csi"},"downloads":{"accessMode":"ReadWriteMany","enabled":true,"existingClaim":"","nfsPath":"/mnt/pool/Transmission","nfsServer":"truenas.home.lex.la","size":"100Gi","storageClassName":"","type":"nfs"}}` | Persistence configuration |
-| persistence.config | object | `{"accessMode":"ReadWriteOnce","enabled":true,"existingClaim":"","size":"1Gi","storageClassName":"truenas-nfs-csi"}` | Config volume configuration |
+| persistence | object | `{"config":{"accessMode":"ReadWriteOnce","enabled":true,"existingClaim":"","size":"1Gi","storageClassName":""},"downloads":{"accessMode":"ReadWriteMany","enabled":true,"existingClaim":"","nfsPath":"/mnt/downloads","nfsServer":"nfs-server.example.com","size":"100Gi","storageClassName":"","type":"nfs"}}` | Persistence configuration |
+| persistence.config | object | `{"accessMode":"ReadWriteOnce","enabled":true,"existingClaim":"","size":"1Gi","storageClassName":""}` | Config volume configuration |
 | persistence.config.accessMode | string | `"ReadWriteOnce"` | Access mode |
 | persistence.config.existingClaim | string | `""` | If you want to use an existing PVC |
 | persistence.config.size | string | `"1Gi"` | Size of the volume |
-| persistence.config.storageClassName | string | `"truenas-nfs-csi"` | Storage class name |
-| persistence.downloads | object | `{"accessMode":"ReadWriteMany","enabled":true,"existingClaim":"","nfsPath":"/mnt/pool/Transmission","nfsServer":"truenas.home.lex.la","size":"100Gi","storageClassName":"","type":"nfs"}` | Downloads volume configuration |
+| persistence.config.storageClassName | string | `""` | Storage class name |
+| persistence.downloads | object | `{"accessMode":"ReadWriteMany","enabled":true,"existingClaim":"","nfsPath":"/mnt/downloads","nfsServer":"nfs-server.example.com","size":"100Gi","storageClassName":"","type":"nfs"}` | Downloads volume configuration |
 | persistence.downloads.accessMode | string | `"ReadWriteMany"` | Access mode (when type is pvc) |
 | persistence.downloads.existingClaim | string | `""` | Existing claim (when type is pvc) |
-| persistence.downloads.nfsPath | string | `"/mnt/pool/Transmission"` | NFS path (when type is nfs) |
-| persistence.downloads.nfsServer | string | `"truenas.home.lex.la"` | NFS server (when type is nfs) |
+| persistence.downloads.nfsPath | string | `"/mnt/downloads"` | NFS path (when type is nfs) |
+| persistence.downloads.nfsServer | string | `"nfs-server.example.com"` | NFS server (when type is nfs) |
 | persistence.downloads.size | string | `"100Gi"` | Size (when type is pvc) |
 | persistence.downloads.storageClassName | string | `""` | Storage class (when type is pvc) |
 | persistence.downloads.type | string | `"nfs"` | Type of storage (pvc or nfs) |

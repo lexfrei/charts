@@ -23,56 +23,60 @@ jobs:
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
-      charts: ${{ steps.list-changed.outputs.charts }}
+      charts: ${{ steps.detect.outputs.charts }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
-      - name: Set up Helm
-        uses: azure/setup-helm@v4
-        with:
-          version: latest
+      - name: Set up yq
+        uses: mikefarah/yq@v4
 
-      - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.7.0
-
-      - name: Detect changed charts
-        id: list-changed
+      - name: Detect charts to publish
+        id: detect
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" && -n "${{ inputs.charts }}" ]]; then
-            # Use manually provided charts list
+            # Manual override: use provided charts list
             charts_input='${{ inputs.charts }}'
-            echo "Raw input received: $charts_input"
+            echo "📋 Manual override with charts: $charts_input"
 
             if charts_json=$(echo "$charts_input" | jq -c '.' 2>/dev/null); then
               echo "charts=$charts_json" >> "$GITHUB_OUTPUT"
               echo "Using manually provided charts: $charts_json"
             else
               echo "charts=[]" >> "$GITHUB_OUTPUT"
-              echo "Invalid JSON provided: $charts_input"
+              echo "❌ Invalid JSON provided: $charts_input"
             fi
           else
-            # Auto-detect changed charts
-            if [[ "${{ github.event_name }}" == "push" ]]; then
-              # For push events, compare with the commit before push
-              echo "Comparing with commit before push: ${{ github.event.before }}"
-              changed=$(ct list-changed --since ${{ github.event.before }} --target-branch ${{ github.event.repository.default_branch }} --chart-dirs charts)
-            else
-              # For pull_request and other events, compare with target branch
-              echo "Comparing with target branch: ${{ github.event.repository.default_branch }}"
-              changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --chart-dirs charts)
-            fi
+            # Auto-detect: check all charts for unpublished versions
+            echo "🔍 Checking all charts for unpublished versions..."
+            charts_to_publish=()
 
-            if [[ -n "$changed" ]]; then
-              # Convert newline-separated list to JSON array
-              charts_json=$(echo "$changed" | jq -R -s -c 'split("\n") | map(select(length > 0))')
-              echo "charts=$charts_json" >> "$GITHUB_OUTPUT"
-              echo "Auto-detected changed charts: $charts_json"
-            else
+            for chart_dir in charts/*/; do
+              chart_name=$(basename "$chart_dir")
+              chart_version=$(yq eval '.version' "${chart_dir}Chart.yaml")
+              release_tag="${chart_name}-${chart_version}"
+
+              # Check if this version already exists as a release
+              if gh release view "$release_tag" >/dev/null 2>&1; then
+                echo "  ⏭️  $chart_name:$chart_version already released"
+              else
+                echo "  📦 $chart_name:$chart_version needs publishing"
+                charts_to_publish+=("$chart_dir")
+              fi
+            done
+
+            # Convert to JSON array
+            if [ ${#charts_to_publish[@]} -eq 0 ]; then
               echo "charts=[]" >> "$GITHUB_OUTPUT"
-              echo "No changed charts detected"
+              echo "✅ All charts are up to date"
+            else
+              charts_json=$(printf '%s\n' "${charts_to_publish[@]}" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+              echo "charts=$charts_json" >> "$GITHUB_OUTPUT"
+              echo "📦 Will publish: $charts_json"
             fi
           fi
 
@@ -97,6 +101,9 @@ jobs:
 
       - name: Install cosign
         uses: sigstore/cosign-installer@v4.0.0
+
+      - name: Install ORAS
+        uses: oras-project/setup-oras@v1
 
       - name: Install yq
         run: |
@@ -183,22 +190,44 @@ jobs:
           # Package chart
           helm package "${CHART_PATH}"
 
-          # Push to GHCR
+          # Push to GHCR and capture output
           CHART_FILE="${CHART_NAME}-${CHART_VERSION}.tgz"
-          helm push "${CHART_FILE}" oci://ghcr.io/${{ github.repository_owner }}/charts
+          helm push "${CHART_FILE}" oci://ghcr.io/${{ github.repository_owner }}/charts > /tmp/push-output.txt 2>&1
+          cat /tmp/push-output.txt
 
-          # Get digest
-          DIGEST=$(helm show chart oci://ghcr.io/${{ github.repository_owner }}/charts/${CHART_NAME} --version ${CHART_VERSION} 2>&1 | grep -oP 'sha256:[a-f0-9]{64}' | head -1)
+          # Extract digest from helm push output
+          DIGEST=$(awk '/Digest: /{print $2}' /tmp/push-output.txt)
           echo "digest=${DIGEST}" >> $GITHUB_OUTPUT
           echo "Pushed chart with digest: ${DIGEST}"
 
       - name: Sign chart with cosign
         if: steps.check-version.outputs.exists == 'false'
         run: |
-          IMAGE_URI="ghcr.io/${{ github.repository_owner }}/charts/${{ steps.chart-metadata.outputs.name }}:${{ steps.chart-metadata.outputs.version }}"
+          IMAGE_URI="ghcr.io/${{ github.repository_owner }}/charts/${{ steps.chart-metadata.outputs.name }}@${{ steps.push.outputs.digest }}"
           echo "Signing ${IMAGE_URI}"
           cosign sign --yes "${IMAGE_URI}"
           echo "Chart signed successfully"
+
+      - name: Publish Artifact Hub metadata
+        if: steps.check-version.outputs.exists == 'false'
+        run: |
+          CHART_PATH="${{ steps.chart-metadata.outputs.path }}"
+          CHART_NAME="${{ steps.chart-metadata.outputs.name }}"
+
+          # Check if artifacthub-repo.yml exists in the chart directory
+          if [ -f "${CHART_PATH}/artifacthub-repo.yml" ]; then
+            echo "Publishing Artifact Hub metadata for ${CHART_NAME}"
+
+            # Push metadata file to OCI registry with special tag
+            oras push \
+              ghcr.io/${{ github.repository_owner }}/charts/${CHART_NAME}:artifacthub.io \
+              --config /dev/null:application/vnd.cncf.artifacthub.config.v1+yaml \
+              ${CHART_PATH}/artifacthub-repo.yml:application/vnd.cncf.artifacthub.repository-metadata.layer.v1.yaml
+
+            echo "Artifact Hub metadata published successfully"
+          else
+            echo "No artifacthub-repo.yml found in ${CHART_PATH}, skipping metadata publishing"
+          fi
 
       - name: Extract changelog
         if: steps.check-version.outputs.exists == 'false'

@@ -4,20 +4,25 @@ annotations:
   # See: https://artifacthub.io/docs/topics/annotations/helm/
   artifacthub.io/changes: |-
     - kind: changed
-      description: Migrate to OCI publishing in GHCR with cosign signatures
+      description: Fix cosign signing to use digest for proper Artifact Hub verification
+    - kind: added
+      description: Add Artifact Hub metadata with keyless signing information
     - kind: changed
-      description: Update appVersion to 2025.10.0
+      description: Improve chart packaging with better .helmignore
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
       url: https://github.com/lexfrei/charts/
     - name: Cloudflare Cloudflared
       url: https://github.com/cloudflare/cloudflared/
+  artifacthub.io/signKey: |
+    fingerprint: keyless
+    url: https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master
 apiVersion: v2
 name: cloudflare-tunnel
 description: Creation of a cloudflared deployment - a reverse tunnel for an environment
 type: application
-version: "0.12.1"
+version: "0.12.2"
 # renovate: datasource=github-releases depName=cloudflare/cloudflared
 appVersion: "2025.10.0"
 icon: https://avatars.githubusercontent.com/u/314135
