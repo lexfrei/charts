@@ -22,9 +22,9 @@ apiVersion: v2
 name: cloudflare-tunnel
 description: Creation of a cloudflared deployment - a reverse tunnel for an environment
 type: application
-version: "0.12.2"
+version: "0.12.3"
 # renovate: datasource=github-releases depName=cloudflare/cloudflared
-appVersion: "2025.10.0"
+appVersion: "2025.10.1"
 icon: https://avatars.githubusercontent.com/u/314135
 home: https://github.com/lexfrei/charts/
 keywords:
