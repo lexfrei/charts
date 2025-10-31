@@ -30,7 +30,7 @@ tests:
         equal:
           path: spec.template.spec.containers[0].image
           # renovate: datasource=github-releases depName=cloudflare/cloudflared
-          value: "cloudflare/cloudflared:2025.10.0"
+          value: "cloudflare/cloudflared:2025.10.1"
 
   - it: should use custom image tag when specified
     set:
