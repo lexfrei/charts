@@ -1,13 +1,19 @@
 # vipalived
 
-![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.22](https://img.shields.io/badge/AppVersion-3.22-informational?style=flat-square)
+![Version: 0.2.2](https://img.shields.io/badge/Version-0.2.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.22](https://img.shields.io/badge/AppVersion-3.22-informational?style=flat-square)
 
 Keepalived-based VIP management for Kubernetes control plane high availability
 
 ## TL;DR
 
 ```bash
-helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived --version 0.2.0
+# Install with default VIP (172.16.101.101/32)
+helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived --version 0.2.2
+
+# Install with custom VIP address
+helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived \
+  --version 0.2.2 \
+  --set keepalived.vrrpInstance.virtualIpAddress=192.168.1.100/24
 ```
 
 ## Introduction
@@ -26,10 +32,15 @@ This chart deploys keepalived as a DaemonSet on Kubernetes control plane nodes t
 To install the chart with the release name `my-vipalived`:
 
 ```bash
+# Basic installation (uses default VIP: 172.16.101.101/32)
 helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived
+
+# Installation with custom VIP address (recommended for production)
+helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived \
+  --set keepalived.vrrpInstance.virtualIpAddress=YOUR_VIP_ADDRESS/CIDR
 ```
 
-The command deploys vipalived on the Kubernetes cluster with default configuration. The [Parameters](#parameters) section lists the parameters that can be configured during installation.
+**Important**: Configure `keepalived.vrrpInstance.virtualIpAddress` to match your network requirements. The [Parameters](#parameters) section lists all configurable parameters.
 
 ## Uninstalling the Chart
 
@@ -45,7 +56,7 @@ All charts published to GHCR are signed using cosign. To verify the chart signat
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/vipalived:0.2.0 \
+  ghcr.io/lexfrei/charts/vipalived:0.2.2 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -94,14 +105,23 @@ cosign verify \
 
 ### Basic Configuration with Custom VIP
 
+The most important parameter is `virtualIpAddress` - this is the Virtual IP that will float between control plane nodes:
+
 ```yaml
 keepalived:
   vrrpInstance:
+    # REQUIRED: Set your Virtual IP address with CIDR notation
     virtualIpAddress: 192.168.1.100/24
-    interface: eth1
-    priority: 150
+
+    # Network interface to bind the VIP to
+    interface: eth0
+
+    # VRRP priority (higher = preferred master)
+    priority: 100
+
+    # Authentication password (max 8 characters)
     authentication:
-      authPass: mySecret123
+      authPass: mySecret
 ```
 
 ### High Priority Master Node
