@@ -16,9 +16,9 @@ apiVersion: v2
 name: vipalived
 description: Keepalived-based VIP management for Kubernetes control plane high availability
 type: application
-version: 0.1.0
+version: 0.2.0
 # renovate: datasource=docker depName=alpine
-appVersion: "3.19"
+appVersion: "3.22"
 keywords:
   - keepalived
   - vrrp
