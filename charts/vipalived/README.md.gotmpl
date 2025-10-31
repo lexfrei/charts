@@ -7,7 +7,13 @@
 ## TL;DR
 
 ```bash
+# Install with default VIP (172.16.101.101/32)
 helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived --version {{ template "chart.version" . }}
+
+# Install with custom VIP address
+helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived \
+  --version {{ template "chart.version" . }} \
+  --set keepalived.vrrpInstance.virtualIpAddress=192.168.1.100/24
 ```
 
 ## Introduction
@@ -26,10 +32,15 @@ This chart deploys keepalived as a DaemonSet on Kubernetes control plane nodes t
 To install the chart with the release name `my-vipalived`:
 
 ```bash
+# Basic installation (uses default VIP: 172.16.101.101/32)
 helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived
+
+# Installation with custom VIP address (recommended for production)
+helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived \
+  --set keepalived.vrrpInstance.virtualIpAddress=YOUR_VIP_ADDRESS/CIDR
 ```
 
-The command deploys vipalived on the Kubernetes cluster with default configuration. The [Parameters](#parameters) section lists the parameters that can be configured during installation.
+**Important**: Configure `keepalived.vrrpInstance.virtualIpAddress` to match your network requirements. The [Parameters](#parameters) section lists all configurable parameters.
 
 ## Uninstalling the Chart
 
@@ -56,14 +67,23 @@ cosign verify \
 
 ### Basic Configuration with Custom VIP
 
+The most important parameter is `virtualIpAddress` - this is the Virtual IP that will float between control plane nodes:
+
 ```yaml
 keepalived:
   vrrpInstance:
+    # REQUIRED: Set your Virtual IP address with CIDR notation
     virtualIpAddress: 192.168.1.100/24
-    interface: eth1
-    priority: 150
+
+    # Network interface to bind the VIP to
+    interface: eth0
+
+    # VRRP priority (higher = preferred master)
+    priority: 100
+
+    # Authentication password (max 8 characters)
     authentication:
-      authPass: mySecret123
+      authPass: mySecret
 ```
 
 ### High Priority Master Node
