@@ -1,0 +1,31 @@
+annotations:
+  artifacthub.io/category: networking
+  artifacthub.io/changes: |-
+    - kind: added
+      description: Initial release of vipalived chart
+  artifacthub.io/license: BSD-3-Clause
+  artifacthub.io/links: |
+    - name: Chart Repository
+      url: https://github.com/lexfrei/charts/
+    - name: Keepalived
+      url: https://www.keepalived.org/
+  artifacthub.io/signKey: |
+    fingerprint: keyless
+    url: https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master
+apiVersion: v2
+name: vipalived
+description: Keepalived-based VIP management for Kubernetes control plane high availability
+type: application
+version: 0.1.0
+# renovate: datasource=docker depName=alpine
+appVersion: "3.19"
+keywords:
+  - keepalived
+  - vrrp
+  - high-availability
+  - vip
+  - control-plane
+  - load-balancing
+maintainers:
+  - name: lexfrei
+    email: f@lex.la

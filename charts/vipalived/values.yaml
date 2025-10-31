@@ -1,0 +1,135 @@
+# Default values for vipalived.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# -- Override the name of the chart
+nameOverride: ""
+
+# -- Override the full name of the chart
+fullnameOverride: ""
+
+# -- Namespace to deploy vipalived into
+namespace: kube-system
+
+image:
+  # -- Container image repository
+  repository: alpine
+  # -- Image pull policy
+  pullPolicy: IfNotPresent
+  # -- Container image tag (defaults to chart appVersion if not set)
+  tag: ""
+
+# -- Image pull secrets for private registries
+imagePullSecrets: []
+
+keepalived:
+  # -- Router identifier for keepalived
+  routerId: vipalived
+  # -- VRRP protocol version (2 or 3)
+  vrrpVersion: 3
+
+  garp:
+    # -- Delay for gratuitous ARP after master transition
+    masterDelay: 5
+    # -- Interval for gratuitous ARP refresh on master
+    masterRefresh: 10
+    # -- Number of gratuitous ARP packets to send at master transition
+    masterRepeat: 5
+    # -- Number of gratuitous ARP packets to send at refresh
+    masterRefreshRepeat: 1
+
+  vrrpInstance:
+    # -- VRRP instance name
+    name: VI_CONTROL_PLANE
+    # -- Initial VRRP state (MASTER or BACKUP)
+    state: BACKUP
+    # -- Network interface to use for VRRP
+    interface: eth0
+    # -- VRRP priority (higher values are preferred)
+    priority: 100
+    # -- Virtual router ID (must be unique in the network)
+    virtualRouterId: 51
+    # -- Advertisement interval in seconds
+    advertInt: 1
+    # -- Enable non-preemptive mode
+    nopreempt: true
+
+    authentication:
+      # -- Authentication type (PASS or AH)
+      authType: PASS
+      # -- Authentication password (max 8 characters for PASS)
+      authPass: k8s_vip
+
+    # -- Virtual IP address with CIDR notation
+    virtualIpAddress: 172.16.101.101/32
+
+updateStrategy:
+  # -- Update strategy type
+  type: RollingUpdate
+  # -- Maximum number of unavailable pods during update
+  maxUnavailable: 1
+
+# -- Enable host network mode (required for VIP functionality)
+hostNetwork: true
+
+# -- Priority class name for pod scheduling
+priorityClassName: system-node-critical
+
+# -- Node selector for pod assignment
+nodeSelector:
+  node-role.kubernetes.io/control-plane: "true"
+
+# -- Tolerations for pod assignment
+tolerations:
+  - key: CriticalAddonsOnly
+    operator: Exists
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+  - effect: NoSchedule
+    key: node.kubernetes.io/disk-pressure
+    operator: Exists
+  - effect: NoSchedule
+    key: node.kubernetes.io/memory-pressure
+    operator: Exists
+  - effect: NoSchedule
+    key: node.kubernetes.io/pid-pressure
+    operator: Exists
+  - effect: NoSchedule
+    key: node.kubernetes.io/unschedulable
+    operator: Exists
+  - effect: NoSchedule
+    key: node.kubernetes.io/network-unavailable
+    operator: Exists
+
+# -- Affinity rules for pod assignment
+affinity: {}
+
+# -- Security context for the pod
+podSecurityContext: {}
+
+# -- Security context for the container
+securityContext:
+  capabilities:
+    add:
+      - NET_ADMIN
+      - NET_RAW
+      - NET_BROADCAST
+
+# -- Resource requests and limits
+resources:
+  limits:
+    cpu: 100m
+    memory: 64Mi
+  requests:
+    cpu: 50m
+    memory: 32Mi
+
+# -- Additional labels for pods
+podLabels: {}
+
+# -- Annotations for pods
+podAnnotations: {}

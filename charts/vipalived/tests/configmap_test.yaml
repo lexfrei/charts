@@ -1,0 +1,143 @@
+suite: test configmap
+templates:
+  - configmap.yaml
+tests:
+  - it: should create a ConfigMap with default values
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: ConfigMap
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-vipalived-config
+      - equal:
+          path: metadata.namespace
+          value: kube-system
+      - matchRegex:
+          path: metadata.labels["app.kubernetes.io/name"]
+          pattern: vipalived
+      - matchRegex:
+          path: metadata.labels["app.kubernetes.io/instance"]
+          pattern: RELEASE-NAME
+
+  - it: should contain keepalived configuration with default values
+    asserts:
+      - isNotNull:
+          path: data["keepalived.conf"]
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "router_id vipalived"
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "vrrp_version 3"
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "vrrp_instance VI_CONTROL_PLANE"
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "state BACKUP"
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "interface eth0"
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "priority 100"
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "virtual_router_id 51"
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "172.16.101.101/32"
+
+  - it: should use custom keepalived configuration when provided
+    set:
+      keepalived:
+        routerId: custom-router
+        vrrpVersion: 2
+        vrrpInstance:
+          name: CUSTOM_INSTANCE
+          state: MASTER
+          interface: eth1
+          priority: 200
+          virtualRouterId: 52
+          advertInt: 2
+          nopreempt: false
+          authentication:
+            authType: AH
+            authPass: custom12
+          virtualIpAddress: 192.168.1.100/24
+    asserts:
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "router_id custom-router"
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "vrrp_version 2"
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "vrrp_instance CUSTOM_INSTANCE"
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "state MASTER"
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "interface eth1"
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "priority 200"
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "virtual_router_id 52"
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "advert_int 2"
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "auth_type AH"
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "192.168.1.100/24"
+
+  - it: should respect custom namespace
+    set:
+      namespace: custom-namespace
+    asserts:
+      - equal:
+          path: metadata.namespace
+          value: custom-namespace
+
+  - it: should include GARP settings in configuration
+    asserts:
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "vrrp_garp_master_delay 5"
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "vrrp_garp_master_refresh 10"
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "vrrp_garp_master_repeat 5"
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "vrrp_garp_master_refresh_repeat 1"
+
+  - it: should include nopreempt when enabled
+    set:
+      keepalived:
+        vrrpInstance:
+          nopreempt: true
+    asserts:
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "nopreempt"
+
+  - it: should not include nopreempt when disabled
+    set:
+      keepalived:
+        vrrpInstance:
+          nopreempt: false
+    asserts:
+      - notMatchRegex:
+          path: data["keepalived.conf"]
+          pattern: "nopreempt"
