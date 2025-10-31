@@ -1,13 +1,13 @@
 # vipalived
 
-![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.19](https://img.shields.io/badge/AppVersion-3.19-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.22](https://img.shields.io/badge/AppVersion-3.22-informational?style=flat-square)
 
 Keepalived-based VIP management for Kubernetes control plane high availability
 
 ## TL;DR
 
 ```bash
-helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived --version 0.1.0
+helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived --version 0.2.0
 ```
 
 ## Introduction
@@ -45,7 +45,7 @@ All charts published to GHCR are signed using cosign. To verify the chart signat
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/vipalived:0.1.0 \
+  ghcr.io/lexfrei/charts/vipalived:0.2.0 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -67,7 +67,7 @@ cosign verify \
 | keepalived.garp.masterRepeat | int | `5` | Number of gratuitous ARP packets to send at master transition |
 | keepalived.routerId | string | `"vipalived"` | Router identifier for keepalived |
 | keepalived.vrrpInstance.advertInt | int | `1` | Advertisement interval in seconds |
-| keepalived.vrrpInstance.authentication.authPass | string | `"k8s_vip_secret"` | Authentication password (max 8 characters for PASS) |
+| keepalived.vrrpInstance.authentication.authPass | string | `"k8s_vip"` | Authentication password (max 8 characters for PASS) |
 | keepalived.vrrpInstance.authentication.authType | string | `"PASS"` | Authentication type (PASS or AH) |
 | keepalived.vrrpInstance.interface | string | `"eth0"` | Network interface to use for VRRP |
 | keepalived.vrrpInstance.name | string | `"VI_CONTROL_PLANE"` | VRRP instance name |
