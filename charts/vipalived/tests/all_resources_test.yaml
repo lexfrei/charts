@@ -1,0 +1,96 @@
+suite: test all resources
+templates:
+  - configmap.yaml
+  - daemonset.yaml
+tests:
+  - it: should create all required resources with default values
+    asserts:
+      - template: configmap.yaml
+        isKind:
+          of: ConfigMap
+      - template: daemonset.yaml
+        isKind:
+          of: DaemonSet
+
+  - it: should have matching labels across resources
+    asserts:
+      - template: configmap.yaml
+        equal:
+          path: metadata.labels["app.kubernetes.io/name"]
+          value: vipalived
+      - template: daemonset.yaml
+        equal:
+          path: metadata.labels["app.kubernetes.io/name"]
+          value: vipalived
+      - template: configmap.yaml
+        equal:
+          path: metadata.labels["app.kubernetes.io/instance"]
+          value: RELEASE-NAME
+      - template: daemonset.yaml
+        equal:
+          path: metadata.labels["app.kubernetes.io/instance"]
+          value: RELEASE-NAME
+      - template: configmap.yaml
+        isNotNull:
+          path: metadata.labels["helm.sh/chart"]
+      - template: daemonset.yaml
+        isNotNull:
+          path: metadata.labels["helm.sh/chart"]
+
+  - it: should deploy all resources to the same namespace
+    asserts:
+      - template: configmap.yaml
+        equal:
+          path: metadata.namespace
+          value: kube-system
+      - template: daemonset.yaml
+        equal:
+          path: metadata.namespace
+          value: kube-system
+
+  - it: should use consistent naming
+    asserts:
+      - template: configmap.yaml
+        matchRegex:
+          path: metadata.name
+          pattern: "^RELEASE-NAME-vipalived"
+      - template: daemonset.yaml
+        matchRegex:
+          path: metadata.name
+          pattern: "^RELEASE-NAME-vipalived"
+
+  - it: configmap should be referenced by daemonset
+    asserts:
+      - template: daemonset.yaml
+        contains:
+          path: spec.template.spec.volumes
+          content:
+            name: config
+            configMap:
+              name: RELEASE-NAME-vipalived-config
+
+  - it: should respect fullnameOverride across all resources
+    set:
+      fullnameOverride: custom-vipalived
+    asserts:
+      - template: configmap.yaml
+        matchRegex:
+          path: metadata.name
+          pattern: "^custom-vipalived"
+      - template: daemonset.yaml
+        matchRegex:
+          path: metadata.name
+          pattern: "^custom-vipalived"
+
+  - it: should deploy to custom namespace when specified
+    set:
+      namespace: production
+    asserts:
+      - template: configmap.yaml
+        equal:
+          path: metadata.namespace
+          value: production
+      - template: daemonset.yaml
+        equal:
+          path: metadata.namespace
+          value: production
