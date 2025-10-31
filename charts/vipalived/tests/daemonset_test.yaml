@@ -109,7 +109,8 @@ tests:
       - template: daemonset.yaml
         equal:
           path: spec.template.spec.containers[0].image
-          value: alpine:3.19
+          # renovate: datasource=docker depName=alpine
+          value: alpine:3.22
       - template: daemonset.yaml
         equal:
           path: spec.template.spec.containers[0].imagePullPolicy

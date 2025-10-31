@@ -1,0 +1,7 @@
+# Artifact Hub repository metadata
+# See: https://artifacthub.io/docs/topics/repositories/helm-charts/#oci-support
+
+repositoryID: 91b6c014-183f-486e-9cce-f05f2897312e
+owners:
+  - name: Aleksei Sviridkin
+    email: f@lex.la

@@ -1,8 +1,8 @@
 annotations:
   artifacthub.io/category: networking
   artifacthub.io/changes: |-
-    - kind: changed
-      description: Update alpine docker tag to v3.22
+    - kind: added
+      description: Add Artifact Hub repository metadata for verified badge
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -16,7 +16,7 @@ apiVersion: v2
 name: vipalived
 description: Keepalived-based VIP management for Kubernetes control plane high availability
 type: application
-version: 0.2.0
+version: 0.2.1
 # renovate: datasource=docker depName=alpine
 appVersion: "3.22"
 keywords:
