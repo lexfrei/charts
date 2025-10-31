@@ -71,14 +71,6 @@ jobs:
               continue
             fi
 
-            current_version=$(yq eval '.version' "$chart_file")
-            echo "Current chart version: $current_version"
-
-            # Bump patch version
-            new_version=$(echo "$current_version" | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
-            echo "Bumping chart version: $current_version -> $new_version"
-            yq eval -i ".version = \"$new_version\"" "$chart_file"
-
             # Extract description from PR title
             # Format: "chore(deps): update rancher/kubectl docker tag to v1.34.1" -> "Update rancher/kubectl docker tag to v1.34.1"
             pr_title="${{ github.event.pull_request.title }}"
@@ -90,7 +82,7 @@ jobs:
             yq eval -i '.annotations."artifacthub.io/changes" = "- kind: changed\n  description: " + env(changelog_desc)' \
               "$chart_file"
 
-            echo "✅ Updated Chart.yaml with version and changelog"
+            echo "✅ Updated Chart.yaml changelog"
 
             # Generate documentation if README.md.gotmpl exists
             if [ -f "$chart_dir/README.md.gotmpl" ]; then
