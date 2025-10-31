@@ -27,6 +27,78 @@ This chart deploys keepalived as a DaemonSet on Kubernetes control plane nodes t
 - Control plane nodes with label `node-role.kubernetes.io/control-plane: "true"`
 - Network support for VRRP protocol
 
+## Deployment Scenarios
+
+### Day 2 Operations (Standard Scenario)
+
+This chart is primarily designed for **Day 2 operations** - deploying keepalived on an already running Kubernetes cluster to add or improve high availability.
+
+**Use this when:**
+
+- You already have a working Kubernetes cluster
+- You have access to the Kubernetes API server
+- You want to manage keepalived through Helm releases
+- You need to update/manage keepalived configuration over time
+
+This is the recommended approach for most users and supports full Helm lifecycle management (install, upgrade, rollback).
+
+### Day 1 Bootstrap (Static Pod Scenario)
+
+For **Day 1 cluster bootstrapping**, when you need the VIP available BEFORE the Kubernetes API server is accessible, you can deploy keepalived as a static pod.
+
+**Use this when:**
+
+- You're creating a new HA Kubernetes cluster from scratch
+- You need the control plane VIP active during initial `kubeadm init`
+- The API server needs to be reachable through the VIP during bootstrap
+- You don't have Helm/kubectl access yet (chicken-and-egg problem)
+
+**How to deploy as static pod:**
+
+1. Render the chart to static YAML manifests:
+
+   ```bash
+   helm template vipalived oci://ghcr.io/lexfrei/charts/vipalived \
+     --version {{ template "chart.version" . }} \
+     --set keepalived.vrrpInstance.virtualIpAddress=YOUR_VIP_ADDRESS/CIDR \
+     --namespace kube-system > vipalived-manifests.yaml
+   ```
+
+2. Extract only the DaemonSet and convert it to a static pod manifest:
+
+   ```bash
+   # Extract the DaemonSet spec.template.spec section
+   # This contains the pod specification without DaemonSet wrapper
+   kubectl apply --dry-run=client -f vipalived-manifests.yaml -o yaml | \
+     yq eval 'select(.kind == "DaemonSet") | .spec.template' - > vipalived-pod.yaml
+   ```
+
+3. Copy the static pod manifest to each control plane node:
+
+   ```bash
+   # On each control plane node
+   sudo cp vipalived-pod.yaml /etc/kubernetes/manifests/vipalived.yaml
+   ```
+
+4. The kubelet will automatically start the static pod within seconds.
+
+5. Verify the static pod is running:
+
+   ```bash
+   # Static pods appear with the node name suffix
+   kubectl get pods -n kube-system | grep vipalived
+   # Example output: vipalived-control-plane-1
+   ```
+
+**Important notes for static pods:**
+
+- Static pods are managed directly by kubelet, not by the API server
+- They appear in `kubectl get pods` but cannot be deleted via kubectl
+- To update: modify the file in `/etc/kubernetes/manifests/`, kubelet will recreate the pod
+- To remove: delete the file from `/etc/kubernetes/manifests/`
+- Each control plane node runs its own instance of the static pod
+- After cluster bootstrap, you can transition to the Helm-managed DaemonSet for easier management
+
 ## Installing the Chart
 
 To install the chart with the release name `my-vipalived`:
@@ -40,7 +112,7 @@ helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived \
   --set keepalived.vrrpInstance.virtualIpAddress=YOUR_VIP_ADDRESS/CIDR
 ```
 
-**Important**: Configure `keepalived.vrrpInstance.virtualIpAddress` to match your network requirements. The [Parameters](#parameters) section lists all configurable parameters.
+**Important**: Configure `keepalived.vrrpInstance.virtualIpAddress` to match your network requirements. The [Values](#values) section lists all configurable parameters.
 
 ## Uninstalling the Chart
 
@@ -148,6 +220,7 @@ tolerations:
 ### Multiple Masters
 
 If multiple nodes become MASTER:
+
 1. Verify `virtualRouterId` is unique in your network
 2. Check network connectivity between nodes
 3. Review authentication settings
@@ -155,6 +228,7 @@ If multiple nodes become MASTER:
 ### Performance Issues
 
 If experiencing slow failover:
+
 1. Adjust GARP settings for faster advertisement
 2. Reduce `advertInt` for more frequent health checks
 3. Consider increasing container resources
@@ -166,5 +240,3 @@ If experiencing slow failover:
 - [Chart Repository](https://github.com/lexfrei/charts/)
 
 {{ template "chart.maintainersSection" . }}
-
-{{ template "chart.sourcesSection" . }}
