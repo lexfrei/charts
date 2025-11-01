@@ -11,6 +11,12 @@ fullnameOverride: ""
 # -- Namespace to deploy vipalived into
 namespace: kube-system
 
+# -- Enable static pod mode for Day 1 cluster bootstrap.
+# When true, renders a Pod manifest instead of DaemonSet with embedded configuration.
+# Use this for pre-CNI VIP availability during initial cluster setup.
+# For Day 2 operations (existing cluster), keep this false (default).
+static: false
+
 image:
   # -- Container image repository
   repository: alpine

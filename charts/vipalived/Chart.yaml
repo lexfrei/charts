@@ -2,7 +2,13 @@ annotations:
   artifacthub.io/category: networking
   artifacthub.io/changes: |-
     - kind: added
-      description: Add Day 1 bootstrap and Day 2 operations deployment scenarios documentation
+      description: Add static pod mode (static=true) for Day 1 cluster bootstrap with embedded configuration
+    - kind: fixed
+      description: Fix static pod deployment - ConfigMaps don't work with static pods, now config is embedded in command
+    - kind: changed
+      description: Release changelog now appears first in GitHub releases (before installation instructions)
+    - kind: changed
+      description: Refactor keepalived.conf generation into reusable helper template
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -16,7 +22,7 @@ apiVersion: v2
 name: vipalived
 description: Keepalived-based VIP management for Kubernetes control plane high availability
 type: application
-version: 0.2.3
+version: 0.3.0
 # renovate: datasource=docker depName=alpine
 appVersion: "3.22"
 keywords:

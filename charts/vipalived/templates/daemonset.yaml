@@ -1,3 +1,4 @@
+{{- if not .Values.static }}
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -77,3 +78,4 @@ spec:
         - name: config
           configMap:
             name: {{ include "vipalived.fullname" . }}-config
+{{- end }}

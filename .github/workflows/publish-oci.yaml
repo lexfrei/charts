@@ -264,32 +264,10 @@ jobs:
 
           CHANGELOG_RAW=$(yq eval '.annotations."artifacthub.io/changes"' "${CHART_PATH}/Chart.yaml")
 
-          RELEASE_BODY="## Chart: ${CHART_NAME} v${CHART_VERSION}
-
-          **App Version**: ${APP_VERSION}
-
-          ### Installation
-
-          \`\`\`bash
-          helm install ${CHART_NAME} \\
-            oci://ghcr.io/${{ github.repository_owner }}/charts/${CHART_NAME} \\
-            --version ${CHART_VERSION}
-          \`\`\`
-
-          ### Verification
-
-          \`\`\`bash
-          cosign verify \\
-            ghcr.io/${{ github.repository_owner }}/charts/${CHART_NAME}:${CHART_VERSION} \\
-            --certificate-identity \"https://github.com/${{ github.repository }}/.github/workflows/publish-oci.yaml@refs/heads/master\" \\
-            --certificate-oidc-issuer \"https://token.actions.githubusercontent.com\"
-          \`\`\`
-          "
-
+          # Build changelog section first
+          CHANGELOG_SECTION=""
           if [ "$CHANGELOG_RAW" != "null" ] && [ -n "$CHANGELOG_RAW" ]; then
-            RELEASE_BODY="${RELEASE_BODY}
-
-          ### Changelog
+            CHANGELOG_SECTION="### Changelog
 
           "
             TEMP_FILE=$(mktemp)
@@ -320,14 +298,36 @@ jobs:
                   emoji="📝"
                   ;;
               esac
-              RELEASE_BODY="${RELEASE_BODY}- ${emoji} ${description}
+              CHANGELOG_SECTION="${CHANGELOG_SECTION}- ${emoji} ${description}
           "
             done < "$TEMP_FILE"
 
             rm -f "$TEMP_FILE"
+            CHANGELOG_SECTION="${CHANGELOG_SECTION}
+          "
           fi
 
-          RELEASE_BODY="${RELEASE_BODY}
+          # Build release body with changelog first
+          RELEASE_BODY="## Chart: ${CHART_NAME} v${CHART_VERSION}
+
+          **App Version**: ${APP_VERSION}
+
+          ${CHANGELOG_SECTION}### Installation
+
+          \`\`\`bash
+          helm install ${CHART_NAME} \\
+            oci://ghcr.io/${{ github.repository_owner }}/charts/${CHART_NAME} \\
+            --version ${CHART_VERSION}
+          \`\`\`
+
+          ### Verification
+
+          \`\`\`bash
+          cosign verify \\
+            ghcr.io/${{ github.repository_owner }}/charts/${CHART_NAME}:${CHART_VERSION} \\
+            --certificate-identity \"https://github.com/${{ github.repository }}/.github/workflows/publish-oci.yaml@refs/heads/master\" \\
+            --certificate-oidc-issuer \"https://token.actions.githubusercontent.com\"
+          \`\`\`
 
           ---
 
