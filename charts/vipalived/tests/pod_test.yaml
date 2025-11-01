@@ -1,0 +1,213 @@
+suite: test static pod
+templates:
+  - pod.yaml
+tests:
+  - it: should create Pod when static is true
+    set:
+      static: true
+      keepalived:
+        routerId: test-router
+        vrrpVersion: 3
+        vrrpInstance:
+          virtualIpAddress: 192.168.1.100/24
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Pod
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-vipalived
+
+  - it: should not create Pod when static is false
+    set:
+      static: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should embed configuration in command
+    set:
+      static: true
+      keepalived:
+        routerId: test-router
+        vrrpVersion: 3
+        vrrpInstance:
+          name: TEST_INSTANCE
+          virtualIpAddress: 192.168.1.100/24
+          virtualRouterId: 99
+    asserts:
+      - contains:
+          path: spec.containers[0].command
+          content: /bin/sh
+      - contains:
+          path: spec.containers[0].command
+          content: -c
+      - matchRegex:
+          path: spec.containers[0].command[2]
+          pattern: "router_id test-router"
+      - matchRegex:
+          path: spec.containers[0].command[2]
+          pattern: "vrrp_instance TEST_INSTANCE"
+      - matchRegex:
+          path: spec.containers[0].command[2]
+          pattern: "192.168.1.100/24"
+
+  - it: should use hostNetwork
+    set:
+      static: true
+      hostNetwork: true
+    asserts:
+      - equal:
+          path: spec.hostNetwork
+          value: true
+
+  - it: should apply custom labels
+    set:
+      static: true
+      podLabels:
+        custom: label
+    asserts:
+      - equal:
+          path: metadata.labels.custom
+          value: label
+
+  - it: should apply custom annotations
+    set:
+      static: true
+      podAnnotations:
+        custom: annotation
+    asserts:
+      - equal:
+          path: metadata.annotations.custom
+          value: annotation
+
+  - it: should use correct image
+    set:
+      static: true
+      image:
+        repository: alpine
+        tag: "3.22"
+    asserts:
+      - equal:
+          path: spec.containers[0].image
+          value: alpine:3.22
+
+  - it: should not have ConfigMap volumes
+    set:
+      static: true
+    asserts:
+      - isNull:
+          path: spec.volumes
+
+  - it: should not have ConfigMap volumeMounts
+    set:
+      static: true
+    asserts:
+      - isNull:
+          path: spec.containers[0].volumeMounts
+
+  - it: should apply security context
+    set:
+      static: true
+      securityContext:
+        capabilities:
+          add:
+            - NET_ADMIN
+    asserts:
+      - equal:
+          path: spec.containers[0].securityContext.capabilities.add[0]
+          value: NET_ADMIN
+
+  - it: should apply resources
+    set:
+      static: true
+      resources:
+        requests:
+          memory: "64Mi"
+    asserts:
+      - equal:
+          path: spec.containers[0].resources.requests.memory
+          value: "64Mi"
+
+  - it: should apply nodeSelector
+    set:
+      static: true
+      nodeSelector:
+        node-role.kubernetes.io/control-plane: "true"
+    asserts:
+      - equal:
+          path: spec.nodeSelector
+          value:
+            node-role.kubernetes.io/control-plane: "true"
+
+  - it: should apply tolerations
+    set:
+      static: true
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          effect: NoSchedule
+    asserts:
+      - contains:
+          path: spec.tolerations
+          content:
+            key: node-role.kubernetes.io/control-plane
+            effect: NoSchedule
+
+  - it: should apply affinity
+    set:
+      static: true
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-role.kubernetes.io/control-plane
+                    operator: Exists
+    asserts:
+      - isNotNull:
+          path: spec.affinity.nodeAffinity
+
+  - it: should apply priorityClassName
+    set:
+      static: true
+      priorityClassName: system-node-critical
+    asserts:
+      - equal:
+          path: spec.priorityClassName
+          value: system-node-critical
+
+  - it: should apply imagePullSecrets
+    set:
+      static: true
+      imagePullSecrets:
+        - name: regcred
+    asserts:
+      - contains:
+          path: spec.imagePullSecrets
+          content:
+            name: regcred
+
+  - it: should embed nopreempt when enabled
+    set:
+      static: true
+      keepalived:
+        vrrpInstance:
+          nopreempt: true
+          virtualIpAddress: 192.168.1.100/24
+    asserts:
+      - matchRegex:
+          path: spec.containers[0].command[2]
+          pattern: "nopreempt"
+
+  - it: should not embed nopreempt when disabled
+    set:
+      static: true
+      keepalived:
+        vrrpInstance:
+          nopreempt: false
+          virtualIpAddress: 192.168.1.100/24
+    asserts:
+      - notMatchRegex:
+          path: spec.containers[0].command[2]
+          pattern: "\\s+nopreempt"

@@ -2,6 +2,7 @@ suite: test all resources
 templates:
   - configmap.yaml
   - daemonset.yaml
+  - pod.yaml
 tests:
   - it: should create all required resources with default values
     asserts:
@@ -91,6 +92,70 @@ tests:
           path: metadata.namespace
           value: production
       - template: daemonset.yaml
+        equal:
+          path: metadata.namespace
+          value: production
+
+  - it: should create Pod instead of DaemonSet when static is true
+    set:
+      static: true
+    asserts:
+      - template: configmap.yaml
+        hasDocuments:
+          count: 0
+      - template: daemonset.yaml
+        hasDocuments:
+          count: 0
+      - template: pod.yaml
+        hasDocuments:
+          count: 1
+      - template: pod.yaml
+        isKind:
+          of: Pod
+
+  - it: should create DaemonSet and ConfigMap when static is false (default)
+    set:
+      static: false
+    asserts:
+      - template: configmap.yaml
+        hasDocuments:
+          count: 1
+      - template: daemonset.yaml
+        hasDocuments:
+          count: 1
+      - template: pod.yaml
+        hasDocuments:
+          count: 0
+
+  - it: static pod should have consistent labels
+    set:
+      static: true
+    asserts:
+      - template: pod.yaml
+        equal:
+          path: metadata.labels["app.kubernetes.io/name"]
+          value: vipalived
+      - template: pod.yaml
+        equal:
+          path: metadata.labels["app.kubernetes.io/instance"]
+          value: RELEASE-NAME
+
+  - it: static pod should respect fullnameOverride
+    set:
+      static: true
+      fullnameOverride: custom-vipalived
+    asserts:
+      - template: pod.yaml
+        equal:
+          path: metadata.name
+          value: custom-vipalived
+
+  - it: static pod should deploy to custom namespace
+    set:
+      static: true
+      namespace: production
+    asserts:
+      - template: pod.yaml
         equal:
           path: metadata.namespace
           value: production

@@ -15,6 +15,11 @@
       "description": "Namespace to deploy vipalived into",
       "default": "kube-system"
     },
+    "static": {
+      "type": "boolean",
+      "description": "Enable static pod mode for Day 1 cluster bootstrap. When true, renders a Pod manifest instead of DaemonSet with embedded configuration.",
+      "default": false
+    },
     "image": {
       "type": "object",
       "properties": {

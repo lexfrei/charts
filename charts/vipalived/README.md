@@ -1,24 +1,32 @@
 # vipalived
 
-![Version: 0.2.3](https://img.shields.io/badge/Version-0.2.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.22](https://img.shields.io/badge/AppVersion-3.22-informational?style=flat-square)
+![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.22](https://img.shields.io/badge/AppVersion-3.22-informational?style=flat-square)
 
 Keepalived-based VIP management for Kubernetes control plane high availability
 
 ## TL;DR
 
 ```bash
-# Install with default VIP (172.16.101.101/32)
-helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived --version 0.2.3
+# Day 2: Install with default VIP (172.16.101.101/32) on existing cluster
+helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived --version 0.3.0
 
-# Install with custom VIP address
+# Day 2: Install with custom VIP address
 helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived \
-  --version 0.2.3 \
+  --version 0.3.0 \
   --set keepalived.vrrpInstance.virtualIpAddress=192.168.1.100/24
+
+# Day 1: Generate static pod manifest for cluster bootstrap
+helm template vipalived oci://ghcr.io/lexfrei/charts/vipalived \
+  --version 0.3.0 \
+  --set static=true \
+  --set keepalived.vrrpInstance.virtualIpAddress=192.168.1.100/24 > /etc/kubernetes/manifests/vipalived.yaml
 ```
 
 ## Introduction
 
 This chart deploys keepalived as a DaemonSet on Kubernetes control plane nodes to provide Virtual IP (VIP) functionality for high availability. It uses VRRP (Virtual Router Redundancy Protocol) to manage IP failover between control plane nodes.
+
+**Target Audience**: This chart is for users who prefer Kubernetes-native solutions with minimal system intrusion, but need a VIP for the kube-apiserver available before CNI initialization. Unlike kube-vip, Cilium, or other solutions that require CNI or complex integrations, this provides a simple, focused solution specifically for control plane VIP management during cluster bootstrap (Day 1) and beyond (Day 2).
 
 ## Prerequisites
 
@@ -55,34 +63,28 @@ For **Day 1 cluster bootstrapping**, when you need the VIP available BEFORE the 
 
 **How to deploy as static pod:**
 
-1. Render the chart to static YAML manifests:
+1. Render the chart in static pod mode:
 
    ```bash
    helm template vipalived oci://ghcr.io/lexfrei/charts/vipalived \
-     --version 0.2.3 \
+     --version 0.3.0 \
+     --set static=true \
      --set keepalived.vrrpInstance.virtualIpAddress=YOUR_VIP_ADDRESS/CIDR \
-     --namespace kube-system > vipalived-manifests.yaml
+     --namespace kube-system > vipalived-static-pod.yaml
    ```
 
-2. Extract only the DaemonSet and convert it to a static pod manifest:
+   When `static=true`, the chart generates a Pod manifest (instead of DaemonSet) with keepalived configuration embedded directly in the command (no ConfigMap needed).
 
-   ```bash
-   # Extract the DaemonSet spec.template.spec section
-   # This contains the pod specification without DaemonSet wrapper
-   kubectl apply --dry-run=client -f vipalived-manifests.yaml -o yaml | \
-     yq eval 'select(.kind == "DaemonSet") | .spec.template' - > vipalived-pod.yaml
-   ```
-
-3. Copy the static pod manifest to each control plane node:
+2. Copy the static pod manifest to each control plane node:
 
    ```bash
    # On each control plane node
-   sudo cp vipalived-pod.yaml /etc/kubernetes/manifests/vipalived.yaml
+   sudo cp vipalived-static-pod.yaml /etc/kubernetes/manifests/vipalived.yaml
    ```
 
-4. The kubelet will automatically start the static pod within seconds.
+3. The kubelet will automatically start the static pod within seconds.
 
-5. Verify the static pod is running:
+4. Verify the static pod is running:
 
    ```bash
    # Static pods appear with the node name suffix
@@ -128,7 +130,7 @@ All charts published to GHCR are signed using cosign. To verify the chart signat
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/vipalived:0.2.3 \
+  ghcr.io/lexfrei/charts/vipalived:0.3.0 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -169,6 +171,7 @@ cosign verify \
 | priorityClassName | string | `"system-node-critical"` | Priority class name for pod scheduling |
 | resources | object | `{"limits":{"cpu":"100m","memory":"64Mi"},"requests":{"cpu":"50m","memory":"32Mi"}}` | Resource requests and limits |
 | securityContext | object | `{"capabilities":{"add":["NET_ADMIN","NET_RAW","NET_BROADCAST"]}}` | Security context for the container |
+| static | bool | `false` | Enable static pod mode for Day 1 cluster bootstrap. When true, renders a Pod manifest instead of DaemonSet with embedded configuration. Use this for pre-CNI VIP availability during initial cluster setup. For Day 2 operations (existing cluster), keep this false (default). |
 | tolerations | list | `[{"key":"CriticalAddonsOnly","operator":"Exists"},{"effect":"NoExecute","key":"node.kubernetes.io/not-ready","operator":"Exists"},{"effect":"NoExecute","key":"node.kubernetes.io/unreachable","operator":"Exists"},{"effect":"NoSchedule","key":"node.kubernetes.io/disk-pressure","operator":"Exists"},{"effect":"NoSchedule","key":"node.kubernetes.io/memory-pressure","operator":"Exists"},{"effect":"NoSchedule","key":"node.kubernetes.io/pid-pressure","operator":"Exists"},{"effect":"NoSchedule","key":"node.kubernetes.io/unschedulable","operator":"Exists"},{"effect":"NoSchedule","key":"node.kubernetes.io/network-unavailable","operator":"Exists"}]` | Tolerations for pod assignment |
 | updateStrategy.maxUnavailable | int | `1` | Maximum number of unavailable pods during update |
 | updateStrategy.type | string | `"RollingUpdate"` | Update strategy type |

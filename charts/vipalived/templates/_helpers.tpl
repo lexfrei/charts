@@ -61,3 +61,36 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Generate keepalived.conf content
+This helper is used by both ConfigMap (for DaemonSet) and Pod (for static pod mode)
+*/}}
+{{- define "vipalived.keepalivedConfig" -}}
+global_defs {
+  router_id {{ .Values.keepalived.routerId }}
+  vrrp_version {{ .Values.keepalived.vrrpVersion }}
+  vrrp_garp_master_delay {{ .Values.keepalived.garp.masterDelay }}
+  vrrp_garp_master_refresh {{ .Values.keepalived.garp.masterRefresh }}
+  vrrp_garp_master_repeat {{ .Values.keepalived.garp.masterRepeat }}
+  vrrp_garp_master_refresh_repeat {{ .Values.keepalived.garp.masterRefreshRepeat }}
+}
+
+vrrp_instance {{ .Values.keepalived.vrrpInstance.name }} {
+  state {{ .Values.keepalived.vrrpInstance.state }}
+  interface {{ .Values.keepalived.vrrpInstance.interface }}
+  virtual_router_id {{ .Values.keepalived.vrrpInstance.virtualRouterId }}
+  priority {{ .Values.keepalived.vrrpInstance.priority }}
+  advert_int {{ .Values.keepalived.vrrpInstance.advertInt }}
+  {{- if .Values.keepalived.vrrpInstance.nopreempt }}
+  nopreempt
+  {{- end }}
+  authentication {
+    auth_type {{ .Values.keepalived.vrrpInstance.authentication.authType }}
+    auth_pass {{ .Values.keepalived.vrrpInstance.authentication.authPass }}
+  }
+  virtual_ipaddress {
+    {{ .Values.keepalived.vrrpInstance.virtualIpAddress }}
+  }
+}
+{{- end }}
