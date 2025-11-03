@@ -1,0 +1,187 @@
+categories:
+- Networking
+- Cloudflare
+questions:
+# Cloudflare Configuration
+- variable: cloudflare.account
+  label: Cloudflare Account ID
+  description: Your Cloudflare account number
+  type: string
+  required: true
+  group: "Cloudflare Configuration"
+- variable: cloudflare.tunnelName
+  label: Tunnel Name
+  description: The name of the tunnel this instance will serve
+  type: string
+  required: true
+  group: "Cloudflare Configuration"
+- variable: cloudflare.tunnelId
+  label: Tunnel ID
+  description: The ID of the tunnel
+  type: string
+  required: true
+  group: "Cloudflare Configuration"
+- variable: cloudflare.secret
+  label: Tunnel Secret
+  description: The secret for the tunnel (leave empty if using existing secret)
+  type: password
+  group: "Cloudflare Configuration"
+- variable: cloudflare.secretName
+  label: Existing Secret Name
+  description: If defined, use this existing secret instead of creating new one
+  type: string
+  group: "Cloudflare Configuration"
+- variable: cloudflare.ingress
+  label: Ingress Rules
+  description: Define ingress rules for the tunnel (YAML format)
+  type: multiline
+  required: true
+  default: |
+    - hostname: tunnel.example.com
+      service: http://web-service:80
+  group: "Cloudflare Configuration"
+
+# Deployment Settings
+- variable: deploymentMode
+  label: Deployment Mode
+  description: Deploy as Deployment or DaemonSet
+  type: enum
+  default: deployment
+  options:
+    - deployment
+    - daemonset
+  group: "Deployment Settings"
+- variable: replicaCount
+  label: Replica Count
+  description: Number of replicas (only for deployment mode)
+  type: int
+  default: 2
+  min: 1
+  max: 10
+  show_if: "deploymentMode=deployment"
+  group: "Deployment Settings"
+
+# Advanced Cloudflare Settings
+- variable: cloudflare.enableWarp
+  label: Enable WARP Routing
+  description: Turn on WARP routing for TCP
+  type: boolean
+  default: false
+  group: "Advanced Cloudflare Settings"
+- variable: protocol
+  label: Transport Protocol
+  description: Transport protocol for cloudflared
+  type: enum
+  default: ""
+  options:
+    - ""
+    - auto
+    - quic
+    - http2
+  group: "Advanced Cloudflare Settings"
+- variable: postQuantum
+  label: Enable Post-Quantum Cryptography
+  description: Enable post-quantum cryptography for QUIC connections (requires quic or auto protocol)
+  type: boolean
+  default: false
+  show_if: "protocol=quic||protocol=auto||protocol="
+  group: "Advanced Cloudflare Settings"
+- variable: region
+  label: Cloudflare Region
+  description: Cloudflare region (us for US-only, empty for global)
+  type: enum
+  default: ""
+  options:
+    - ""
+    - us
+  group: "Advanced Cloudflare Settings"
+- variable: edgeIpVersion
+  label: Edge IP Version
+  description: IP version for edge connections
+  type: enum
+  default: ""
+  options:
+    - ""
+    - auto
+    - "4"
+    - "6"
+  group: "Advanced Cloudflare Settings"
+
+# Monitoring
+- variable: serviceMonitor.enabled
+  label: Enable Prometheus ServiceMonitor
+  description: Create ServiceMonitor for Prometheus Operator
+  type: boolean
+  default: false
+  group: "Monitoring"
+- variable: metricsPort
+  label: Metrics Port
+  description: Port for Prometheus metrics
+  type: int
+  default: 2000
+  group: "Monitoring"
+
+# High Availability
+- variable: podDisruptionBudget.enabled
+  label: Enable Pod Disruption Budget
+  description: Ensure minimum number of pods during disruptions
+  type: boolean
+  default: false
+  group: "High Availability"
+- variable: podDisruptionBudget.minAvailable
+  label: Minimum Available Pods
+  description: Minimum number of available pods
+  type: int
+  default: 1
+  show_if: "podDisruptionBudget.enabled=true"
+  group: "High Availability"
+
+# Resources
+- variable: resources.requests.cpu
+  label: CPU Request
+  description: Minimum CPU required
+  type: string
+  default: ""
+  group: "Resources"
+- variable: resources.requests.memory
+  label: Memory Request
+  description: Minimum memory required
+  type: string
+  default: ""
+  group: "Resources"
+- variable: resources.limits.cpu
+  label: CPU Limit
+  description: Maximum CPU allowed
+  type: string
+  default: ""
+  group: "Resources"
+- variable: resources.limits.memory
+  label: Memory Limit
+  description: Maximum memory allowed
+  type: string
+  default: ""
+  group: "Resources"
+
+# Image Configuration
+- variable: image.repository
+  label: Image Repository
+  description: Docker image repository
+  type: string
+  default: cloudflare/cloudflared
+  group: "Image Configuration"
+- variable: image.tag
+  label: Image Tag
+  description: Image tag (overrides appVersion if set)
+  type: string
+  default: ""
+  group: "Image Configuration"
+- variable: image.pullPolicy
+  label: Image Pull Policy
+  description: Image pull policy
+  type: enum
+  default: IfNotPresent
+  options:
+    - Always
+    - IfNotPresent
+    - Never
+  group: "Image Configuration"

@@ -1,5 +1,10 @@
 # Helm Charts Repository
 
+![GitHub Release](https://img.shields.io/github/v/release/lexfrei/charts)
+![GitHub Release Date](https://img.shields.io/github/release-date/lexfrei/charts)
+[![Lint and Test](https://github.com/lexfrei/charts/actions/workflows/test.yaml/badge.svg)](https://github.com/lexfrei/charts/actions/workflows/test.yaml)
+[![License](https://img.shields.io/badge/License-BSD--3--Clause-blue.svg)](https://github.com/lexfrei/charts/blob/master/LICENSE)
+
 A collection of Helm charts for Kubernetes deployments, published to GitHub Container Registry (GHCR) as OCI artifacts.
 
 ## Available Charts
@@ -8,45 +13,63 @@ All charts are published to GHCR with cosign signatures for verification.
 
 ### [cloudflare-tunnel](./charts/cloudflare-tunnel)
 
-Helm chart for deploying Cloudflare Tunnel (cloudflared) in Kubernetes. This chart enables secure reverse tunneling to expose your Kubernetes services through Cloudflare's network without opening inbound ports.
+![Version](https://img.shields.io/badge/version-0.12.5-informational)
+
+Deploy Cloudflare Tunnel (cloudflared) for secure Zero Trust access to Kubernetes services without exposing inbound ports.
 
 **Key Features:**
-
-- Secure tunnel deployment with credential management
-- Configurable ingress rules
-- ServiceMonitor support for Prometheus metrics
-- High availability with replica management
-- Security-focused defaults
-- OCI artifact with cosign signatures
+- Zero Trust network access with Cloudflare's edge
+- Dual deployment modes (Deployment/DaemonSet)
+- Prometheus metrics and high availability support
+- Hardened security (non-root, read-only filesystem)
 
 [📖 Documentation](./charts/cloudflare-tunnel/README.md) | [🔧 Values](./charts/cloudflare-tunnel/values.yaml)
 
 ### [me-site](./charts/me-site)
 
-Helm chart for personal site deployment.
+![Version](https://img.shields.io/badge/version-0.4.2-informational)
+
+Personal site deployment with HTTPRoute/Gateway API support.
 
 [📖 Documentation](./charts/me-site/README.md) | [🔧 Values](./charts/me-site/values.yaml)
 
 ### [system-upgrade-controller](./charts/system-upgrade-controller)
 
-Kubernetes-native upgrade controller for automated node upgrades using declarative Plans. Based on [Rancher System Upgrade Controller](https://github.com/rancher/system-upgrade-controller).
+![Version](https://img.shields.io/badge/version-0.1.4-informational)
+
+Kubernetes-native controller for automated node upgrades using declarative Plans. Based on [Rancher System Upgrade Controller](https://github.com/rancher/system-upgrade-controller).
 
 **Key Features:**
 
-- Declarative node upgrade plans using CRDs
-- Automated rolling upgrades with configurable concurrency
-- Node drain and cordon support
-- Suitable for k3s, RKE2, and other Kubernetes distributions
-- Highly configurable job parameters
-- OCI artifact with cosign signatures
+- Declarative upgrade plans via CRDs
+- Rolling upgrades with concurrency control
+- Node drain and cordon automation
+- K3s, RKE2, and generic Kubernetes support
 
 [📖 Documentation](./charts/system-upgrade-controller/README.md) | [🔧 Values](./charts/system-upgrade-controller/values.yaml)
 
 ### [transmission](./charts/transmission)
 
-Helm chart for Transmission BitTorrent client deployment.
+![Version](https://img.shields.io/badge/version-0.1.6-informational)
+
+Transmission BitTorrent client deployment with NFS and PVC storage support.
 
 [📖 Documentation](./charts/transmission/README.md) | [🔧 Values](./charts/transmission/values.yaml)
+
+### [vipalived](./charts/vipalived)
+
+![Version](https://img.shields.io/badge/version-0.3.1-informational)
+
+VRRP-based Virtual IP management for Kubernetes control plane high availability using keepalived.
+
+**Key Features:**
+
+- Static pod mode for Day 1 cluster bootstrap
+- DaemonSet deployment for Day 2 operations
+- No CNI dependency (minimal system intrusion)
+- Configurable VRRP priority and authentication
+
+[📖 Documentation](./charts/vipalived/README.md) | [🔧 Values](./charts/vipalived/values.yaml)
 
 ## Installation
 
@@ -58,23 +81,29 @@ All charts are published to GitHub Container Registry as OCI artifacts.
 # Install cloudflare-tunnel chart
 helm install my-tunnel \
   oci://ghcr.io/lexfrei/charts/cloudflare-tunnel \
-  --version 0.12.0 \
+  --version 0.12.5 \
   --values values.yaml
 
 # Install system-upgrade-controller
 helm install system-upgrade-controller \
   oci://ghcr.io/lexfrei/charts/system-upgrade-controller \
-  --version 0.1.2
+  --version 0.1.4
 
 # Install transmission
 helm install transmission \
   oci://ghcr.io/lexfrei/charts/transmission \
-  --version 0.1.3
+  --version 0.1.6
 
 # Install me-site
 helm install me-site \
   oci://ghcr.io/lexfrei/charts/me-site \
-  --version 0.4.0
+  --version 0.4.2
+
+# Install vipalived
+helm install vipalived \
+  oci://ghcr.io/lexfrei/charts/vipalived \
+  --version 0.3.1 \
+  --set keepalived.vrrpInstance.virtualIpAddress=YOUR_VIP_ADDRESS/CIDR
 ```
 
 ### Verify Chart Signatures
@@ -89,6 +118,7 @@ cosign verify \
 ```
 
 Example:
+
 ```bash
 cosign verify \
   ghcr.io/lexfrei/charts/cloudflare-tunnel:0.12.0 \

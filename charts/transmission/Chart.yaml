@@ -1,12 +1,12 @@
 annotations:
   artifacthub.io/category: storage
   artifacthub.io/changes: |-
-    - kind: changed
-      description: Fix cosign signing to use digest for proper Artifact Hub verification
     - kind: added
-      description: Add Artifact Hub metadata with keyless signing information
+      description: Add Rancher questions.yaml for interactive UI configuration
+    - kind: added
+      description: Add Artifact Hub badge and consistency badges to README
     - kind: changed
-      description: Improve chart packaging with better .helmignore
+      description: Improve README structure with better badge organization
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -20,7 +20,7 @@ apiVersion: v2
 name: transmission
 description: Transmission BitTorrent client Helm chart for Kubernetes
 type: application
-version: "0.1.5"
+version: "0.1.6"
 # renovate: datasource=docker depName=linuxserver/transmission
 appVersion: "4.0.6"
 icon: https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/transmission-icon.png

@@ -1,0 +1,229 @@
+categories:
+- Networking
+- High Availability
+questions:
+# Deployment Mode
+- variable: static
+  label: Static Pod Mode
+  description: Enable static pod mode for Day 1 cluster bootstrap (pre-CNI). For existing clusters, keep this disabled.
+  type: boolean
+  default: false
+  group: "Deployment Mode"
+- variable: namespace
+  label: Namespace
+  description: Namespace to deploy vipalived into
+  type: string
+  default: kube-system
+  required: true
+  group: "Deployment Mode"
+
+# VRRP Configuration (Required)
+- variable: keepalived.vrrpInstance.virtualIpAddress
+  label: Virtual IP Address
+  description: Virtual IP address with CIDR notation (e.g., 192.168.1.100/24)
+  type: string
+  default: 172.16.101.101/32
+  required: true
+  group: "VRRP Configuration"
+- variable: keepalived.vrrpInstance.interface
+  label: Network Interface
+  description: Network interface to bind the VIP to (e.g., eth0, ens192)
+  type: string
+  default: eth0
+  required: true
+  group: "VRRP Configuration"
+- variable: keepalived.vrrpInstance.virtualRouterId
+  label: Virtual Router ID
+  description: VRRP router ID (must be unique in your network, 1-255)
+  type: int
+  default: 51
+  min: 1
+  max: 255
+  required: true
+  group: "VRRP Configuration"
+- variable: keepalived.vrrpInstance.priority
+  label: VRRP Priority
+  description: VRRP priority (higher value = preferred master, 1-255)
+  type: int
+  default: 100
+  min: 1
+  max: 255
+  required: true
+  group: "VRRP Configuration"
+
+# VRRP Advanced Settings
+- variable: keepalived.vrrpInstance.state
+  label: Initial VRRP State
+  description: Initial state for VRRP instance
+  type: enum
+  default: BACKUP
+  options:
+    - MASTER
+    - BACKUP
+  group: "VRRP Advanced Settings"
+- variable: keepalived.vrrpInstance.advertInt
+  label: Advertisement Interval (seconds)
+  description: Interval between VRRP advertisements
+  type: int
+  default: 1
+  min: 1
+  max: 10
+  group: "VRRP Advanced Settings"
+- variable: keepalived.vrrpInstance.nopreempt
+  label: Enable Non-Preemptive Mode
+  description: Prevent automatic takeover when higher priority node comes online
+  type: boolean
+  default: true
+  group: "VRRP Advanced Settings"
+- variable: keepalived.vrrpVersion
+  label: VRRP Protocol Version
+  description: VRRP protocol version
+  type: enum
+  default: 3
+  options:
+    - 2
+    - 3
+  group: "VRRP Advanced Settings"
+
+# Authentication
+- variable: keepalived.vrrpInstance.authentication.authType
+  label: Authentication Type
+  description: VRRP authentication type
+  type: enum
+  default: PASS
+  options:
+    - PASS
+    - AH
+  group: "Authentication"
+- variable: keepalived.vrrpInstance.authentication.authPass
+  label: Authentication Password
+  description: Authentication password (max 8 characters for PASS type)
+  type: password
+  default: k8s_vip
+  required: true
+  group: "Authentication"
+
+# GARP Settings
+- variable: keepalived.garp.masterDelay
+  label: GARP Master Delay (seconds)
+  description: Delay before sending gratuitous ARP after master transition
+  type: int
+  default: 5
+  min: 0
+  max: 60
+  group: "GARP Settings"
+- variable: keepalived.garp.masterRefresh
+  label: GARP Master Refresh (seconds)
+  description: Interval for gratuitous ARP refresh on master
+  type: int
+  default: 10
+  min: 1
+  max: 120
+  group: "GARP Settings"
+- variable: keepalived.garp.masterRepeat
+  label: GARP Master Repeat Count
+  description: Number of gratuitous ARP packets at master transition
+  type: int
+  default: 5
+  min: 1
+  max: 20
+  group: "GARP Settings"
+- variable: keepalived.garp.masterRefreshRepeat
+  label: GARP Refresh Repeat Count
+  description: Number of gratuitous ARP packets at refresh
+  type: int
+  default: 1
+  min: 1
+  max: 10
+  group: "GARP Settings"
+
+# Update Strategy
+- variable: updateStrategy.type
+  label: Update Strategy Type
+  description: Update strategy for DaemonSet
+  type: enum
+  default: RollingUpdate
+  options:
+    - RollingUpdate
+    - OnDelete
+  group: "Update Strategy"
+- variable: updateStrategy.maxUnavailable
+  label: Max Unavailable Pods
+  description: Maximum number of unavailable pods during update
+  type: int
+  default: 1
+  min: 1
+  max: 10
+  show_if: "updateStrategy.type=RollingUpdate"
+  group: "Update Strategy"
+
+# Resources
+- variable: resources.requests.cpu
+  label: CPU Request
+  description: Minimum CPU required
+  type: string
+  default: 50m
+  group: "Resources"
+- variable: resources.requests.memory
+  label: Memory Request
+  description: Minimum memory required
+  type: string
+  default: 32Mi
+  group: "Resources"
+- variable: resources.limits.cpu
+  label: CPU Limit
+  description: Maximum CPU allowed
+  type: string
+  default: 100m
+  group: "Resources"
+- variable: resources.limits.memory
+  label: Memory Limit
+  description: Maximum memory allowed
+  type: string
+  default: 64Mi
+  group: "Resources"
+
+# Image Configuration
+- variable: image.repository
+  label: Image Repository
+  description: Docker image repository
+  type: string
+  default: alpine
+  required: true
+  group: "Image Configuration"
+- variable: image.tag
+  label: Image Tag
+  description: Image tag (overrides appVersion if set)
+  type: string
+  default: ""
+  group: "Image Configuration"
+- variable: image.pullPolicy
+  label: Image Pull Policy
+  description: Image pull policy
+  type: enum
+  default: IfNotPresent
+  options:
+    - Always
+    - IfNotPresent
+    - Never
+  group: "Image Configuration"
+
+# Advanced Settings
+- variable: priorityClassName
+  label: Priority Class Name
+  description: Priority class for pod scheduling (system-node-critical recommended)
+  type: string
+  default: system-node-critical
+  group: "Advanced Settings"
+- variable: hostNetwork
+  label: Enable Host Network
+  description: Enable host network mode (required for VIP functionality)
+  type: boolean
+  default: true
+  group: "Advanced Settings"
+- variable: keepalived.routerId
+  label: Router ID
+  description: Router identifier for keepalived
+  type: string
+  default: vipalived
+  group: "Advanced Settings"

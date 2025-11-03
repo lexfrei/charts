@@ -1,11 +1,11 @@
 # cloudflare-tunnel
 
-![Version: 0.12.4](https://img.shields.io/badge/Version-0.12.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.10.1](https://img.shields.io/badge/AppVersion-2025.10.1-informational?style=flat-square)
+![Version: 0.12.5](https://img.shields.io/badge/Version-0.12.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.10.1](https://img.shields.io/badge/AppVersion-2025.10.1-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
 [![Lint and Test](https://github.com/lexfrei/charts/actions/workflows/test.yaml/badge.svg)](https://github.com/lexfrei/charts/actions/workflows/test.yaml)
-[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/cloudflare-tunnel)](https://artifacthub.io/packages/search?repo=cloudflare-tunnel)
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/cloudflare-tunnel)](https://artifacthub.io/packages/helm/cloudflare-tunnel/cloudflare-tunnel)
 [![License](https://img.shields.io/badge/License-BSD--3--Clause-blue.svg)](https://github.com/lexfrei/charts/blob/master/LICENSE)
 [![Helm Version](https://img.shields.io/badge/Helm-v3-informational?logo=helm)](https://helm.sh/)
 [![Kubernetes Version](https://img.shields.io/badge/Kubernetes-1.19%2B-blue?logo=kubernetes)](https://kubernetes.io/)
@@ -69,7 +69,7 @@ Before installing the chart, create a tunnel in Cloudflare:
 # Install with inline configuration
 helm install cloudflare-tunnel \
   oci://ghcr.io/lexfrei/charts/cloudflare-tunnel \
-  --version 0.12.4 \
+  --version 0.12.5 \
   --set cloudflare.account=YOUR_ACCOUNT_ID \
   --set cloudflare.tunnelName=YOUR_TUNNEL_NAME \
   --set cloudflare.tunnelId=YOUR_TUNNEL_ID \
@@ -80,7 +80,7 @@ helm install cloudflare-tunnel \
 # Install with values file
 helm install cloudflare-tunnel \
   oci://ghcr.io/lexfrei/charts/cloudflare-tunnel \
-  --version 0.12.4 \
+  --version 0.12.5 \
   --values values.yaml
 ```
 
@@ -90,7 +90,7 @@ This chart is signed with [cosign](https://github.com/sigstore/cosign) using key
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/cloudflare-tunnel:0.12.4 \
+  ghcr.io/lexfrei/charts/cloudflare-tunnel:0.12.5 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```

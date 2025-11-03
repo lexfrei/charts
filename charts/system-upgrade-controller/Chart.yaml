@@ -1,12 +1,12 @@
 annotations:
   artifacthub.io/category: integration-delivery
   artifacthub.io/changes: |-
-    - kind: changed
-      description: Fix cosign signing to use digest for proper Artifact Hub verification
     - kind: added
-      description: Add Artifact Hub metadata with keyless signing information
+      description: Add Rancher questions.yaml for interactive UI configuration
+    - kind: added
+      description: Add Artifact Hub badge and consistency badges to README
     - kind: changed
-      description: Improve chart packaging with better .helmignore
+      description: Improve README structure with better badge organization
   artifacthub.io/crds: |
     - kind: Plan
       version: v1
@@ -26,7 +26,7 @@ apiVersion: v2
 name: system-upgrade-controller
 description: Kubernetes-native upgrade controller for nodes using declarative Plans
 type: application
-version: "0.1.3"
+version: "0.1.4"
 # renovate: datasource=github-releases depName=rancher/system-upgrade-controller
 appVersion: "v0.17.0"
 icon: https://avatars.githubusercontent.com/u/9343010

@@ -1,0 +1,161 @@
+categories:
+- Web
+questions:
+# Basic Configuration
+- variable: replicaCount
+  label: Replica Count
+  description: Number of pod replicas
+  type: int
+  default: 1
+  min: 1
+  max: 10
+  group: "Basic Configuration"
+
+# Image Configuration
+- variable: image.repository
+  label: Image Repository
+  description: Docker image repository
+  type: string
+  default: ghcr.io/lexfrei/me-site
+  required: true
+  group: "Image Configuration"
+- variable: image.tag
+  label: Image Tag
+  description: Image tag
+  type: string
+  default: latest
+  required: true
+  group: "Image Configuration"
+- variable: image.pullPolicy
+  label: Image Pull Policy
+  description: Image pull policy
+  type: enum
+  default: Always
+  options:
+    - Always
+    - IfNotPresent
+    - Never
+  group: "Image Configuration"
+
+# Service Configuration
+- variable: containerPort
+  label: Container Port
+  description: Port exposed by the container
+  type: int
+  default: 8080
+  group: "Service Configuration"
+- variable: servicePort
+  label: Service Port
+  description: Port exposed by the service
+  type: int
+  default: 8080
+  group: "Service Configuration"
+
+# Ingress Configuration
+- variable: ingress.enabled
+  label: Enable Ingress
+  description: Enable Ingress for HTTP(S) access
+  type: boolean
+  default: false
+  group: "Ingress Configuration"
+- variable: ingress.className
+  label: Ingress Class Name
+  description: Ingress class name (e.g., nginx, traefik)
+  type: string
+  default: ""
+  show_if: "ingress.enabled=true"
+  group: "Ingress Configuration"
+- variable: ingress.hosts[0].host
+  label: Hostname
+  description: Hostname for the ingress
+  type: string
+  default: chart-example.local
+  show_if: "ingress.enabled=true"
+  group: "Ingress Configuration"
+
+# HTTPRoute Configuration (Gateway API)
+- variable: httpRoute.enabled
+  label: Enable HTTPRoute
+  description: Enable HTTPRoute for Gateway API integration
+  type: boolean
+  default: false
+  group: "Gateway API Configuration"
+- variable: httpRoute.parentRefs[0].name
+  label: Gateway Name
+  description: Name of the Gateway resource
+  type: string
+  default: gateway
+  show_if: "httpRoute.enabled=true"
+  group: "Gateway API Configuration"
+- variable: httpRoute.parentRefs[0].namespace
+  label: Gateway Namespace
+  description: Namespace of the Gateway resource
+  type: string
+  default: gateway-system
+  show_if: "httpRoute.enabled=true"
+  group: "Gateway API Configuration"
+- variable: httpRoute.hostnames[0]
+  label: Hostname
+  description: Hostname for HTTPRoute
+  type: string
+  default: example.local
+  show_if: "httpRoute.enabled=true"
+  group: "Gateway API Configuration"
+
+# Onion Service Configuration (Tor)
+- variable: onionService.enabled
+  label: Enable Onion Service
+  description: Enable Tor hidden service
+  type: boolean
+  default: true
+  group: "Onion Service"
+- variable: onionService.backends
+  label: Number of Backends
+  description: Number of backend replicas for Onion service
+  type: int
+  default: 1
+  min: 1
+  max: 5
+  show_if: "onionService.enabled=true"
+  group: "Onion Service"
+- variable: onionService.privateKeySecretName
+  label: Private Key Secret Name
+  description: Name of the secret containing Tor private key
+  type: string
+  default: me-site-onion-secret
+  show_if: "onionService.enabled=true"
+  group: "Onion Service"
+
+# VPA (Vertical Pod Autoscaler)
+- variable: vpa.enabled
+  label: Enable VPA
+  description: Enable Vertical Pod Autoscaler for automatic resource recommendations
+  type: boolean
+  default: true
+  group: "Autoscaling"
+
+# Resources
+- variable: resources.requests.cpu
+  label: CPU Request
+  description: Minimum CPU required
+  type: string
+  default: 100m
+  group: "Resources"
+- variable: resources.requests.memory
+  label: Memory Request
+  description: Minimum memory required
+  type: string
+  default: 20Mi
+  group: "Resources"
+- variable: resources.limits.cpu
+  label: CPU Limit
+  description: Maximum CPU allowed
+  type: string
+  default: 100m
+  group: "Resources"
+- variable: resources.limits.memory
+  label: Memory Limit
+  description: Maximum memory allowed
+  type: string
+  default: 50Mi
+  group: "Resources"

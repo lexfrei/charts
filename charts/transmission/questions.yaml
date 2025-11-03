@@ -1,0 +1,241 @@
+categories:
+- Media
+- BitTorrent
+questions:
+# Environment Configuration
+- variable: env.PUID
+  label: User ID (PUID)
+  description: User ID to run Transmission as
+  type: string
+  default: "1000"
+  required: true
+  group: "Environment Configuration"
+- variable: env.PGID
+  label: Group ID (PGID)
+  description: Group ID to run Transmission as
+  type: string
+  default: "1000"
+  required: true
+  group: "Environment Configuration"
+- variable: env.TZ
+  label: Timezone
+  description: Timezone for the container (e.g., Europe/Moscow, America/New_York)
+  type: string
+  default: Europe/Moscow
+  required: true
+  group: "Environment Configuration"
+
+# Service Configuration
+- variable: service.type
+  label: Service Type
+  description: Kubernetes service type
+  type: enum
+  default: LoadBalancer
+  options:
+    - ClusterIP
+    - NodePort
+    - LoadBalancer
+  group: "Service Configuration"
+- variable: service.httpPort
+  label: HTTP Port
+  description: Port for web UI access
+  type: int
+  default: 9091
+  group: "Service Configuration"
+- variable: service.torrentTCPPort
+  label: Torrent TCP Port
+  description: TCP port for torrent connections
+  type: int
+  default: 51413
+  group: "Service Configuration"
+- variable: service.torrentUDPPort
+  label: Torrent UDP Port
+  description: UDP port for torrent connections
+  type: int
+  default: 51413
+  group: "Service Configuration"
+
+# Ingress Configuration
+- variable: ingress.enabled
+  label: Enable Ingress
+  description: Enable Ingress for HTTP(S) access to web UI
+  type: boolean
+  default: false
+  group: "Ingress Configuration"
+- variable: ingress.className
+  label: Ingress Class Name
+  description: Ingress class name (e.g., nginx, traefik)
+  type: string
+  default: ""
+  show_if: "ingress.enabled=true"
+  group: "Ingress Configuration"
+- variable: ingress.hosts[0].host
+  label: Hostname
+  description: Hostname for the ingress
+  type: string
+  default: transmission.example.com
+  show_if: "ingress.enabled=true"
+  group: "Ingress Configuration"
+
+# Config Storage
+- variable: persistence.config.enabled
+  label: Enable Config Persistence
+  description: Enable persistent storage for Transmission configuration
+  type: boolean
+  default: true
+  group: "Config Storage"
+- variable: persistence.config.size
+  label: Config Volume Size
+  description: Size of the config volume
+  type: string
+  default: 1Gi
+  show_if: "persistence.config.enabled=true"
+  group: "Config Storage"
+- variable: persistence.config.storageClassName
+  label: Config Storage Class
+  description: Storage class for config volume (leave empty for default)
+  type: string
+  default: ""
+  show_if: "persistence.config.enabled=true"
+  group: "Config Storage"
+- variable: persistence.config.existingClaim
+  label: Existing Config PVC
+  description: Use existing PVC for config (leave empty to create new)
+  type: string
+  default: ""
+  show_if: "persistence.config.enabled=true"
+  group: "Config Storage"
+
+# Downloads Storage
+- variable: persistence.downloads.enabled
+  label: Enable Downloads Persistence
+  description: Enable persistent storage for downloads
+  type: boolean
+  default: true
+  group: "Downloads Storage"
+- variable: persistence.downloads.type
+  label: Downloads Storage Type
+  description: Type of storage for downloads
+  type: enum
+  default: nfs
+  options:
+    - nfs
+    - pvc
+  show_if: "persistence.downloads.enabled=true"
+  group: "Downloads Storage"
+
+# NFS Settings (for downloads)
+- variable: persistence.downloads.nfsServer
+  label: NFS Server
+  description: NFS server address
+  type: string
+  default: nfs-server.example.com
+  show_if: "persistence.downloads.enabled=true&&persistence.downloads.type=nfs"
+  group: "Downloads Storage"
+- variable: persistence.downloads.nfsPath
+  label: NFS Path
+  description: Path on NFS server
+  type: string
+  default: /mnt/downloads
+  show_if: "persistence.downloads.enabled=true&&persistence.downloads.type=nfs"
+  group: "Downloads Storage"
+
+# PVC Settings (for downloads)
+- variable: persistence.downloads.size
+  label: Downloads Volume Size
+  description: Size of the downloads volume
+  type: string
+  default: 100Gi
+  show_if: "persistence.downloads.enabled=true&&persistence.downloads.type=pvc"
+  group: "Downloads Storage"
+- variable: persistence.downloads.storageClassName
+  label: Downloads Storage Class
+  description: Storage class for downloads volume (leave empty for default)
+  type: string
+  default: ""
+  show_if: "persistence.downloads.enabled=true&&persistence.downloads.type=pvc"
+  group: "Downloads Storage"
+- variable: persistence.downloads.accessMode
+  label: Downloads Access Mode
+  description: Access mode for downloads volume
+  type: enum
+  default: ReadWriteMany
+  options:
+    - ReadWriteOnce
+    - ReadWriteMany
+    - ReadOnlyMany
+  show_if: "persistence.downloads.enabled=true&&persistence.downloads.type=pvc"
+  group: "Downloads Storage"
+- variable: persistence.downloads.existingClaim
+  label: Existing Downloads PVC
+  description: Use existing PVC for downloads (leave empty to create new)
+  type: string
+  default: ""
+  show_if: "persistence.downloads.enabled=true&&persistence.downloads.type=pvc"
+  group: "Downloads Storage"
+
+# Resources
+- variable: resources.requests.cpu
+  label: CPU Request
+  description: Minimum CPU required
+  type: string
+  default: 100m
+  group: "Resources"
+- variable: resources.requests.memory
+  label: Memory Request
+  description: Minimum memory required
+  type: string
+  default: 256Mi
+  group: "Resources"
+- variable: resources.limits.cpu
+  label: CPU Limit
+  description: Maximum CPU allowed
+  type: string
+  default: 400m
+  group: "Resources"
+- variable: resources.limits.memory
+  label: Memory Limit
+  description: Maximum memory allowed
+  type: string
+  default: 512Mi
+  group: "Resources"
+
+# Image Configuration
+- variable: image.repository
+  label: Image Repository
+  description: Docker image repository
+  type: string
+  default: linuxserver/transmission
+  required: true
+  group: "Image Configuration"
+- variable: image.tag
+  label: Image Tag
+  description: Image tag (overrides appVersion if set)
+  type: string
+  default: ""
+  group: "Image Configuration"
+- variable: image.pullPolicy
+  label: Image Pull Policy
+  description: Image pull policy
+  type: enum
+  default: IfNotPresent
+  options:
+    - Always
+    - IfNotPresent
+    - Never
+  group: "Image Configuration"
+
+# Service Account
+- variable: serviceAccount.create
+  label: Create Service Account
+  description: Create a service account for Transmission
+  type: boolean
+  default: true
+  group: "Service Account"
+- variable: serviceAccount.name
+  label: Service Account Name
+  description: Name of the service account (auto-generated if empty)
+  type: string
+  default: ""
+  show_if: "serviceAccount.create=true"
+  group: "Service Account"
