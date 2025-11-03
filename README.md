@@ -18,6 +18,7 @@ All charts are published to GHCR with cosign signatures for verification.
 Deploy Cloudflare Tunnel (cloudflared) for secure Zero Trust access to Kubernetes services without exposing inbound ports.
 
 **Key Features:**
+
 - Zero Trust network access with Cloudflare's edge
 - Dual deployment modes (Deployment/DaemonSet)
 - Prometheus metrics and high availability support
