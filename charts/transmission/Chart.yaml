@@ -2,11 +2,9 @@ annotations:
   artifacthub.io/category: storage
   artifacthub.io/changes: |-
     - kind: added
-      description: Add Rancher questions.yaml for interactive UI configuration
-    - kind: added
-      description: Add Artifact Hub badge and consistency badges to README
+      description: Add kubeVersion constraint (>=1.19.0-0) to Chart.yaml
     - kind: changed
-      description: Improve README structure with better badge organization
+      description: Update Kubernetes version badge to reflect actual minimum version (1.19+)
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -20,7 +18,7 @@ apiVersion: v2
 name: transmission
 description: Transmission BitTorrent client Helm chart for Kubernetes
 type: application
-version: "0.1.6"
+version: "0.1.7"
 # renovate: datasource=docker depName=linuxserver/transmission
 appVersion: "4.0.6"
 icon: https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/transmission-icon.png
@@ -41,3 +39,4 @@ sources:
   - https://github.com/lexfrei/charts/
   - https://github.com/transmission/transmission
   - https://github.com/linuxserver/docker-transmission
+kubeVersion: '>=1.19.0-0'

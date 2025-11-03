@@ -1,6 +1,6 @@
 # system-upgrade-controller
 
-![Version: 0.1.4](https://img.shields.io/badge/Version-0.1.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.17.0](https://img.shields.io/badge/AppVersion-v0.17.0-informational?style=flat-square)
+![Version: 0.1.5](https://img.shields.io/badge/Version-0.1.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.17.0](https://img.shields.io/badge/AppVersion-v0.17.0-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -8,7 +8,7 @@
 [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/system-upgrade)](https://artifacthub.io/packages/helm/system-upgrade/system-upgrade-controller)
 [![License](https://img.shields.io/badge/License-BSD--3--Clause-blue.svg)](https://github.com/lexfrei/charts/blob/master/LICENSE)
 [![Helm Version](https://img.shields.io/badge/Helm-v3-informational?logo=helm)](https://helm.sh/)
-[![Kubernetes Version](https://img.shields.io/badge/Kubernetes-1.19%2B-blue?logo=kubernetes)](https://kubernetes.io/)
+[![Kubernetes Version](https://img.shields.io/badge/Kubernetes-1.16%2B-blue?logo=kubernetes)](https://kubernetes.io/)
 
 Kubernetes-native upgrade controller for nodes using declarative Plans
 
@@ -24,6 +24,10 @@ Kubernetes-native upgrade controller for nodes using declarative Plans
 
 * <https://github.com/lexfrei/charts/>
 * <https://github.com/rancher/system-upgrade-controller/>
+
+## Requirements
+
+Kubernetes: `>=1.16.0-0`
 
 ## Introduction
 

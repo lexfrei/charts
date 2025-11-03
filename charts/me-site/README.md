@@ -1,10 +1,13 @@
 # me-site
 
-![Version: 0.4.2](https://img.shields.io/badge/Version-0.4.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.0.0](https://img.shields.io/badge/AppVersion-1.0.0-informational?style=flat-square)
+![Version: 0.4.3](https://img.shields.io/badge/Version-0.4.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.0.0](https://img.shields.io/badge/AppVersion-1.0.0-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
 [![Lint and Test](https://github.com/lexfrei/charts/actions/workflows/test.yaml/badge.svg)](https://github.com/lexfrei/charts/actions/workflows/test.yaml)
+[![License](https://img.shields.io/badge/License-BSD--3--Clause-blue.svg)](https://github.com/lexfrei/charts/blob/master/LICENSE)
+[![Helm Version](https://img.shields.io/badge/Helm-v3-informational?logo=helm)](https://helm.sh/)
+[![Kubernetes Version](https://img.shields.io/badge/Kubernetes-1.19%2B-blue?logo=kubernetes)](https://kubernetes.io/)
 
 A Helm chart for the Me-Site application
 
@@ -14,6 +17,10 @@ A Helm chart for the Me-Site application
 | ---- | ------ | --- |
 | lexfrei | <f@lex.la> | <https://github.com/lexfrei> |
 
+## Requirements
+
+Kubernetes: `>=1.19.0-0`
+
 ## Installing the Chart
 
 This chart is published to GitHub Container Registry (GHCR) as an OCI artifact.
@@ -22,12 +29,12 @@ This chart is published to GitHub Container Registry (GHCR) as an OCI artifact.
 # Install from GHCR
 helm install me-site \
   oci://ghcr.io/lexfrei/charts/me-site \
-  --version 0.4.2
+  --version 0.4.3
 
 # Install with custom values
 helm install me-site \
   oci://ghcr.io/lexfrei/charts/me-site \
-  --version 0.4.2 \
+  --version 0.4.3 \
   --values values.yaml
 ```
 
@@ -37,7 +44,7 @@ This chart is signed with [cosign](https://github.com/sigstore/cosign) using key
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/me-site:0.4.2 \
+  ghcr.io/lexfrei/charts/me-site:0.4.3 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```

@@ -2,17 +2,16 @@ apiVersion: v2
 name: me-site
 description: A Helm chart for the Me-Site application
 type: application
-version: 0.4.2
+version: 0.4.3
 appVersion: 1.0.0
-
 maintainers:
   - name: lexfrei
     email: f@lex.la
     url: https://github.com/lexfrei
-
 annotations:
-  artifacthub.io/changes: |
+  artifacthub.io/changes: |-
     - kind: added
-      description: Add Rancher questions.yaml for interactive UI configuration
+      description: Add kubeVersion constraint (>=1.19.0-0) to Chart.yaml
     - kind: changed
-      description: Improve README structure with consistency badges
+      description: Update Kubernetes version badge to reflect actual minimum version (1.19+)
+kubeVersion: '>=1.19.0-0'
