@@ -159,3 +159,53 @@ questions:
   type: string
   default: 50Mi
   group: "Resources"
+
+# Network Policy
+- variable: networkPolicy.enabled
+  label: Enable Network Policy
+  description: Enable NetworkPolicy for network traffic isolation
+  type: boolean
+  default: false
+  group: "Network Policy"
+
+# Security
+- variable: podSecurityContext.runAsNonRoot
+  label: Run as Non-Root
+  description: Run container as non-root user
+  type: boolean
+  default: true
+  group: "Security"
+- variable: podSecurityContext.runAsUser
+  label: User ID
+  description: User ID to run the container
+  type: int
+  default: 65534
+  group: "Security"
+- variable: podSecurityContext.runAsGroup
+  label: Group ID
+  description: Group ID to run the container
+  type: int
+  default: 65534
+  group: "Security"
+- variable: podSecurityContext.seccompProfile.type
+  label: Seccomp Profile
+  description: Seccomp profile type for enhanced container security
+  type: enum
+  default: RuntimeDefault
+  options:
+    - RuntimeDefault
+    - Unconfined
+    - Localhost
+  group: "Security"
+- variable: securityContext.allowPrivilegeEscalation
+  label: Allow Privilege Escalation
+  description: Allow privilege escalation in the container
+  type: boolean
+  default: false
+  group: "Security"
+- variable: securityContext.readOnlyRootFilesystem
+  label: Read-Only Root Filesystem
+  description: Mount root filesystem as read-only
+  type: boolean
+  default: true
+  group: "Security"

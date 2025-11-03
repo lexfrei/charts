@@ -1,10 +1,18 @@
 annotations:
   artifacthub.io/category: storage
   artifacthub.io/changes: |-
-    - kind: added
-      description: Add kubeVersion constraint (>=1.19.0-0) to Chart.yaml
     - kind: changed
-      description: Update Kubernetes version badge to reflect actual minimum version (1.19+)
+      description: "BREAKING: Refactored service architecture to separate ClusterIP for Web UI and LoadBalancer for torrent ports"
+    - kind: changed
+      description: "BREAKING: Service values structure changed from flat to nested (service.web and service.torrent)"
+    - kind: changed
+      description: "BREAKING: Service resource names changed (transmission and transmission-torrent)"
+    - kind: added
+      description: Add HTTPRoute support for Gateway API with sectionName support
+    - kind: added
+      description: Add Cilium LB-IPAM annotation support for LoadBalancer service
+    - kind: added
+      description: Add comprehensive test suite with 64 tests covering all resources
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -18,7 +26,7 @@ apiVersion: v2
 name: transmission
 description: Transmission BitTorrent client Helm chart for Kubernetes
 type: application
-version: "0.1.7"
+version: "1.0.0"
 # renovate: datasource=docker depName=linuxserver/transmission
 appVersion: "4.0.6"
 icon: https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/transmission-icon.png

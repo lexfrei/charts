@@ -4,9 +4,15 @@ annotations:
   # See: https://artifacthub.io/docs/topics/annotations/helm/
   artifacthub.io/changes: |-
     - kind: added
-      description: Add kubeVersion constraint (>=1.21.0-0) to Chart.yaml
-    - kind: changed
-      description: Update Kubernetes version badge to reflect actual minimum version (1.21+)
+      description: Add NOTES.txt with post-installation instructions
+    - kind: added
+      description: Add NetworkPolicy template with configurable ingress/egress rules
+    - kind: added
+      description: Add HPA (Horizontal Pod Autoscaler) support with custom metrics
+    - kind: added
+      description: Add production and development example configurations
+    - kind: security
+      description: Add seccompProfile RuntimeDefault to pod security context
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -20,7 +26,7 @@ apiVersion: v2
 name: cloudflare-tunnel
 description: Creation of a cloudflared deployment - a reverse tunnel for an environment
 type: application
-version: "0.12.6"
+version: "0.13.0"
 kubeVersion: ">=1.21.0-0"
 # renovate: datasource=github-releases depName=cloudflare/cloudflared
 appVersion: "2025.10.1"

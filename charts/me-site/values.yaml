@@ -41,3 +41,22 @@ httpRoute:
             value: /
 vpa:
   enabled: true
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65534
+  runAsGroup: 65534
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+
+networkPolicy:
+  enabled: false
+  ingress: []
+  egress: []

@@ -1,0 +1,23 @@
+# Development configuration example for cloudflare-tunnel
+# Minimal setup for development/testing
+
+replicaCount: 1
+
+cloudflare:
+  account: "your-account-id"
+  tunnelName: "dev-tunnel"
+  tunnelId: "your-tunnel-id"
+  secret: "your-tunnel-secret"
+  ingress:
+    - hostname: dev.example.com
+      service: http://dev-service:8080
+    - hostname: test.example.com
+      service: hello_world
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi

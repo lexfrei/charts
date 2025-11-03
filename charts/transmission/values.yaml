@@ -23,23 +23,42 @@ env:
 # -- Security context for the pod
 podSecurityContext:
   fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
 
 # -- Security context for the container
-securityContext: {}
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: false  # linuxserver image needs to write to /config
 
 # -- Service configuration
 service:
-  # -- Service type
-  type: LoadBalancer
-  # -- Service annotations
-  annotations:
-    metallb.io/address-pool: transmission-pool
-  # -- HTTP port
-  httpPort: 9091
-  # -- Torrent TCP port
-  torrentTCPPort: 51413
-  # -- Torrent UDP port
-  torrentUDPPort: 51413
+  # -- Main service for Web UI (ClusterIP for HTTPRoute/Ingress)
+  web:
+    # -- Service type for Web UI
+    type: ClusterIP
+    # -- HTTP port
+    port: 9091
+    # -- Annotations for Web UI service
+    annotations: {}
+
+  # -- Separate LoadBalancer service for torrent ports
+  torrent:
+    # -- Enable separate torrent service
+    enabled: true
+    # -- Service type for torrent traffic
+    type: LoadBalancer
+    # -- Annotations for torrent service (e.g., Cilium LB-IPAM)
+    annotations:
+      # io.cilium/lb-ipam-ips: "172.16.100.252"
+      metallb.io/address-pool: transmission-pool
+    # -- Torrent TCP port
+    tcpPort: 51413
+    # -- Torrent UDP port
+    udpPort: 51413
 
 # -- Ingress configuration
 ingress:
@@ -57,6 +76,25 @@ ingress:
     - secretName: transmission-tls
       hosts:
         - transmission.example.com
+
+# -- HTTPRoute configuration (Gateway API)
+httpRoute:
+  enabled: false
+  annotations: {}
+  # -- Parent Gateway references
+  parentRefs:
+    - name: gateway
+      namespace: gateway-system
+      # sectionName: https-listener  # Optional: specific listener on the Gateway
+  # -- Hostnames for the route
+  hostnames:
+    - transmission.example.com
+  # -- Routing rules
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
 
 # -- Resource limits and requests
 resources:
@@ -123,3 +161,12 @@ serviceAccount:
 # -- Update strategy
 updateStrategy:
   type: RollingUpdate
+
+# -- Network Policy configuration
+networkPolicy:
+  # -- Enable NetworkPolicy
+  enabled: false
+  # -- Additional ingress rules
+  ingress: []
+  # -- Additional egress rules
+  egress: []

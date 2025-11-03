@@ -1,0 +1,248 @@
+suite: test service
+templates:
+  - service.yaml
+tests:
+  # Web Service Tests
+  - it: should create two Services by default
+    asserts:
+      - hasDocuments:
+          count: 2
+
+  - it: should create Web UI Service as ClusterIP
+    documentIndex: 0
+    asserts:
+      - isKind:
+          of: Service
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-transmission
+      - equal:
+          path: spec.type
+          value: ClusterIP
+
+  - it: should expose only HTTP port in Web UI Service
+    documentIndex: 0
+    asserts:
+      - lengthEqual:
+          path: spec.ports
+          count: 1
+      - contains:
+          path: spec.ports
+          content:
+            name: http
+            port: 9091
+            targetPort: http
+            protocol: TCP
+
+  - it: should have correct selector labels in Web UI Service
+    documentIndex: 0
+    asserts:
+      - equal:
+          path: spec.selector["app.kubernetes.io/name"]
+          value: transmission
+      - equal:
+          path: spec.selector["app.kubernetes.io/instance"]
+          value: RELEASE-NAME
+
+  - it: should support custom annotations for Web UI Service
+    set:
+      service.web.annotations:
+        custom.annotation/key: "value"
+    documentIndex: 0
+    asserts:
+      - equal:
+          path: metadata.annotations["custom.annotation/key"]
+          value: "value"
+
+  - it: should support custom port for Web UI Service
+    set:
+      service.web.port: 8080
+    documentIndex: 0
+    asserts:
+      - equal:
+          path: spec.ports[0].port
+          value: 8080
+
+  # Torrent Service Tests
+  - it: should create Torrent Service as LoadBalancer by default
+    documentIndex: 1
+    asserts:
+      - isKind:
+          of: Service
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-transmission-torrent
+      - equal:
+          path: spec.type
+          value: LoadBalancer
+
+  - it: should expose both TCP and UDP torrent ports
+    documentIndex: 1
+    asserts:
+      - lengthEqual:
+          path: spec.ports
+          count: 2
+      - contains:
+          path: spec.ports
+          content:
+            name: torrent-tcp
+            port: 51413
+            targetPort: torrent-tcp
+            protocol: TCP
+      - contains:
+          path: spec.ports
+          content:
+            name: torrent-udp
+            port: 51413
+            targetPort: torrent-udp
+            protocol: UDP
+
+  - it: should have correct selector labels in Torrent Service
+    documentIndex: 1
+    asserts:
+      - equal:
+          path: spec.selector["app.kubernetes.io/name"]
+          value: transmission
+      - equal:
+          path: spec.selector["app.kubernetes.io/instance"]
+          value: RELEASE-NAME
+
+  - it: should set default metallb annotation for Torrent Service
+    documentIndex: 1
+    asserts:
+      - equal:
+          path: metadata.annotations["metallb.io/address-pool"]
+          value: transmission-pool
+
+  - it: should support Cilium LB-IPAM annotation
+    set:
+      service.torrent.annotations:
+        io.cilium/lb-ipam-ips: "172.16.100.252"
+    documentIndex: 1
+    asserts:
+      - equal:
+          path: metadata.annotations["io.cilium/lb-ipam-ips"]
+          value: "172.16.100.252"
+
+  - it: should not create Torrent Service when disabled
+    set:
+      service.torrent.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should only create Web UI Service when torrent service disabled
+    set:
+      service.torrent.enabled: false
+    documentIndex: 0
+    asserts:
+      - isKind:
+          of: Service
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-transmission
+
+  - it: should support custom TCP port for Torrent Service
+    set:
+      service.torrent.tcpPort: 12345
+    documentIndex: 1
+    asserts:
+      - contains:
+          path: spec.ports
+          content:
+            name: torrent-tcp
+            port: 12345
+            targetPort: torrent-tcp
+            protocol: TCP
+
+  - it: should support custom UDP port for Torrent Service
+    set:
+      service.torrent.udpPort: 54321
+    documentIndex: 1
+    asserts:
+      - contains:
+          path: spec.ports
+          content:
+            name: torrent-udp
+            port: 54321
+            targetPort: torrent-udp
+            protocol: UDP
+
+  - it: should support different TCP and UDP ports
+    set:
+      service.torrent.tcpPort: 10000
+      service.torrent.udpPort: 20000
+    documentIndex: 1
+    asserts:
+      - contains:
+          path: spec.ports
+          content:
+            name: torrent-tcp
+            port: 10000
+            targetPort: torrent-tcp
+            protocol: TCP
+      - contains:
+          path: spec.ports
+          content:
+            name: torrent-udp
+            port: 20000
+            targetPort: torrent-udp
+            protocol: UDP
+
+  - it: should support ClusterIP type for Torrent Service
+    set:
+      service.torrent.type: ClusterIP
+    documentIndex: 1
+    asserts:
+      - equal:
+          path: spec.type
+          value: ClusterIP
+
+  - it: should support NodePort type for Torrent Service
+    set:
+      service.torrent.type: NodePort
+    documentIndex: 1
+    asserts:
+      - equal:
+          path: spec.type
+          value: NodePort
+
+  - it: should support LoadBalancer type for Web UI Service
+    set:
+      service.web.type: LoadBalancer
+    documentIndex: 0
+    asserts:
+      - equal:
+          path: spec.type
+          value: LoadBalancer
+
+  # Edge cases
+  - it: should support port 1 (minimum)
+    set:
+      service.web.port: 1
+    documentIndex: 0
+    asserts:
+      - equal:
+          path: spec.ports[0].port
+          value: 1
+
+  - it: should support port 65535 (maximum)
+    set:
+      service.torrent.tcpPort: 65535
+      service.torrent.udpPort: 65535
+    documentIndex: 1
+    asserts:
+      - contains:
+          path: spec.ports
+          content:
+            name: torrent-tcp
+            port: 65535
+            targetPort: torrent-tcp
+            protocol: TCP
+      - contains:
+          path: spec.ports
+          content:
+            name: torrent-udp
+            port: 65535
+            targetPort: torrent-udp
+            protocol: UDP

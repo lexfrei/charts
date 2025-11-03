@@ -27,8 +27,9 @@ tests:
           path: spec.template.spec.containers[0].image
           pattern: ^linuxserver/transmission:[0-9]+\.[0-9]+\.[0-9]+$
 
-  - it: should create service with correct ports
+  - it: should create Web UI service with HTTP port
     template: service.yaml
+    documentIndex: 0
     asserts:
       - contains:
           path: spec.ports
@@ -37,6 +38,11 @@ tests:
             port: 9091
             targetPort: http
             protocol: TCP
+
+  - it: should create Torrent service with TCP and UDP ports
+    template: service.yaml
+    documentIndex: 1
+    asserts:
       - contains:
           path: spec.ports
           content:

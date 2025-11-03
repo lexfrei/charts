@@ -4,24 +4,42 @@ metadata:
   name: {{ include "transmission.fullname" . }}
   labels:
     {{- include "transmission.labels" . | nindent 4 }}
-  {{- with .Values.service.annotations }}
+  {{- with .Values.service.web.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ .Values.service.web.type }}
   ports:
-    - port: {{ .Values.service.httpPort }}
+    - port: {{ .Values.service.web.port }}
       targetPort: http
       protocol: TCP
       name: http
-    - port: {{ .Values.service.torrentTCPPort }}
+  selector:
+    {{- include "transmission.selectorLabels" . | nindent 4 }}
+---
+{{- if .Values.service.torrent.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "transmission.fullname" . }}-torrent
+  labels:
+    {{- include "transmission.labels" . | nindent 4 }}
+  {{- with .Values.service.torrent.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.service.torrent.type }}
+  ports:
+    - port: {{ .Values.service.torrent.tcpPort }}
       targetPort: torrent-tcp
       protocol: TCP
       name: torrent-tcp
-    - port: {{ .Values.service.torrentUDPPort }}
+    - port: {{ .Values.service.torrent.udpPort }}
       targetPort: torrent-udp
       protocol: UDP
       name: torrent-udp
   selector:
     {{- include "transmission.selectorLabels" . | nindent 4 }}
+{{- end }}

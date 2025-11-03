@@ -16,6 +16,10 @@ spec:
       labels:
         app: me-site
     spec:
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: me-site
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -27,15 +31,10 @@ spec:
             limits:
               cpu: {{ default "100m" ((.Values.resources).limits).cpu }}
               memory: {{ default "50Mi" ((.Values.resources).limits).memory }}
+          {{- with .Values.securityContext }}
           securityContext:
-            allowPrivilegeEscalation: false
-            runAsNonRoot: true
-            runAsUser: 65534
-            runAsGroup: 65534
-            capabilities:
-              drop:
-                - all
-            readOnlyRootFilesystem: true
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           ports:
             - name: web
               containerPort: {{ .Values.containerPort }}

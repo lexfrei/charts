@@ -1,0 +1,49 @@
+Thank you for installing {{ .Chart.Name }}!
+
+The System Upgrade Controller has been deployed.
+
+Release Name: {{ .Release.Name }}
+Namespace: {{ .Values.namespace.name }}
+
+To check the controller status:
+
+  kubectl --namespace {{ .Values.namespace.name }} get pods -l "app.kubernetes.io/name={{ include "system-upgrade-controller.name" . }},app.kubernetes.io/instance={{ .Release.Name }}"
+
+To view controller logs:
+
+  kubectl --namespace {{ .Values.namespace.name }} logs -l "app.kubernetes.io/name={{ include "system-upgrade-controller.name" . }}" --tail=100 -f
+
+Next Steps:
+
+1. Create an upgrade Plan for your nodes:
+
+   Example for k3s server nodes:
+
+   cat <<EOF | kubectl apply -f -
+   apiVersion: upgrade.cattle.io/v1
+   kind: Plan
+   metadata:
+     name: k3s-server
+     namespace: {{ .Values.namespace.name }}
+   spec:
+     concurrency: 1
+     cordon: true
+     nodeSelector:
+       matchExpressions:
+         - key: node-role.kubernetes.io/control-plane
+           operator: Exists
+     serviceAccountName: {{ include "system-upgrade-controller.serviceAccountName" . }}
+     upgrade:
+       image: rancher/k3s-upgrade
+     version: v1.28.5+k3s1
+   EOF
+
+2. Monitor the upgrade progress:
+
+   kubectl --namespace {{ .Values.namespace.name }} get plans
+   kubectl --namespace {{ .Values.namespace.name }} get jobs
+
+For more information:
+  - Chart: https://github.com/lexfrei/charts/tree/master/charts/system-upgrade-controller
+  - System Upgrade Controller: https://github.com/rancher/system-upgrade-controller
+  - k3s Automated Upgrades: https://docs.k3s.io/upgrades/automated

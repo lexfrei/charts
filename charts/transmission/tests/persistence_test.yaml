@@ -1,0 +1,48 @@
+suite: test persistence
+templates:
+  - pvc-config.yaml
+  - pvc-downloads.yaml
+tests:
+  - it: should create config PVC when enabled
+    template: pvc-config.yaml
+    set:
+      persistence.config.enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: PersistentVolumeClaim
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-transmission-config
+
+  - it: should not create config PVC when disabled
+    template: pvc-config.yaml
+    set:
+      persistence.config.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should create downloads PVC when type is pvc
+    template: pvc-downloads.yaml
+    set:
+      persistence.downloads.enabled: true
+      persistence.downloads.type: pvc
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: PersistentVolumeClaim
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-transmission-downloads
+
+  - it: should not create downloads PVC when type is nfs
+    template: pvc-downloads.yaml
+    set:
+      persistence.downloads.enabled: true
+      persistence.downloads.type: nfs
+    asserts:
+      - hasDocuments:
+          count: 0

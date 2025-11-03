@@ -1,0 +1,328 @@
+suite: test edge cases
+templates:
+  - daemonset.yaml
+  - configmap.yaml
+tests:
+  # DaemonSet edge cases
+  - it: should handle minimum priority value
+    template: daemonset.yaml
+    set:
+      static: false
+      keepalived:
+        vrrpInstance:
+          virtualIpAddress: "10.0.0.1/24"
+          interface: "eth0"
+          virtualRouterId: 51
+          priority: 1
+          state: "BACKUP"
+    asserts:
+      - isKind:
+          of: DaemonSet
+
+  - it: should handle maximum priority value
+    template: daemonset.yaml
+    set:
+      static: false
+      keepalived:
+        vrrpInstance:
+          virtualIpAddress: "10.0.0.1/24"
+          interface: "eth0"
+          virtualRouterId: 51
+          priority: 255
+          state: "BACKUP"
+    asserts:
+      - isKind:
+          of: DaemonSet
+
+  - it: should handle minimum router ID
+    template: configmap.yaml
+    set:
+      static: false
+      keepalived:
+        vrrpInstance:
+          virtualIpAddress: "10.0.0.1/24"
+          interface: "eth0"
+          virtualRouterId: 1
+          priority: 100
+          state: "BACKUP"
+    asserts:
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "virtual_router_id 1"
+
+  - it: should handle maximum router ID
+    template: configmap.yaml
+    set:
+      static: false
+      keepalived:
+        vrrpInstance:
+          virtualIpAddress: "10.0.0.1/24"
+          interface: "eth0"
+          virtualRouterId: 255
+          priority: 100
+          state: "BACKUP"
+    asserts:
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "virtual_router_id 255"
+
+  # Interface name edge cases
+  - it: should support bond interface
+    template: configmap.yaml
+    set:
+      static: false
+      keepalived:
+        vrrpInstance:
+          virtualIpAddress: "10.0.0.1/24"
+          interface: "bond0"
+          virtualRouterId: 51
+          priority: 100
+          state: "BACKUP"
+    asserts:
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "interface bond0"
+
+  - it: should support VLAN interface
+    template: configmap.yaml
+    set:
+      static: false
+      keepalived:
+        vrrpInstance:
+          virtualIpAddress: "10.0.0.1/24"
+          interface: "eth0.100"
+          virtualRouterId: 51
+          priority: 100
+          state: "BACKUP"
+    asserts:
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "interface eth0.100"
+
+  - it: should support modern network interface naming
+    template: configmap.yaml
+    set:
+      static: false
+      keepalived:
+        vrrpInstance:
+          virtualIpAddress: "10.0.0.1/24"
+          interface: "ens192"
+          virtualRouterId: 51
+          priority: 100
+          state: "BACKUP"
+    asserts:
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "interface ens192"
+
+  # Authentication edge cases
+  - it: should handle minimum auth pass length
+    template: configmap.yaml
+    set:
+      static: false
+      keepalived:
+        vrrpInstance:
+          virtualIpAddress: "10.0.0.1/24"
+          interface: "eth0"
+          virtualRouterId: 51
+          priority: 100
+          state: "BACKUP"
+          authentication:
+            authType: "PASS"
+            authPass: "12345678"
+    asserts:
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "auth_pass 12345678"
+
+  - it: should handle AH authentication
+    template: configmap.yaml
+    set:
+      static: false
+      keepalived:
+        vrrpInstance:
+          virtualIpAddress: "10.0.0.1/24"
+          interface: "eth0"
+          virtualRouterId: 51
+          priority: 100
+          state: "BACKUP"
+          authentication:
+            authType: "AH"
+            authPass: "12345678"
+    asserts:
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "auth_type AH"
+
+  # GARP edge cases
+  - it: should handle minimum GARP delays
+    template: configmap.yaml
+    set:
+      static: false
+      keepalived:
+        vrrpInstance:
+          virtualIpAddress: "10.0.0.1/24"
+          interface: "eth0"
+          virtualRouterId: 51
+          priority: 100
+          state: "BACKUP"
+        garp:
+          masterDelay: 1
+          masterRefresh: 1
+          masterRepeat: 1
+          masterRefreshRepeat: 1
+    asserts:
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "garp_master_delay 1"
+
+  - it: should handle large GARP delays
+    template: configmap.yaml
+    set:
+      static: false
+      keepalived:
+        vrrpInstance:
+          virtualIpAddress: "10.0.0.1/24"
+          interface: "eth0"
+          virtualRouterId: 51
+          priority: 100
+          state: "BACKUP"
+        garp:
+          masterDelay: 60
+          masterRefresh: 60
+          masterRepeat: 10
+          masterRefreshRepeat: 10
+    asserts:
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "garp_master_delay 60"
+
+  # Nopreempt edge cases
+  - it: should enable nopreempt
+    template: configmap.yaml
+    set:
+      static: false
+      keepalived:
+        vrrpInstance:
+          virtualIpAddress: "10.0.0.1/24"
+          interface: "eth0"
+          virtualRouterId: 51
+          priority: 100
+          state: "BACKUP"
+          nopreempt: true
+    asserts:
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "nopreempt"
+
+  - it: should disable nopreempt
+    template: configmap.yaml
+    set:
+      static: false
+      keepalived:
+        vrrpInstance:
+          virtualIpAddress: "10.0.0.1/24"
+          interface: "eth0"
+          virtualRouterId: 51
+          priority: 100
+          state: "BACKUP"
+          nopreempt: false
+    asserts:
+      - notMatchRegex:
+          path: data["keepalived.conf"]
+          pattern: "\\s+nopreempt\\s+"
+
+  # Resource limits edge cases
+  - it: should handle very low resource limits
+    template: daemonset.yaml
+    set:
+      static: false
+      keepalived:
+        vrrpInstance:
+          virtualIpAddress: "10.0.0.1/24"
+          interface: "eth0"
+          virtualRouterId: 51
+          priority: 100
+          state: "BACKUP"
+      resources:
+        requests:
+          cpu: 1m
+          memory: 1Mi
+        limits:
+          cpu: 10m
+          memory: 10Mi
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests.cpu
+          value: 1m
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests.memory
+          value: 1Mi
+
+  - it: should handle high resource limits
+    template: daemonset.yaml
+    set:
+      static: false
+      keepalived:
+        vrrpInstance:
+          virtualIpAddress: "10.0.0.1/24"
+          interface: "eth0"
+          virtualRouterId: 51
+          priority: 100
+          state: "BACKUP"
+      resources:
+        requests:
+          cpu: 2000m
+          memory: 2Gi
+        limits:
+          cpu: 4000m
+          memory: 4Gi
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits.cpu
+          value: 4000m
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits.memory
+          value: 4Gi
+
+  # Update strategy edge cases
+  - it: should support OnDelete update strategy
+    template: daemonset.yaml
+    set:
+      static: false
+      keepalived:
+        vrrpInstance:
+          virtualIpAddress: "10.0.0.1/24"
+          interface: "eth0"
+          virtualRouterId: 51
+          priority: 100
+          state: "BACKUP"
+      updateStrategy:
+        type: OnDelete
+    asserts:
+      - equal:
+          path: spec.updateStrategy.type
+          value: OnDelete
+
+  - it: should support RollingUpdate with maxSurge
+    template: daemonset.yaml
+    set:
+      static: false
+      keepalived:
+        vrrpInstance:
+          virtualIpAddress: "10.0.0.1/24"
+          interface: "eth0"
+          virtualRouterId: 51
+          priority: 100
+          state: "BACKUP"
+      updateStrategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxUnavailable: 1
+    asserts:
+      - equal:
+          path: spec.updateStrategy.type
+          value: RollingUpdate
+      - equal:
+          path: spec.updateStrategy.rollingUpdate.maxUnavailable
+          value: 1

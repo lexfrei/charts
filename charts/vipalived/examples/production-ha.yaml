@@ -1,0 +1,39 @@
+# Production high availability VIP configuration
+
+keepalived:
+  vrrpInstance:
+    virtualIpAddress: "192.168.1.100/24"
+    interface: "eth0"
+    virtualRouterId: 51
+    priority: 100
+    state: "BACKUP"
+    nopreempt: true
+    authentication:
+      authType: "PASS"
+      authPass: "secure01"
+  garp:
+    masterDelay: 5
+    masterRefresh: 10
+    masterRepeat: 3
+    masterRefreshRepeat: 2
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 64Mi
+
+tolerations:
+  - key: "node-role.kubernetes.io/control-plane"
+    operator: "Exists"
+    effect: "NoSchedule"
+
+nodeSelector:
+  node-role.kubernetes.io/control-plane: "true"
+
+updateStrategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 1

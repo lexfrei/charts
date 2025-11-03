@@ -134,3 +134,12 @@ affinity:
 crd:
   # -- Install the CRD (Plans)
   install: true
+
+# -- Network Policy configuration
+networkPolicy:
+  # -- Enable NetworkPolicy
+  enabled: false
+  # -- Additional ingress rules
+  ingress: []
+  # -- Additional egress rules
+  egress: []

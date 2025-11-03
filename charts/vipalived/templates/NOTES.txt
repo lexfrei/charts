@@ -1,0 +1,53 @@
+Thank you for installing {{ .Chart.Name }}!
+
+Keepalived-based VIP management has been deployed.
+
+Release Name: {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+
+{{- if .Values.static }}
+Static Pod Mode: Enabled
+
+This deployment uses static pods. Each control plane node will run its own instance.
+The pods are managed by kubelet, not the API server.
+
+To check status:
+  kubectl --namespace {{ .Release.Namespace }} get pods -l app.kubernetes.io/name=vipalived
+
+To update: Modify the file in /etc/kubernetes/manifests/ on each node
+To remove: Delete the file from /etc/kubernetes/manifests/ on each node
+{{- else }}
+Deployment Mode: DaemonSet
+
+To check the status:
+  kubectl --namespace {{ .Release.Namespace }} get daemonset {{ include "vipalived.fullname" . }}
+  kubectl --namespace {{ .Release.Namespace }} get pods -l "app.kubernetes.io/name={{ include "vipalived.name" . }}"
+{{- end }}
+
+Virtual IP Configuration:
+  VIP Address: {{ .Values.keepalived.vrrpInstance.virtualIpAddress }}
+  Interface: {{ .Values.keepalived.vrrpInstance.interface }}
+  VRRP Router ID: {{ .Values.keepalived.vrrpInstance.virtualRouterId }}
+  Priority: {{ .Values.keepalived.vrrpInstance.priority }}
+  State: {{ .Values.keepalived.vrrpInstance.state }}
+
+To verify VIP is active:
+
+  # Check which node is MASTER
+  kubectl --namespace {{ .Release.Namespace }} logs -l "app.kubernetes.io/name={{ include "vipalived.name" . }}" | grep -i "transition to MASTER"
+
+  # Ping the VIP
+  ping {{ .Values.keepalived.vrrpInstance.virtualIpAddress | replace "/32" "" | replace "/24" "" }}
+
+Troubleshooting:
+
+  # View logs from all keepalived pods
+  kubectl --namespace {{ .Release.Namespace }} logs -l "app.kubernetes.io/name={{ include "vipalived.name" . }}" --tail=50
+
+  # Check VRRP state on specific node
+  kubectl --namespace {{ .Release.Namespace }} exec -it <pod-name> -- ip addr show {{ .Values.keepalived.vrrpInstance.interface }}
+
+For more information:
+  - Chart: https://github.com/lexfrei/charts/tree/master/charts/vipalived
+  - Keepalived: https://www.keepalived.org/
+  - VRRP RFC: https://datatracker.ietf.org/doc/html/rfc5798

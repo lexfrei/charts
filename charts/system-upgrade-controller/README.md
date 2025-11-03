@@ -1,6 +1,6 @@
 # system-upgrade-controller
 
-![Version: 0.1.5](https://img.shields.io/badge/Version-0.1.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.17.0](https://img.shields.io/badge/AppVersion-v0.17.0-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.17.0](https://img.shields.io/badge/AppVersion-v0.17.0-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -111,6 +111,10 @@ helm delete system-upgrade-controller
 | namespace | object | `{"create":true,"name":"system-upgrade"}` | Namespace where the controller will be deployed |
 | namespace.create | bool | `true` | Create the namespace |
 | namespace.name | string | `"system-upgrade"` | Name of the namespace |
+| networkPolicy | object | `{"egress":[],"enabled":false,"ingress":[]}` | Network Policy configuration |
+| networkPolicy.egress | list | `[]` | Additional egress rules |
+| networkPolicy.enabled | bool | `false` | Enable NetworkPolicy |
+| networkPolicy.ingress | list | `[]` | Additional ingress rules |
 | nodeSelector | object | `{}` | Node selector for the controller deployment |
 | plan | object | `{"pollingInterval":"15m"}` | Plan polling configuration |
 | plan.pollingInterval | string | `"15m"` | Polling interval for checking plan updates |

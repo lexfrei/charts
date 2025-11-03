@@ -239,3 +239,41 @@ questions:
   default: ""
   show_if: "serviceAccount.create=true"
   group: "Service Account"
+
+# Network Policy
+- variable: networkPolicy.enabled
+  label: Enable Network Policy
+  description: Enable NetworkPolicy for torrent traffic isolation
+  type: boolean
+  default: false
+  group: "Network Policy"
+
+# Security
+- variable: podSecurityContext.fsGroup
+  label: Filesystem Group ID
+  description: Group ID for mounted volumes
+  type: int
+  default: 1000
+  group: "Security"
+- variable: podSecurityContext.seccompProfile.type
+  label: Seccomp Profile
+  description: Seccomp profile type for enhanced container security
+  type: enum
+  default: RuntimeDefault
+  options:
+    - RuntimeDefault
+    - Unconfined
+    - Localhost
+  group: "Security"
+- variable: securityContext.allowPrivilegeEscalation
+  label: Allow Privilege Escalation
+  description: Allow privilege escalation in the container
+  type: boolean
+  default: false
+  group: "Security"
+- variable: securityContext.readOnlyRootFilesystem
+  label: Read-Only Root Filesystem
+  description: Mount root filesystem as read-only (disabled for linuxserver image compatibility)
+  type: boolean
+  default: false
+  group: "Security"

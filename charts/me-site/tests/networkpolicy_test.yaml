@@ -1,0 +1,285 @@
+suite: test networkpolicy
+templates:
+  - networkpolicy.yaml
+tests:
+  # Basic NetworkPolicy tests
+  - it: should not create NetworkPolicy by default
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should create NetworkPolicy when enabled
+    set:
+      networkPolicy.enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: NetworkPolicy
+      - equal:
+          path: apiVersion
+          value: networking.k8s.io/v1
+
+  # Metadata tests
+  - it: should have correct name and labels
+    set:
+      networkPolicy.enabled: true
+    asserts:
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-me-site
+      - equal:
+          path: metadata.labels["app.kubernetes.io/name"]
+          value: me-site
+
+  # Pod selector tests
+  - it: should select pods with correct labels
+    set:
+      networkPolicy.enabled: true
+    asserts:
+      - equal:
+          path: spec.podSelector.matchLabels["app.kubernetes.io/name"]
+          value: me-site
+      - equal:
+          path: spec.podSelector.matchLabels["app.kubernetes.io/instance"]
+          value: RELEASE-NAME
+
+  # Policy types tests
+  - it: should include both Ingress and Egress policy types
+    set:
+      networkPolicy.enabled: true
+    asserts:
+      - contains:
+          path: spec.policyTypes
+          content: Ingress
+      - contains:
+          path: spec.policyTypes
+          content: Egress
+
+  # Ingress rules tests
+  - it: should have default ingress rule for ingress controller
+    set:
+      networkPolicy.enabled: true
+    asserts:
+      - lengthEqual:
+          path: spec.ingress
+          count: 1
+      - equal:
+          path: spec.ingress[0].ports[0].protocol
+          value: TCP
+      - equal:
+          path: spec.ingress[0].ports[0].port
+          value: 8080
+
+  - it: should add custom ingress rules to default
+    set:
+      networkPolicy.enabled: true
+      networkPolicy.ingress:
+        - from:
+            - podSelector:
+                matchLabels:
+                  app: frontend
+          ports:
+            - protocol: TCP
+              port: 9090
+    asserts:
+      - lengthEqual:
+          path: spec.ingress
+          count: 2
+      - equal:
+          path: spec.ingress[1].from[0].podSelector.matchLabels.app
+          value: frontend
+      - equal:
+          path: spec.ingress[1].ports[0].port
+          value: 9090
+
+  - it: should support multiple custom ingress rules
+    set:
+      networkPolicy.enabled: true
+      networkPolicy.ingress:
+        - from:
+            - podSelector:
+                matchLabels:
+                  app: nginx
+        - from:
+            - namespaceSelector:
+                matchLabels:
+                  name: monitoring
+    asserts:
+      - lengthEqual:
+          path: spec.ingress
+          count: 3
+
+  - it: should support ingress from specific namespaces
+    set:
+      networkPolicy.enabled: true
+      networkPolicy.ingress:
+        - from:
+            - namespaceSelector:
+                matchLabels:
+                  name: prod
+    asserts:
+      - equal:
+          path: spec.ingress[1].from[0].namespaceSelector.matchLabels.name
+          value: prod
+
+  - it: should support ingress from specific IPs
+    set:
+      networkPolicy.enabled: true
+      networkPolicy.ingress:
+        - from:
+            - ipBlock:
+                cidr: 10.0.0.0/8
+                except:
+                  - 10.0.1.0/24
+    asserts:
+      - equal:
+          path: spec.ingress[1].from[0].ipBlock.cidr
+          value: 10.0.0.0/8
+      - contains:
+          path: spec.ingress[1].from[0].ipBlock.except
+          content: 10.0.1.0/24
+
+  # Egress rules tests
+  - it: should have default egress rule for DNS
+    set:
+      networkPolicy.enabled: true
+    asserts:
+      - lengthEqual:
+          path: spec.egress
+          count: 1
+      - equal:
+          path: spec.egress[0].ports[0].protocol
+          value: UDP
+      - equal:
+          path: spec.egress[0].ports[0].port
+          value: 53
+
+  - it: should add custom egress rules to default
+    set:
+      networkPolicy.enabled: true
+      networkPolicy.egress:
+        - to:
+            - podSelector:
+                matchLabels:
+                  app: backend
+          ports:
+            - protocol: TCP
+              port: 5432
+    asserts:
+      - lengthEqual:
+          path: spec.egress
+          count: 2
+      - equal:
+          path: spec.egress[1].to[0].podSelector.matchLabels.app
+          value: backend
+      - equal:
+          path: spec.egress[1].ports[0].port
+          value: 5432
+
+  - it: should support custom DNS egress with namespace selector
+    set:
+      networkPolicy.enabled: true
+      networkPolicy.egress:
+        - to:
+            - namespaceSelector:
+                matchLabels:
+                  name: kube-system
+          ports:
+            - protocol: UDP
+              port: 53
+    asserts:
+      - equal:
+          path: spec.egress[1].to[0].namespaceSelector.matchLabels.name
+          value: kube-system
+
+  - it: should support egress to external IPs
+    set:
+      networkPolicy.enabled: true
+      networkPolicy.egress:
+        - to:
+            - ipBlock:
+                cidr: 0.0.0.0/0
+                except:
+                  - 169.254.169.254/32
+    asserts:
+      - equal:
+          path: spec.egress[1].to[0].ipBlock.cidr
+          value: 0.0.0.0/0
+      - contains:
+          path: spec.egress[1].to[0].ipBlock.except
+          content: 169.254.169.254/32
+
+  - it: should support multiple custom egress rules
+    set:
+      networkPolicy.enabled: true
+      networkPolicy.egress:
+        - to:
+            - podSelector:
+                matchLabels:
+                  app: database
+        - to:
+            - podSelector:
+                matchLabels:
+                  app: cache
+    asserts:
+      - lengthEqual:
+          path: spec.egress
+          count: 3
+
+  # Edge cases
+  - it: should have default rules when custom arrays are empty
+    set:
+      networkPolicy.enabled: true
+      networkPolicy.ingress: []
+      networkPolicy.egress: []
+    asserts:
+      - lengthEqual:
+          path: spec.ingress
+          count: 1
+      - lengthEqual:
+          path: spec.egress
+          count: 1
+
+  - it: should support complex port definitions
+    set:
+      networkPolicy.enabled: true
+      networkPolicy.ingress:
+        - ports:
+            - protocol: TCP
+              port: 80
+            - protocol: TCP
+              port: 443
+            - protocol: TCP
+              port: 8080
+    asserts:
+      - lengthEqual:
+          path: spec.ingress[1].ports
+          count: 3
+
+  - it: should support multiple sources in single rule
+    set:
+      networkPolicy.enabled: true
+      networkPolicy.ingress:
+        - from:
+            - podSelector:
+                matchLabels:
+                  role: frontend
+            - namespaceSelector:
+                matchLabels:
+                  name: ingress
+            - ipBlock:
+                cidr: 192.168.0.0/16
+    asserts:
+      - lengthEqual:
+          path: spec.ingress[1].from
+          count: 3
+
+  - it: should respect fullnameOverride in labels
+    set:
+      networkPolicy.enabled: true
+      fullnameOverride: custom-name
+    asserts:
+      - equal:
+          path: metadata.name
+          value: custom-name

@@ -158,3 +158,11 @@ questions:
   default: system-upgrade
   show_if: "serviceAccount.create=true"
   group: "Service Account"
+
+# Network Policy
+- variable: networkPolicy.enabled
+  label: Enable Network Policy
+  description: Enable NetworkPolicy for network traffic isolation
+  type: boolean
+  default: false
+  group: "Network Policy"
