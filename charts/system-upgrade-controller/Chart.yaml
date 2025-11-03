@@ -2,11 +2,9 @@ annotations:
   artifacthub.io/category: integration-delivery
   artifacthub.io/changes: |-
     - kind: added
-      description: Add Rancher questions.yaml for interactive UI configuration
-    - kind: added
-      description: Add Artifact Hub badge and consistency badges to README
+      description: Add kubeVersion constraint (>=1.16.0-0) to Chart.yaml
     - kind: changed
-      description: Improve README structure with better badge organization
+      description: Update Kubernetes version badge to reflect actual minimum version (1.16+)
   artifacthub.io/crds: |
     - kind: Plan
       version: v1
@@ -26,7 +24,7 @@ apiVersion: v2
 name: system-upgrade-controller
 description: Kubernetes-native upgrade controller for nodes using declarative Plans
 type: application
-version: "0.1.4"
+version: "0.1.5"
 # renovate: datasource=github-releases depName=rancher/system-upgrade-controller
 appVersion: "v0.17.0"
 icon: https://avatars.githubusercontent.com/u/9343010
@@ -49,3 +47,4 @@ maintainers:
 sources:
   - https://github.com/lexfrei/charts/
   - https://github.com/rancher/system-upgrade-controller/
+kubeVersion: '>=1.16.0-0'

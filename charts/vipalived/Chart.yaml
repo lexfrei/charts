@@ -2,11 +2,9 @@ annotations:
   artifacthub.io/category: networking
   artifacthub.io/changes: |-
     - kind: added
-      description: Add Rancher questions.yaml for interactive UI configuration
-    - kind: added
-      description: Add Artifact Hub badge and consistency badges to README
+      description: Add kubeVersion constraint (>=1.16.0-0) to Chart.yaml
     - kind: changed
-      description: Improve README structure with better badge organization
+      description: Update Kubernetes version badge to reflect actual minimum version (1.16+)
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -20,7 +18,7 @@ apiVersion: v2
 name: vipalived
 description: Keepalived-based VIP management for Kubernetes control plane high availability
 type: application
-version: 0.3.1
+version: 0.3.2
 # renovate: datasource=docker depName=alpine
 appVersion: "3.22"
 keywords:
@@ -33,3 +31,4 @@ keywords:
 maintainers:
   - name: lexfrei
     email: f@lex.la
+kubeVersion: '>=1.16.0-0'
