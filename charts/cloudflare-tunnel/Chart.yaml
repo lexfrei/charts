@@ -3,8 +3,12 @@ annotations:
   # Valid kinds for changes: added, changed, deprecated, removed, fixed, security
   # See: https://artifacthub.io/docs/topics/annotations/helm/
   artifacthub.io/changes: |-
+    - kind: added
+      description: Add Rancher questions.yaml for interactive UI configuration
+    - kind: added
+      description: Add Artifact Hub badge and consistency badges to README
     - kind: changed
-      description: Update dependency cloudflare/cloudflared to v2025.10.1
+      description: Improve README structure with better badge organization
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -18,7 +22,7 @@ apiVersion: v2
 name: cloudflare-tunnel
 description: Creation of a cloudflared deployment - a reverse tunnel for an environment
 type: application
-version: "0.12.4"
+version: "0.12.5"
 # renovate: datasource=github-releases depName=cloudflare/cloudflared
 appVersion: "2025.10.1"
 icon: https://avatars.githubusercontent.com/u/314135

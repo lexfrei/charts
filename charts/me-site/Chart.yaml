@@ -2,7 +2,7 @@ apiVersion: v2
 name: me-site
 description: A Helm chart for the Me-Site application
 type: application
-version: 0.4.1
+version: 0.4.2
 appVersion: 1.0.0
 
 maintainers:
@@ -12,7 +12,7 @@ maintainers:
 
 annotations:
   artifacthub.io/changes: |
-    - kind: changed
-      description: Migrate to OCI publishing in GHCR with cosign signatures
     - kind: added
-      description: Add HTTPRoute/Gateway API support for Kubernetes Gateway API integration
+      description: Add Rancher questions.yaml for interactive UI configuration
+    - kind: changed
+      description: Improve README structure with consistency badges

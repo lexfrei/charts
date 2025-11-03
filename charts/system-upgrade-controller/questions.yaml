@@ -1,0 +1,160 @@
+categories:
+- Infrastructure
+- Kubernetes
+questions:
+# Namespace Configuration
+- variable: namespace.create
+  label: Create Namespace
+  description: Create namespace for the controller
+  type: boolean
+  default: true
+  group: "Namespace Configuration"
+- variable: namespace.name
+  label: Namespace Name
+  description: Name of the namespace
+  type: string
+  default: system-upgrade
+  required: true
+  group: "Namespace Configuration"
+
+# Controller Configuration
+- variable: controller.debug
+  label: Enable Debug Logging
+  description: Enable debug level logging for the controller
+  type: boolean
+  default: false
+  group: "Controller Configuration"
+- variable: controller.threads
+  label: Controller Threads
+  description: Number of worker threads for the controller
+  type: int
+  default: 2
+  min: 1
+  max: 10
+  group: "Controller Configuration"
+- variable: controller.leaderElect
+  label: Enable Leader Election
+  description: Enable leader election for high availability
+  type: boolean
+  default: true
+  group: "Controller Configuration"
+
+# Job Configuration
+- variable: job.activeDeadlineSeconds
+  label: Job Active Deadline (seconds)
+  description: Maximum time a job can run before it's terminated
+  type: int
+  default: 900
+  min: 300
+  max: 3600
+  group: "Job Configuration"
+- variable: job.backoffLimit
+  label: Job Backoff Limit
+  description: Number of retries before considering a job as failed
+  type: int
+  default: 99
+  min: 1
+  max: 100
+  group: "Job Configuration"
+- variable: job.ttlSecondsAfterFinish
+  label: Job TTL After Finish (seconds)
+  description: Time to keep finished jobs before automatic cleanup
+  type: int
+  default: 900
+  min: 0
+  max: 86400
+  group: "Job Configuration"
+- variable: job.privileged
+  label: Run Jobs as Privileged
+  description: Run upgrade jobs with privileged security context
+  type: boolean
+  default: true
+  group: "Job Configuration"
+- variable: job.kubectlImage
+  label: kubectl Image
+  description: Image for kubectl used in upgrade jobs
+  type: string
+  default: rancher/kubectl:v1.34.1
+  group: "Job Configuration"
+
+# Plan Configuration
+- variable: plan.pollingInterval
+  label: Plan Polling Interval
+  description: Interval for checking plan updates (e.g., 15m, 1h)
+  type: string
+  default: 15m
+  group: "Plan Configuration"
+
+# CRD Installation
+- variable: crd.install
+  label: Install CRDs
+  description: Install Custom Resource Definitions (Plans)
+  type: boolean
+  default: true
+  group: "CRD Configuration"
+
+# Image Configuration
+- variable: image.repository
+  label: Image Repository
+  description: Docker image repository
+  type: string
+  default: rancher/system-upgrade-controller
+  required: true
+  group: "Image Configuration"
+- variable: image.tag
+  label: Image Tag
+  description: Image tag (overrides appVersion if set)
+  type: string
+  default: ""
+  group: "Image Configuration"
+- variable: image.pullPolicy
+  label: Image Pull Policy
+  description: Image pull policy
+  type: enum
+  default: IfNotPresent
+  options:
+    - Always
+    - IfNotPresent
+    - Never
+  group: "Image Configuration"
+
+# Resources
+- variable: resources.requests.cpu
+  label: CPU Request
+  description: Minimum CPU required
+  type: string
+  default: ""
+  group: "Resources"
+- variable: resources.requests.memory
+  label: Memory Request
+  description: Minimum memory required
+  type: string
+  default: ""
+  group: "Resources"
+- variable: resources.limits.cpu
+  label: CPU Limit
+  description: Maximum CPU allowed
+  type: string
+  default: ""
+  group: "Resources"
+- variable: resources.limits.memory
+  label: Memory Limit
+  description: Maximum memory allowed
+  type: string
+  default: ""
+  group: "Resources"
+
+# Service Account
+- variable: serviceAccount.create
+  label: Create Service Account
+  description: Create a service account for the controller
+  type: boolean
+  default: true
+  group: "Service Account"
+- variable: serviceAccount.name
+  label: Service Account Name
+  description: Name of the service account
+  type: string
+  default: system-upgrade
+  show_if: "serviceAccount.create=true"
+  group: "Service Account"
