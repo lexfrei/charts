@@ -13,7 +13,6 @@ All charts are published to GHCR with cosign signatures for verification.
 
 ### [cloudflare-tunnel](./charts/cloudflare-tunnel)
 
-![Version](https://img.shields.io/badge/version-0.12.6-informational)
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-1.21%2B-blue?logo=kubernetes)
 
 Deploy Cloudflare Tunnel (cloudflared) for secure Zero Trust access to Kubernetes services without exposing inbound ports.
@@ -29,7 +28,6 @@ Deploy Cloudflare Tunnel (cloudflared) for secure Zero Trust access to Kubernete
 
 ### [me-site](./charts/me-site)
 
-![Version](https://img.shields.io/badge/version-0.4.3-informational)
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-1.19%2B-blue?logo=kubernetes)
 
 Personal site deployment with HTTPRoute/Gateway API support.
@@ -38,7 +36,6 @@ Personal site deployment with HTTPRoute/Gateway API support.
 
 ### [system-upgrade-controller](./charts/system-upgrade-controller)
 
-![Version](https://img.shields.io/badge/version-0.1.5-informational)
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-1.16%2B-blue?logo=kubernetes)
 
 Kubernetes-native controller for automated node upgrades using declarative Plans. Based on [Rancher System Upgrade Controller](https://github.com/rancher/system-upgrade-controller).
@@ -54,7 +51,6 @@ Kubernetes-native controller for automated node upgrades using declarative Plans
 
 ### [transmission](./charts/transmission)
 
-![Version](https://img.shields.io/badge/version-0.1.7-informational)
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-1.19%2B-blue?logo=kubernetes)
 
 Transmission BitTorrent client deployment with NFS and PVC storage support.
@@ -63,7 +59,6 @@ Transmission BitTorrent client deployment with NFS and PVC storage support.
 
 ### [vipalived](./charts/vipalived)
 
-![Version](https://img.shields.io/badge/version-0.3.2-informational)
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-1.16%2B-blue?logo=kubernetes)
 
 VRRP-based Virtual IP management for Kubernetes control plane high availability using keepalived.
@@ -81,34 +76,36 @@ VRRP-based Virtual IP management for Kubernetes control plane high availability 
 
 All charts are published to GitHub Container Registry as OCI artifacts.
 
+**Check latest versions:** [GitHub Releases](https://github.com/lexfrei/charts/releases)
+
 ### Install a Chart
 
 ```bash
 # Install cloudflare-tunnel chart
 helm install my-tunnel \
   oci://ghcr.io/lexfrei/charts/cloudflare-tunnel \
-  --version 0.12.6 \
+  --version <VERSION> \
   --values values.yaml
 
 # Install system-upgrade-controller
 helm install system-upgrade-controller \
   oci://ghcr.io/lexfrei/charts/system-upgrade-controller \
-  --version 0.1.5
+  --version <VERSION>
 
 # Install transmission
 helm install transmission \
   oci://ghcr.io/lexfrei/charts/transmission \
-  --version 0.1.7
+  --version <VERSION>
 
 # Install me-site
 helm install me-site \
   oci://ghcr.io/lexfrei/charts/me-site \
-  --version 0.4.3
+  --version <VERSION>
 
 # Install vipalived
 helm install vipalived \
   oci://ghcr.io/lexfrei/charts/vipalived \
-  --version 0.3.2 \
+  --version <VERSION> \
   --set keepalived.vrrpInstance.virtualIpAddress=YOUR_VIP_ADDRESS/CIDR
 ```
 
@@ -118,7 +115,7 @@ All charts are signed with cosign using keyless signing:
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/<chart-name>:<version> \
+  ghcr.io/lexfrei/charts/<CHART-NAME>:<VERSION> \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -127,7 +124,7 @@ Example:
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/cloudflare-tunnel:0.12.0 \
+  ghcr.io/lexfrei/charts/cloudflare-tunnel:0.12.6 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
