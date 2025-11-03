@@ -3,6 +3,14 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
+    "nameOverride": {
+      "type": "string",
+      "description": "Override the name of the chart"
+    },
+    "fullnameOverride": {
+      "type": "string",
+      "description": "Override the fullname of the chart"
+    },
     "replicaCount": {
       "type": "integer"
     },

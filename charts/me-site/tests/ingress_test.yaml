@@ -1,0 +1,316 @@
+suite: test ingress
+templates:
+  - ingress.yaml
+tests:
+  # Basic ingress tests
+  - it: should not create Ingress by default
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should create Ingress when enabled
+    set:
+      ingress.enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Ingress
+      - equal:
+          path: apiVersion
+          value: networking.k8s.io/v1
+
+  # Class name tests
+  - it: should not set className when empty
+    set:
+      ingress.enabled: true
+      ingress.className: ""
+    asserts:
+      - isNull:
+          path: spec.ingressClassName
+
+  - it: should set className when provided
+    set:
+      ingress.enabled: true
+      ingress.className: nginx
+    asserts:
+      - equal:
+          path: spec.ingressClassName
+          value: nginx
+
+  - it: should support traefik className
+    set:
+      ingress.enabled: true
+      ingress.className: traefik
+    asserts:
+      - equal:
+          path: spec.ingressClassName
+          value: traefik
+
+  # Annotations tests
+  - it: should set annotations
+    set:
+      ingress.enabled: true
+      ingress.annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+        nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    asserts:
+      - equal:
+          path: metadata.annotations["cert-manager.io/cluster-issuer"]
+          value: letsencrypt-prod
+      - equal:
+          path: metadata.annotations["nginx.ingress.kubernetes.io/ssl-redirect"]
+          value: "true"
+
+  # Hosts tests
+  - it: should configure single host
+    set:
+      ingress.enabled: true
+      ingress.hosts:
+        - host: example.com
+          paths:
+            - path: /
+              pathType: Prefix
+    asserts:
+      - equal:
+          path: spec.rules[0].host
+          value: example.com
+      - equal:
+          path: spec.rules[0].http.paths[0].path
+          value: /
+      - equal:
+          path: spec.rules[0].http.paths[0].pathType
+          value: Prefix
+
+  - it: should configure multiple hosts
+    set:
+      ingress.enabled: true
+      ingress.hosts:
+        - host: example.com
+          paths:
+            - path: /
+              pathType: Prefix
+        - host: www.example.com
+          paths:
+            - path: /
+              pathType: Prefix
+    asserts:
+      - lengthEqual:
+          path: spec.rules
+          count: 2
+      - equal:
+          path: spec.rules[0].host
+          value: example.com
+      - equal:
+          path: spec.rules[1].host
+          value: www.example.com
+
+  - it: should configure multiple paths per host
+    set:
+      ingress.enabled: true
+      ingress.hosts:
+        - host: example.com
+          paths:
+            - path: /api
+              pathType: Prefix
+            - path: /admin
+              pathType: Exact
+    asserts:
+      - lengthEqual:
+          path: spec.rules[0].http.paths
+          count: 2
+      - equal:
+          path: spec.rules[0].http.paths[0].path
+          value: /api
+      - equal:
+          path: spec.rules[0].http.paths[0].pathType
+          value: Prefix
+      - equal:
+          path: spec.rules[0].http.paths[1].path
+          value: /admin
+      - equal:
+          path: spec.rules[0].http.paths[1].pathType
+          value: Exact
+
+  # PathType tests
+  - it: should support Exact pathType
+    set:
+      ingress.enabled: true
+      ingress.hosts:
+        - host: example.com
+          paths:
+            - path: /exact
+              pathType: Exact
+    asserts:
+      - equal:
+          path: spec.rules[0].http.paths[0].pathType
+          value: Exact
+
+  - it: should support Prefix pathType
+    set:
+      ingress.enabled: true
+      ingress.hosts:
+        - host: example.com
+          paths:
+            - path: /prefix
+              pathType: Prefix
+    asserts:
+      - equal:
+          path: spec.rules[0].http.paths[0].pathType
+          value: Prefix
+
+  - it: should support ImplementationSpecific pathType
+    set:
+      ingress.enabled: true
+      ingress.hosts:
+        - host: example.com
+          paths:
+            - path: /impl
+              pathType: ImplementationSpecific
+    asserts:
+      - equal:
+          path: spec.rules[0].http.paths[0].pathType
+          value: ImplementationSpecific
+
+  # Backend tests
+  - it: should reference correct service and port
+    set:
+      ingress.enabled: true
+      servicePort: 8080
+      ingress.hosts:
+        - host: example.com
+          paths:
+            - path: /
+              pathType: Prefix
+    asserts:
+      - equal:
+          path: spec.rules[0].http.paths[0].backend.service.name
+          value: me-site
+      - equal:
+          path: spec.rules[0].http.paths[0].backend.service.port.number
+          value: 8080
+
+  - it: should use custom service port
+    set:
+      ingress.enabled: true
+      servicePort: 9999
+      ingress.hosts:
+        - host: example.com
+          paths:
+            - path: /
+              pathType: Prefix
+    asserts:
+      - equal:
+          path: spec.rules[0].http.paths[0].backend.service.port.number
+          value: 9999
+
+  # TLS tests
+  - it: should have empty TLS by default
+    set:
+      ingress.enabled: true
+      ingress.hosts:
+        - host: example.com
+          paths:
+            - path: /
+              pathType: Prefix
+    asserts:
+      - lengthEqual:
+          path: spec.tls
+          count: 0
+
+  - it: should configure TLS when provided
+    set:
+      ingress.enabled: true
+      ingress.hosts:
+        - host: example.com
+          paths:
+            - path: /
+              pathType: Prefix
+      ingress.tls:
+        - secretName: example-tls
+          hosts:
+            - example.com
+    asserts:
+      - lengthEqual:
+          path: spec.tls
+          count: 1
+      - equal:
+          path: spec.tls[0].secretName
+          value: example-tls
+      - contains:
+          path: spec.tls[0].hosts
+          content: example.com
+
+  - it: should configure multiple TLS entries
+    set:
+      ingress.enabled: true
+      ingress.hosts:
+        - host: example.com
+          paths:
+            - path: /
+              pathType: Prefix
+        - host: www.example.com
+          paths:
+            - path: /
+              pathType: Prefix
+      ingress.tls:
+        - secretName: example-tls
+          hosts:
+            - example.com
+        - secretName: www-tls
+          hosts:
+            - www.example.com
+    asserts:
+      - lengthEqual:
+          path: spec.tls
+          count: 2
+      - equal:
+          path: spec.tls[0].secretName
+          value: example-tls
+      - equal:
+          path: spec.tls[1].secretName
+          value: www-tls
+
+  # Edge cases
+  - it: should handle root path
+    set:
+      ingress.enabled: true
+      ingress.hosts:
+        - host: example.com
+          paths:
+            - path: /
+              pathType: Prefix
+    asserts:
+      - equal:
+          path: spec.rules[0].http.paths[0].path
+          value: /
+
+  - it: should handle deep paths
+    set:
+      ingress.enabled: true
+      ingress.hosts:
+        - host: example.com
+          paths:
+            - path: /very/deep/path/to/resource
+              pathType: Prefix
+    asserts:
+      - equal:
+          path: spec.rules[0].http.paths[0].path
+          value: /very/deep/path/to/resource
+
+  # Metadata tests
+  - it: should have hardcoded name me-site
+    set:
+      ingress.enabled: true
+      ingress.hosts:
+        - host: example.com
+          paths:
+            - path: /
+              pathType: Prefix
+    asserts:
+      - equal:
+          path: metadata.name
+          value: me-site
+      - equal:
+          path: spec.rules[0].http.paths[0].backend.service.name
+          value: me-site
