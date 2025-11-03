@@ -1,0 +1,44 @@
+Thank you for installing {{ .Chart.Name }}!
+
+Transmission BitTorrent client has been deployed.
+
+Release Name: {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+
+To check the status of your deployment:
+
+  kubectl --namespace {{ .Release.Namespace }} get pods -l "app.kubernetes.io/name={{ include "transmission.name" . }},app.kubernetes.io/instance={{ .Release.Name }}"
+
+{{- if .Values.ingress.enabled }}
+
+Web UI is accessible at:
+{{- range .Values.ingress.hosts }}
+  {{- range .paths }}
+  - http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}{{ .path }}
+  {{- end }}
+{{- end }}
+{{- else }}
+
+To access the Web UI, forward the port:
+
+  kubectl --namespace {{ .Release.Namespace }} port-forward svc/{{ include "transmission.fullname" . }} 9091:9091
+
+Then open: http://localhost:9091
+{{- end }}
+
+Authentication: Configure via Transmission web UI or settings.json
+
+Storage Configuration:
+{{- if eq .Values.persistence.downloads.type "nfs" }}
+  Downloads: NFS ({{ .Values.persistence.downloads.nfsServer }}:{{ .Values.persistence.downloads.nfsPath }})
+{{- else }}
+  Downloads: PVC ({{ .Values.persistence.downloads.size }})
+{{- end }}
+
+To view logs:
+
+  kubectl --namespace {{ .Release.Namespace }} logs -l "app.kubernetes.io/name={{ include "transmission.name" . }}" --tail=100 -f
+
+For more information:
+  - Chart: https://github.com/lexfrei/charts/tree/master/charts/transmission
+  - Transmission: https://transmissionbt.com/

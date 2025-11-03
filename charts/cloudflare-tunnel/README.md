@@ -1,6 +1,6 @@
 # cloudflare-tunnel
 
-![Version: 0.12.6](https://img.shields.io/badge/Version-0.12.6-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.10.1](https://img.shields.io/badge/AppVersion-2025.10.1-informational?style=flat-square)
+![Version: 0.13.0](https://img.shields.io/badge/Version-0.13.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.10.1](https://img.shields.io/badge/AppVersion-2025.10.1-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -69,7 +69,7 @@ Before installing the chart, create a tunnel in Cloudflare:
 # Install with inline configuration
 helm install cloudflare-tunnel \
   oci://ghcr.io/lexfrei/charts/cloudflare-tunnel \
-  --version 0.12.6 \
+  --version 0.13.0 \
   --set cloudflare.account=YOUR_ACCOUNT_ID \
   --set cloudflare.tunnelName=YOUR_TUNNEL_NAME \
   --set cloudflare.tunnelId=YOUR_TUNNEL_ID \
@@ -80,7 +80,7 @@ helm install cloudflare-tunnel \
 # Install with values file
 helm install cloudflare-tunnel \
   oci://ghcr.io/lexfrei/charts/cloudflare-tunnel \
-  --version 0.12.6 \
+  --version 0.13.0 \
   --values values.yaml
 ```
 
@@ -90,7 +90,7 @@ This chart is signed with [cosign](https://github.com/sigstore/cosign) using key
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/cloudflare-tunnel:0.12.6 \
+  ghcr.io/lexfrei/charts/cloudflare-tunnel:0.13.0 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -467,6 +467,14 @@ Kubernetes: `>=1.21.0-0`
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` | Default affinity is to spread out over nodes; use this to override |
+| autoscaling | object | `{"behavior":{},"customMetrics":[],"enabled":false,"maxReplicas":10,"minReplicas":2,"targetCPUUtilizationPercentage":80,"targetMemoryUtilizationPercentage":null}` | Horizontal Pod Autoscaler configuration |
+| autoscaling.behavior | object | `{}` | Scaling behavior configuration |
+| autoscaling.customMetrics | list | `[]` | Custom metrics for autoscaling Example: scale based on cloudflared tunnel metrics |
+| autoscaling.enabled | bool | `false` | Enable HPA (only works with deployment mode, not daemonset) |
+| autoscaling.maxReplicas | int | `10` | Maximum number of replicas |
+| autoscaling.minReplicas | int | `2` | Minimum number of replicas |
+| autoscaling.targetCPUUtilizationPercentage | int | `80` | Target CPU utilization percentage |
+| autoscaling.targetMemoryUtilizationPercentage | string | `nil` | Target memory utilization percentage |
 | cloudflare | object | `{"account":"","enableDefault404":true,"enableWarp":false,"ingress":[],"originRequest":{},"secret":"","secretName":null,"tunnelId":"","tunnelName":""}` | Cloudflare parameters |
 | cloudflare.account | string | `""` | Your Cloudflare account number |
 | cloudflare.enableDefault404 | bool | `true` | If true, enable the default 404 page. Needs to be false if you want to use a '*' wildcard rule. |
@@ -492,13 +500,17 @@ Kubernetes: `>=1.21.0-0`
 | logLevel | string | `""` | Log level for cloudflared (debug, info, warn, error, fatal) |
 | metricsPort | int | `2000` | Metrics port for Prometheus metrics and readiness probe |
 | nameOverride | string | `""` |  |
+| networkPolicy | object | `{"egress":[],"enabled":false,"ingress":[]}` | Network Policy configuration |
+| networkPolicy.egress | list | `[]` | Additional egress rules (default allows DNS, Cloudflare API/edge, and internal services) |
+| networkPolicy.enabled | bool | `false` | Enable NetworkPolicy |
+| networkPolicy.ingress | list | `[]` | Additional ingress rules |
 | nodeSelector | object | `{}` |  |
 | podAnnotations | object | `{}` |  |
 | podDisruptionBudget | object | `{"enabled":false,"minAvailable":1}` | Pod Disruption Budget configuration |
 | podDisruptionBudget.enabled | bool | `false` | Enable Pod Disruption Budget |
 | podDisruptionBudget.minAvailable | int | `1` | Minimum number of available pods (conflicts with maxUnavailable) |
 | podLabels | object | `{}` | Additional labels to add to pods |
-| podSecurityContext | object | `{"runAsNonRoot":true,"runAsUser":65532}` | Security items common to everything in the pod.  Here we require that it does not run as the user defined in the image, literally named "nonroot" |
+| podSecurityContext | object | `{"runAsNonRoot":true,"runAsUser":65532,"seccompProfile":{"type":"RuntimeDefault"}}` | Security items common to everything in the pod.  Here we require that it does not run as the user defined in the image, literally named "nonroot" |
 | postQuantum | bool | `false` | Enable post-quantum cryptography for QUIC connections Only works with 'quic' or 'auto' protocol, conflicts with 'http2' See: <https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/configure-tunnels/cloudflared-parameters/run-parameters/#post-quantum> |
 | priorityClassName | string | `""` | Priority class name for pod scheduling priority See <https://kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/> |
 | protocol | string | `""` | Transport protocol for cloudflared (auto, quic, http2) auto: Cloudflare selects the best protocol automatically quic: Force QUIC transport (fastest, most reliable) http2: Force HTTP/2 transport (wider compatibility) Leave empty to use cloudflared default |

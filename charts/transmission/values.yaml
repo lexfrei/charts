@@ -23,9 +23,16 @@ env:
 # -- Security context for the pod
 podSecurityContext:
   fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
 
 # -- Security context for the container
-securityContext: {}
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: false  # linuxserver image needs to write to /config
 
 # -- Service configuration
 service:
@@ -123,3 +130,12 @@ serviceAccount:
 # -- Update strategy
 updateStrategy:
   type: RollingUpdate
+
+# -- Network Policy configuration
+networkPolicy:
+  # -- Enable NetworkPolicy
+  enabled: false
+  # -- Additional ingress rules
+  ingress: []
+  # -- Additional egress rules
+  egress: []

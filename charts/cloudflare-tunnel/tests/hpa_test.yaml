@@ -1,0 +1,145 @@
+suite: test HPA (Horizontal Pod Autoscaler)
+templates:
+  - hpa.yaml
+  - deployment.yaml
+  - configmap.yaml
+  - secret.yaml
+tests:
+  # HPA disabled by default
+  - it: should NOT create HPA by default
+    templates:
+      - hpa.yaml
+    set:
+      cloudflare:
+        account: "test"
+        tunnelName: "test"
+        tunnelId: "test"
+        secret: "test"
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  # HPA enabled with deployment mode
+  - it: should create HPA when enabled with deployment mode
+    templates:
+      - hpa.yaml
+    set:
+      cloudflare:
+        account: "test"
+        tunnelName: "test"
+        tunnelId: "test"
+        secret: "test"
+      deploymentMode: deployment
+      autoscaling:
+        enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: HorizontalPodAutoscaler
+      - equal:
+          path: apiVersion
+          value: autoscaling/v2
+      - equal:
+          path: spec.scaleTargetRef.kind
+          value: Deployment
+      - equal:
+          path: spec.minReplicas
+          value: 2
+      - equal:
+          path: spec.maxReplicas
+          value: 10
+
+  # HPA with custom metrics
+  - it: should configure HPA with custom CPU and memory targets
+    templates:
+      - hpa.yaml
+    set:
+      cloudflare:
+        account: "test"
+        tunnelName: "test"
+        tunnelId: "test"
+        secret: "test"
+      autoscaling:
+        enabled: true
+        minReplicas: 3
+        maxReplicas: 20
+        targetCPUUtilizationPercentage: 70
+        targetMemoryUtilizationPercentage: 80
+    asserts:
+      - equal:
+          path: spec.minReplicas
+          value: 3
+      - equal:
+          path: spec.maxReplicas
+          value: 20
+      - contains:
+          path: spec.metrics
+          content:
+            type: Resource
+            resource:
+              name: cpu
+              target:
+                type: Utilization
+                averageUtilization: 70
+      - contains:
+          path: spec.metrics
+          content:
+            type: Resource
+            resource:
+              name: memory
+              target:
+                type: Utilization
+                averageUtilization: 80
+
+  # Deployment replicas removed when HPA enabled
+  - it: should NOT set replicas in Deployment when HPA enabled
+    templates:
+      - deployment.yaml
+    set:
+      cloudflare:
+        account: "test"
+        tunnelName: "test"
+        tunnelId: "test"
+        secret: "test"
+      replicaCount: 5
+      autoscaling:
+        enabled: true
+    asserts:
+      - notExists:
+          path: spec.replicas
+
+  # Deployment replicas set when HPA disabled
+  - it: should set replicas in Deployment when HPA disabled
+    templates:
+      - deployment.yaml
+    set:
+      cloudflare:
+        account: "test"
+        tunnelName: "test"
+        tunnelId: "test"
+        secret: "test"
+      replicaCount: 5
+      autoscaling:
+        enabled: false
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 5
+
+  # HPA with DaemonSet should fail
+  - it: should FAIL when HPA enabled with DaemonSet mode
+    templates:
+      - hpa.yaml
+    set:
+      cloudflare:
+        account: "test"
+        tunnelName: "test"
+        tunnelId: "test"
+        secret: "test"
+      deploymentMode: daemonset
+      autoscaling:
+        enabled: true
+    asserts:
+      - failedTemplate:
+          errorMessage: "HPA can only be used with deploymentMode=deployment, not with daemonset"

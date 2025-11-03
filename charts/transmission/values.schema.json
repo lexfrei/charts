@@ -317,6 +317,32 @@
           "description": "Update strategy type"
         }
       }
+    },
+    "podSecurityContext": {
+      "type": "object",
+      "description": "Security context for the pod"
+    },
+    "securityContext": {
+      "type": "object",
+      "description": "Security context for the container"
+    },
+    "networkPolicy": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable NetworkPolicy"
+        },
+        "ingress": {
+          "type": "array",
+          "description": "Additional ingress rules"
+        },
+        "egress": {
+          "type": "array",
+          "description": "Additional egress rules"
+        }
+      },
+      "required": ["enabled"]
     }
   },
   "required": ["image", "service", "persistence"]

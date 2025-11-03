@@ -1,0 +1,51 @@
+{{- if .Values.networkPolicy.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "cloudflare-tunnel.fullname" . }}
+  labels:
+    {{- include "cloudflare-tunnel.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "cloudflare-tunnel.selectorLabels" . | nindent 6 }}
+  policyTypes:
+    - Ingress
+    - Egress
+  {{- with .Values.networkPolicy.ingress }}
+  ingress:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  egress:
+    # Allow DNS
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Allow Cloudflare API and edge connections
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 7844  # Cloudflare Tunnel QUIC
+        - protocol: UDP
+          port: 7844  # Cloudflare Tunnel QUIC
+    # Allow access to configured services
+    {{- range .Values.cloudflare.ingress }}
+    {{- if .service }}
+    {{- if not (or (hasPrefix "http://" .service) (hasPrefix "https://" .service) (hasPrefix "tcp://" .service) (hasPrefix "unix://" .service)) }}
+    # Service reference without protocol - assuming internal k8s service
+    - to:
+        - namespaceSelector: {}
+    {{- end }}
+    {{- end }}
+    {{- end }}
+    {{- with .Values.networkPolicy.egress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- end }}

@@ -227,3 +227,15 @@ questions:
   type: string
   default: vipalived
   group: "Advanced Settings"
+
+# Security
+- variable: podSecurityContext.seccompProfile.type
+  label: Seccomp Profile
+  description: Seccomp profile type for enhanced container security
+  type: enum
+  default: RuntimeDefault
+  options:
+    - RuntimeDefault
+    - Unconfined
+    - Localhost
+  group: "Security"

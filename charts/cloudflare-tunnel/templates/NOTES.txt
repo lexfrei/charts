@@ -1,0 +1,48 @@
+Thank you for installing {{ .Chart.Name }}!
+
+Your Cloudflare Tunnel has been deployed.
+
+Release Name: {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+
+{{- if eq .Values.deploymentMode "deployment" }}
+Deployment Mode: Deployment (replicas: {{ .Values.replicaCount }})
+{{- else }}
+Deployment Mode: DaemonSet (one pod per node)
+{{- end }}
+
+Tunnel Configuration:
+  Account: {{ .Values.cloudflare.account }}
+  Tunnel Name: {{ .Values.cloudflare.tunnelName }}
+  Tunnel ID: {{ .Values.cloudflare.tunnelId }}
+
+{{- if .Values.cloudflare.ingress }}
+
+Configured Routes:
+{{- range .Values.cloudflare.ingress }}
+  {{- if .hostname }}
+  - {{ .hostname }} -> {{ .service }}
+  {{- else }}
+  - Catch-all -> {{ .service }}
+  {{- end }}
+{{- end }}
+{{- end }}
+
+To check the status of your tunnel:
+
+  kubectl --namespace {{ .Release.Namespace }} get pods -l "app.kubernetes.io/name={{ include "cloudflare-tunnel.name" . }},app.kubernetes.io/instance={{ .Release.Name }}"
+
+To view tunnel logs:
+
+  kubectl --namespace {{ .Release.Namespace }} logs -l "app.kubernetes.io/name={{ include "cloudflare-tunnel.name" . }}" --tail=100 -f
+
+{{- if .Values.serviceMonitor.enabled }}
+
+Prometheus metrics are available at:
+  Service: {{ include "cloudflare-tunnel.fullname" . }}
+  Port: {{ .Values.metricsPort }}
+{{- end }}
+
+For more information:
+  - Chart: https://github.com/lexfrei/charts/tree/master/charts/cloudflare-tunnel
+  - Cloudflare Tunnel Docs: https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/

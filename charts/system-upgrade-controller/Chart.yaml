@@ -2,9 +2,9 @@ annotations:
   artifacthub.io/category: integration-delivery
   artifacthub.io/changes: |-
     - kind: added
-      description: Add kubeVersion constraint (>=1.16.0-0) to Chart.yaml
-    - kind: changed
-      description: Update Kubernetes version badge to reflect actual minimum version (1.16+)
+      description: Add NOTES.txt with example upgrade Plan and usage instructions
+    - kind: added
+      description: Add NetworkPolicy template for Kubernetes API access
   artifacthub.io/crds: |
     - kind: Plan
       version: v1
@@ -24,7 +24,7 @@ apiVersion: v2
 name: system-upgrade-controller
 description: Kubernetes-native upgrade controller for nodes using declarative Plans
 type: application
-version: "0.1.5"
+version: "0.2.0"
 # renovate: datasource=github-releases depName=rancher/system-upgrade-controller
 appVersion: "v0.17.0"
 icon: https://avatars.githubusercontent.com/u/9343010

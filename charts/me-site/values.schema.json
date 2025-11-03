@@ -224,6 +224,29 @@
       "required": [
         "enabled"
       ]
+    },
+    "podSecurityContext": {
+      "type": "object"
+    },
+    "securityContext": {
+      "type": "object"
+    },
+    "networkPolicy": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "ingress": {
+          "type": "array"
+        },
+        "egress": {
+          "type": "array"
+        }
+      },
+      "required": [
+        "enabled"
+      ]
     }
   },
   "required": [

@@ -2,9 +2,13 @@ annotations:
   artifacthub.io/category: storage
   artifacthub.io/changes: |-
     - kind: added
-      description: Add kubeVersion constraint (>=1.19.0-0) to Chart.yaml
-    - kind: changed
-      description: Update Kubernetes version badge to reflect actual minimum version (1.19+)
+      description: Add NOTES.txt with post-installation instructions
+    - kind: added
+      description: Add NetworkPolicy template for torrent traffic isolation
+    - kind: added
+      description: Add production example with NFS storage configuration
+    - kind: security
+      description: Add seccompProfile RuntimeDefault and container securityContext
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -18,7 +22,7 @@ apiVersion: v2
 name: transmission
 description: Transmission BitTorrent client Helm chart for Kubernetes
 type: application
-version: "0.1.7"
+version: "0.2.0"
 # renovate: datasource=docker depName=linuxserver/transmission
 appVersion: "4.0.6"
 icon: https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/transmission-icon.png

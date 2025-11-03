@@ -1,6 +1,6 @@
 # me-site
 
-![Version: 0.4.3](https://img.shields.io/badge/Version-0.4.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.0.0](https://img.shields.io/badge/AppVersion-1.0.0-informational?style=flat-square)
+![Version: 0.5.0](https://img.shields.io/badge/Version-0.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.0.0](https://img.shields.io/badge/AppVersion-1.0.0-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -29,12 +29,12 @@ This chart is published to GitHub Container Registry (GHCR) as an OCI artifact.
 # Install from GHCR
 helm install me-site \
   oci://ghcr.io/lexfrei/charts/me-site \
-  --version 0.4.3
+  --version 0.5.0
 
 # Install with custom values
 helm install me-site \
   oci://ghcr.io/lexfrei/charts/me-site \
-  --version 0.4.3 \
+  --version 0.5.0 \
   --values values.yaml
 ```
 
@@ -44,7 +44,7 @@ This chart is signed with [cosign](https://github.com/sigstore/cosign) using key
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/me-site:0.4.3 \
+  ghcr.io/lexfrei/charts/me-site:0.5.0 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -77,14 +77,24 @@ helm delete me-site
 | ingress.hosts[0].paths[0].path | string | `"/"` |  |
 | ingress.hosts[0].paths[0].pathType | string | `"ImplementationSpecific"` |  |
 | ingress.tls | list | `[]` |  |
+| networkPolicy.egress | list | `[]` |  |
+| networkPolicy.enabled | bool | `false` |  |
+| networkPolicy.ingress | list | `[]` |  |
 | onionService.backends | int | `1` |  |
 | onionService.enabled | bool | `true` |  |
 | onionService.privateKeySecretName | string | `"me-site-onion-secret"` |  |
+| podSecurityContext.runAsGroup | int | `65534` |  |
+| podSecurityContext.runAsNonRoot | bool | `true` |  |
+| podSecurityContext.runAsUser | int | `65534` |  |
+| podSecurityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
 | replicaCount | int | `1` |  |
 | resources.limits.cpu | string | `"100m"` |  |
 | resources.limits.memory | string | `"50Mi"` |  |
 | resources.requests.cpu | string | `"100m"` |  |
 | resources.requests.memory | string | `"20Mi"` |  |
+| securityContext.allowPrivilegeEscalation | bool | `false` |  |
+| securityContext.capabilities.drop[0] | string | `"ALL"` |  |
+| securityContext.readOnlyRootFilesystem | bool | `true` |  |
 | servicePort | int | `8080` |  |
 | vpa.enabled | bool | `true` |  |
 

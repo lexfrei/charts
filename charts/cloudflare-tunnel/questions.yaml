@@ -136,6 +136,71 @@ questions:
   show_if: "podDisruptionBudget.enabled=true"
   group: "High Availability"
 
+# Autoscaling
+- variable: autoscaling.enabled
+  label: Enable Horizontal Pod Autoscaler
+  description: Automatically scale replicas based on CPU/memory usage (only for deployment mode)
+  type: boolean
+  default: false
+  show_if: "deploymentMode=deployment"
+  group: "Autoscaling"
+- variable: autoscaling.minReplicas
+  label: Minimum Replicas
+  description: Minimum number of replicas for autoscaling
+  type: int
+  default: 2
+  min: 1
+  max: 100
+  show_if: "autoscaling.enabled=true"
+  group: "Autoscaling"
+- variable: autoscaling.maxReplicas
+  label: Maximum Replicas
+  description: Maximum number of replicas for autoscaling
+  type: int
+  default: 10
+  min: 1
+  max: 100
+  show_if: "autoscaling.enabled=true"
+  group: "Autoscaling"
+- variable: autoscaling.targetCPUUtilizationPercentage
+  label: Target CPU Utilization
+  description: Target CPU utilization percentage for autoscaling
+  type: int
+  default: 80
+  min: 1
+  max: 100
+  show_if: "autoscaling.enabled=true"
+  group: "Autoscaling"
+- variable: autoscaling.targetMemoryUtilizationPercentage
+  label: Target Memory Utilization
+  description: Target memory utilization percentage (optional)
+  type: int
+  default: null
+  min: 1
+  max: 100
+  show_if: "autoscaling.enabled=true"
+  group: "Autoscaling"
+
+# Network Policy
+- variable: networkPolicy.enabled
+  label: Enable Network Policy
+  description: Enable NetworkPolicy for network traffic isolation
+  type: boolean
+  default: false
+  group: "Network Policy"
+
+# Security
+- variable: podSecurityContext.seccompProfile.type
+  label: Seccomp Profile
+  description: Seccomp profile type for enhanced container security
+  type: enum
+  default: RuntimeDefault
+  options:
+    - RuntimeDefault
+    - Unconfined
+    - Localhost
+  group: "Security"
+
 # Resources
 - variable: resources.requests.cpu
   label: CPU Request

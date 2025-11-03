@@ -115,7 +115,9 @@ tolerations:
 affinity: {}
 
 # -- Security context for the pod
-podSecurityContext: {}
+podSecurityContext:
+  seccompProfile:
+    type: RuntimeDefault
 
 # -- Security context for the container
 securityContext:

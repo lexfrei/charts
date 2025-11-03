@@ -1,6 +1,6 @@
 # transmission
 
-![Version: 0.1.7](https://img.shields.io/badge/Version-0.1.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.0.6](https://img.shields.io/badge/AppVersion-4.0.6-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.0.6](https://img.shields.io/badge/AppVersion-4.0.6-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -38,12 +38,12 @@ This chart is published to GitHub Container Registry (GHCR) as an OCI artifact.
 # Install from GHCR
 helm install transmission \
   oci://ghcr.io/lexfrei/charts/transmission \
-  --version 0.1.7
+  --version 0.2.0
 
 # Install with custom values
 helm install transmission \
   oci://ghcr.io/lexfrei/charts/transmission \
-  --version 0.1.7 \
+  --version 0.2.0 \
   --values values.yaml
 ```
 
@@ -53,7 +53,7 @@ This chart is signed with [cosign](https://github.com/sigstore/cosign) using key
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/transmission:0.1.7 \
+  ghcr.io/lexfrei/charts/transmission:0.2.0 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -79,6 +79,10 @@ helm delete transmission
 | imagePullSecrets | list | `[]` |  |
 | ingress | object | `{"annotations":{"cert-manager.io/cluster-issuer":"cloudflare-issuer","traefik.ingress.kubernetes.io/router.entrypoints":"websecure"},"className":"","enabled":false,"hosts":[{"host":"transmission.example.com","paths":[{"path":"/","pathType":"Prefix"}]}],"tls":[{"hosts":["transmission.example.com"],"secretName":"transmission-tls"}]}` | Ingress configuration |
 | nameOverride | string | `""` |  |
+| networkPolicy | object | `{"egress":[],"enabled":false,"ingress":[]}` | Network Policy configuration |
+| networkPolicy.egress | list | `[]` | Additional egress rules |
+| networkPolicy.enabled | bool | `false` | Enable NetworkPolicy |
+| networkPolicy.ingress | list | `[]` | Additional ingress rules |
 | nodeSelector | object | `{}` |  |
 | persistence | object | `{"config":{"accessMode":"ReadWriteOnce","enabled":true,"existingClaim":"","size":"1Gi","storageClassName":""},"downloads":{"accessMode":"ReadWriteMany","enabled":true,"existingClaim":"","nfsPath":"/mnt/downloads","nfsServer":"nfs-server.example.com","size":"100Gi","storageClassName":"","type":"nfs"}}` | Persistence configuration |
 | persistence.config | object | `{"accessMode":"ReadWriteOnce","enabled":true,"existingClaim":"","size":"1Gi","storageClassName":""}` | Config volume configuration |
@@ -96,9 +100,9 @@ helm delete transmission
 | persistence.downloads.type | string | `"nfs"` | Type of storage (pvc or nfs) |
 | podAnnotations | object | `{}` | Pod annotations |
 | podLabels | object | `{}` | Pod labels |
-| podSecurityContext | object | `{"fsGroup":1000}` | Security context for the pod |
+| podSecurityContext | object | `{"fsGroup":1000,"seccompProfile":{"type":"RuntimeDefault"}}` | Security context for the pod |
 | resources | object | `{"limits":{"cpu":"400m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"256Mi"}}` | Resource limits and requests |
-| securityContext | object | `{}` | Security context for the container |
+| securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":false}` | Security context for the container |
 | service | object | `{"annotations":{"metallb.io/address-pool":"transmission-pool"},"httpPort":9091,"torrentTCPPort":51413,"torrentUDPPort":51413,"type":"LoadBalancer"}` | Service configuration |
 | service.annotations | object | `{"metallb.io/address-pool":"transmission-pool"}` | Service annotations |
 | service.httpPort | int | `9091` | HTTP port |

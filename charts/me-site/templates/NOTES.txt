@@ -1,0 +1,49 @@
+Thank you for installing {{ .Chart.Name }}!
+
+Your Me-Site application has been deployed.
+
+Release Name: {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+Replicas: {{ .Values.replicaCount }}
+
+To check the status of your deployment:
+
+  kubectl --namespace {{ .Release.Namespace }} get pods -l "app=me-site"
+
+{{- if .Values.ingress.enabled }}
+
+Ingress is enabled. Your application should be accessible at:
+{{- range .Values.ingress.hosts }}
+  {{- range .paths }}
+  - http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}{{ .path }}
+  {{- end }}
+{{- end }}
+{{- end }}
+
+{{- if .Values.httpRoute.enabled }}
+
+HTTPRoute (Gateway API) is enabled. Your application is accessible through:
+{{- range .Values.httpRoute.hostnames }}
+  - {{ . }}
+{{- end }}
+{{- end }}
+
+{{- if .Values.onionService.enabled }}
+
+Tor Onion Service is enabled with {{ .Values.onionService.backends }} backends.
+{{- if .Values.onionService.privateKeySecretName }}
+Using existing private key from secret: {{ .Values.onionService.privateKeySecretName }}
+{{- end }}
+{{- end }}
+
+{{- if .Values.vpa.enabled }}
+
+Vertical Pod Autoscaler is enabled.
+{{- end }}
+
+To view application logs:
+
+  kubectl --namespace {{ .Release.Namespace }} logs -l "app=me-site" --tail=100 -f
+
+For more information:
+  - Chart: https://github.com/lexfrei/charts/tree/master/charts/me-site
