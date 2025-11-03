@@ -24,6 +24,7 @@ jobs:
           - charts/me-site
           - charts/system-upgrade-controller
           - charts/transmission
+          - charts/vipalived
       fail-fast: false
     steps:
       - name: Checkout
