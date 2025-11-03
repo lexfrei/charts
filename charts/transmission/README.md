@@ -1,6 +1,6 @@
 # transmission
 
-![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.0.6](https://img.shields.io/badge/AppVersion-4.0.6-informational?style=flat-square)
+![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.0.6](https://img.shields.io/badge/AppVersion-4.0.6-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -38,12 +38,12 @@ This chart is published to GitHub Container Registry (GHCR) as an OCI artifact.
 # Install from GHCR
 helm install transmission \
   oci://ghcr.io/lexfrei/charts/transmission \
-  --version 0.2.0
+  --version 1.0.0
 
 # Install with custom values
 helm install transmission \
   oci://ghcr.io/lexfrei/charts/transmission \
-  --version 0.2.0 \
+  --version 1.0.0 \
   --values values.yaml
 ```
 
@@ -53,7 +53,7 @@ This chart is signed with [cosign](https://github.com/sigstore/cosign) using key
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/transmission:0.2.0 \
+  ghcr.io/lexfrei/charts/transmission:1.0.0 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -74,6 +74,10 @@ helm delete transmission
 | env.PUID | string | `"1000"` | User ID to run as |
 | env.TZ | string | `"Europe/Moscow"` | Timezone |
 | fullnameOverride | string | `""` |  |
+| httpRoute | object | `{"annotations":{},"enabled":false,"hostnames":["transmission.example.com"],"parentRefs":[{"name":"gateway","namespace":"gateway-system"}],"rules":[{"matches":[{"path":{"type":"PathPrefix","value":"/"}}]}]}` | HTTPRoute configuration (Gateway API) |
+| httpRoute.hostnames | list | `["transmission.example.com"]` | Hostnames for the route |
+| httpRoute.parentRefs | list | `[{"name":"gateway","namespace":"gateway-system"}]` | Parent Gateway references |
+| httpRoute.rules | list | `[{"matches":[{"path":{"type":"PathPrefix","value":"/"}}]}]` | Routing rules |
 | image | object | `{"pullPolicy":"IfNotPresent","repository":"linuxserver/transmission","tag":""}` | Image configuration |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion |
 | imagePullSecrets | list | `[]` |  |
@@ -103,12 +107,17 @@ helm delete transmission
 | podSecurityContext | object | `{"fsGroup":1000,"seccompProfile":{"type":"RuntimeDefault"}}` | Security context for the pod |
 | resources | object | `{"limits":{"cpu":"400m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"256Mi"}}` | Resource limits and requests |
 | securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":false}` | Security context for the container |
-| service | object | `{"annotations":{"metallb.io/address-pool":"transmission-pool"},"httpPort":9091,"torrentTCPPort":51413,"torrentUDPPort":51413,"type":"LoadBalancer"}` | Service configuration |
-| service.annotations | object | `{"metallb.io/address-pool":"transmission-pool"}` | Service annotations |
-| service.httpPort | int | `9091` | HTTP port |
-| service.torrentTCPPort | int | `51413` | Torrent TCP port |
-| service.torrentUDPPort | int | `51413` | Torrent UDP port |
-| service.type | string | `"LoadBalancer"` | Service type |
+| service | object | `{"torrent":{"annotations":{"metallb.io/address-pool":"transmission-pool"},"enabled":true,"tcpPort":51413,"type":"LoadBalancer","udpPort":51413},"web":{"annotations":{},"port":9091,"type":"ClusterIP"}}` | Service configuration |
+| service.torrent | object | `{"annotations":{"metallb.io/address-pool":"transmission-pool"},"enabled":true,"tcpPort":51413,"type":"LoadBalancer","udpPort":51413}` | Separate LoadBalancer service for torrent ports |
+| service.torrent.annotations | object | `{"metallb.io/address-pool":"transmission-pool"}` | Annotations for torrent service (e.g., Cilium LB-IPAM) |
+| service.torrent.enabled | bool | `true` | Enable separate torrent service |
+| service.torrent.tcpPort | int | `51413` | Torrent TCP port |
+| service.torrent.type | string | `"LoadBalancer"` | Service type for torrent traffic |
+| service.torrent.udpPort | int | `51413` | Torrent UDP port |
+| service.web | object | `{"annotations":{},"port":9091,"type":"ClusterIP"}` | Main service for Web UI (ClusterIP for HTTPRoute/Ingress) |
+| service.web.annotations | object | `{}` | Annotations for Web UI service |
+| service.web.port | int | `9091` | HTTP port |
+| service.web.type | string | `"ClusterIP"` | Service type for Web UI |
 | serviceAccount | object | `{"annotations":{},"create":true,"name":""}` | Service account configuration |
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account |
 | serviceAccount.create | bool | `true` | Specifies whether a service account should be created |

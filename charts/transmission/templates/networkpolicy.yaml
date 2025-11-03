@@ -18,15 +18,15 @@ spec:
         - namespaceSelector: {}
       ports:
         - protocol: TCP
-          port: {{ .Values.service.httpPort }}
+          port: {{ .Values.service.web.port }}
     # Allow torrent TCP connections
     - ports:
         - protocol: TCP
-          port: {{ .Values.service.torrentTCPPort }}
+          port: {{ .Values.service.torrent.tcpPort }}
     # Allow torrent UDP connections
     - ports:
         - protocol: UDP
-          port: {{ .Values.service.torrentUDPPort }}
+          port: {{ .Values.service.torrent.udpPort }}
     {{- with .Values.networkPolicy.ingress }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
