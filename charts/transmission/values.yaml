@@ -28,10 +28,14 @@ podSecurityContext:
 
 # -- Security context for the container
 securityContext:
-  allowPrivilegeEscalation: false
+  allowPrivilegeEscalation: false  # Prevent privilege escalation
   capabilities:
+    add:
+      - SETUID   # Required for UID changes
+      - SETGID   # Required for GID changes
+      - CHOWN    # Required for file ownership changes
     drop:
-      - ALL
+      - ALL      # Drop all other capabilities
   readOnlyRootFilesystem: false  # linuxserver image needs to write to /config
 
 # -- Service configuration
@@ -161,6 +165,19 @@ serviceAccount:
 # -- Update strategy
 updateStrategy:
   type: RollingUpdate
+
+# -- Init containers to run before the main container
+# @default -- []
+initContainers: []
+# Example:
+# - name: init-permissions
+#   image: busybox:latest
+#   command: ['sh', '-c', 'chown -R 1000:1000 /downloads']
+#   volumeMounts:
+#     - name: downloads
+#       mountPath: /downloads
+#   securityContext:
+#     runAsUser: 0
 
 # -- Network Policy configuration
 networkPolicy:

@@ -1,6 +1,6 @@
 # transmission
 
-![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.0.6](https://img.shields.io/badge/AppVersion-4.0.6-informational?style=flat-square)
+![Version: 1.1.0](https://img.shields.io/badge/Version-1.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.0.6](https://img.shields.io/badge/AppVersion-4.0.6-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -38,12 +38,12 @@ This chart is published to GitHub Container Registry (GHCR) as an OCI artifact.
 # Install from GHCR
 helm install transmission \
   oci://ghcr.io/lexfrei/charts/transmission \
-  --version 1.0.0
+  --version 1.1.0
 
 # Install with custom values
 helm install transmission \
   oci://ghcr.io/lexfrei/charts/transmission \
-  --version 1.0.0 \
+  --version 1.1.0 \
   --values values.yaml
 ```
 
@@ -53,7 +53,7 @@ This chart is signed with [cosign](https://github.com/sigstore/cosign) using key
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/transmission:1.0.0 \
+  ghcr.io/lexfrei/charts/transmission:1.1.0 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -82,6 +82,7 @@ helm delete transmission
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion |
 | imagePullSecrets | list | `[]` |  |
 | ingress | object | `{"annotations":{"cert-manager.io/cluster-issuer":"cloudflare-issuer","traefik.ingress.kubernetes.io/router.entrypoints":"websecure"},"className":"","enabled":false,"hosts":[{"host":"transmission.example.com","paths":[{"path":"/","pathType":"Prefix"}]}],"tls":[{"hosts":["transmission.example.com"],"secretName":"transmission-tls"}]}` | Ingress configuration |
+| initContainers | list | [] | Init containers to run before the main container |
 | nameOverride | string | `""` |  |
 | networkPolicy | object | `{"egress":[],"enabled":false,"ingress":[]}` | Network Policy configuration |
 | networkPolicy.egress | list | `[]` | Additional egress rules |
@@ -106,7 +107,7 @@ helm delete transmission
 | podLabels | object | `{}` | Pod labels |
 | podSecurityContext | object | `{"fsGroup":1000,"seccompProfile":{"type":"RuntimeDefault"}}` | Security context for the pod |
 | resources | object | `{"limits":{"cpu":"400m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"256Mi"}}` | Resource limits and requests |
-| securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":false}` | Security context for the container |
+| securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"add":["SETUID","SETGID","CHOWN"],"drop":["ALL"]},"readOnlyRootFilesystem":false}` | Security context for the container |
 | service | object | `{"torrent":{"annotations":{"metallb.io/address-pool":"transmission-pool"},"enabled":true,"tcpPort":51413,"type":"LoadBalancer","udpPort":51413},"web":{"annotations":{},"port":9091,"type":"ClusterIP"}}` | Service configuration |
 | service.torrent | object | `{"annotations":{"metallb.io/address-pool":"transmission-pool"},"enabled":true,"tcpPort":51413,"type":"LoadBalancer","udpPort":51413}` | Separate LoadBalancer service for torrent ports |
 | service.torrent.annotations | object | `{"metallb.io/address-pool":"transmission-pool"}` | Annotations for torrent service (e.g., Cilium LB-IPAM) |
