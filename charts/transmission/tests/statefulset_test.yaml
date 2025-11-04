@@ -77,3 +77,24 @@ tests:
       - equal:
           path: spec.template.spec.securityContext.seccompProfile.type
           value: RuntimeDefault
+
+  - it: should not have initContainers by default
+    asserts:
+      - isNull:
+          path: spec.template.spec.initContainers
+
+  - it: should render initContainers when specified
+    set:
+      initContainers:
+        - name: init-permissions
+          image: busybox:latest
+          command: ['sh', '-c', 'echo "Init container running"']
+    asserts:
+      - isNotNull:
+          path: spec.template.spec.initContainers
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: init-permissions
+      - equal:
+          path: spec.template.spec.initContainers[0].image
+          value: busybox:latest

@@ -411,6 +411,13 @@
         }
       }
     },
+    "initContainers": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Init containers to run before the main container"
+    },
     "podSecurityContext": {
       "type": "object",
       "description": "Security context for the pod"
