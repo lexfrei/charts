@@ -8,6 +8,7 @@ This document describes how to run tests for the Helm charts in this repository.
 - [helm-unittest plugin](https://github.com/helm-unittest/helm-unittest)
 - [Python 3.12+](https://www.python.org/downloads/) (for schema validation)
 - [check-jsonschema](https://pypi.org/project/check-jsonschema/) (for schema validation)
+- [ah CLI](https://artifacthub.io/packages/search?ts_query_web=ah&sort=relevance&page=1) (for ArtifactHub metadata validation)
 
 ## Quick Start
 
@@ -18,6 +19,7 @@ pip install check-jsonschema
 
 # Run all checks for cloudflare-tunnel
 helm lint charts/cloudflare-tunnel
+ah lint --kind helm --path charts/cloudflare-tunnel
 check-jsonschema --schemafile charts/cloudflare-tunnel/values.schema.json charts/cloudflare-tunnel/values.yaml
 helm unittest charts/cloudflare-tunnel --color
 ```
@@ -56,6 +58,13 @@ check-jsonschema --schemafile charts/cloudflare-tunnel/values.schema.json charts
 ```bash
 # Lint the chart
 helm lint charts/cloudflare-tunnel
+```
+
+### Run ArtifactHub lint
+
+```bash
+# Validate ArtifactHub metadata
+ah lint --kind helm --path charts/cloudflare-tunnel
 ```
 
 ### Template validation (dry-run)
