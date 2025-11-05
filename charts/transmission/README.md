@@ -97,7 +97,7 @@ helm delete transmission
 | persistence.config.storageClassName | string | `""` | Storage class name |
 | persistence.downloads | object | `{"accessMode":"ReadWriteMany","enabled":true,"existingClaim":"","nfsPath":"/mnt/downloads","nfsServer":"nfs-server.example.com","size":"100Gi","storageClassName":"","type":"nfs"}` | Downloads volume configuration |
 | persistence.downloads.accessMode | string | `"ReadWriteMany"` | Access mode (when type is pvc) |
-| persistence.downloads.existingClaim | string | `""` | Existing claim (when type is pvc) |
+| persistence.downloads.existingClaim | string | `""` | Existing PVC claim name. If set, takes priority over type and other settings. Useful for sharing storage between multiple apps (e.g., with Jellyfin). |
 | persistence.downloads.nfsPath | string | `"/mnt/downloads"` | NFS path (when type is nfs) |
 | persistence.downloads.nfsServer | string | `"nfs-server.example.com"` | NFS server (when type is nfs) |
 | persistence.downloads.size | string | `"100Gi"` | Size (when type is pvc) |
