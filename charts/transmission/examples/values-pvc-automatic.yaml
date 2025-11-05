@@ -1,0 +1,41 @@
+# Example: Using PVC with automatic creation
+# Chart will create a new PVC for downloads volume
+
+image:
+  repository: linuxserver/transmission
+  tag: 4.0.6
+  pullPolicy: IfNotPresent
+
+service:
+  type: LoadBalancer
+  annotations:
+    metallb.io/address-pool: transmission-pool
+  web:
+    port: 9091
+  torrent:
+    tcpPort: 51413
+    udpPort: 51413
+
+persistence:
+  config:
+    enabled: true
+    storageClassName: "local-path"
+    size: 1Gi
+
+  downloads:
+    enabled: true
+    # Using PVC with automatic creation
+    type: pvc
+    storageClassName: "longhorn"
+    accessMode: ReadWriteMany
+    size: 500Gi
+    # existingClaim must be empty to create a new PVC
+    existingClaim: ""
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "200m"
+  limits:
+    memory: "1Gi"
+    cpu: "1000m"

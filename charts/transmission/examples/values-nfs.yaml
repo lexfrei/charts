@@ -1,0 +1,40 @@
+# Example: Using NFS storage for downloads
+# This is the default configuration approach, suitable when you have an NFS server
+
+image:
+  repository: linuxserver/transmission
+  tag: 4.0.6
+  pullPolicy: IfNotPresent
+
+service:
+  type: LoadBalancer
+  annotations:
+    metallb.io/address-pool: transmission-pool
+  web:
+    port: 9091
+  torrent:
+    tcpPort: 51413
+    udpPort: 51413
+
+persistence:
+  config:
+    enabled: true
+    storageClassName: "local-path"
+    size: 1Gi
+
+  downloads:
+    enabled: true
+    # Using NFS for downloads storage
+    type: nfs
+    nfsServer: nfs-server.example.com
+    nfsPath: /mnt/media/downloads
+    # existingClaim must be empty when using NFS
+    existingClaim: ""
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "200m"
+  limits:
+    memory: "1Gi"
+    cpu: "1000m"

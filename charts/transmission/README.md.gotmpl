@@ -60,7 +60,11 @@ helm delete transmission
 
 ## Example Configurations
 
-### Using NFS for downloads
+📁 **Full examples available in [`examples/`](examples/) directory** with detailed documentation.
+
+### Quick Start Examples
+
+#### Using NFS for downloads
 
 ```yaml
 persistence:
@@ -70,7 +74,7 @@ persistence:
     nfsPath: /mnt/downloads
 ```
 
-### Using PVC for downloads
+#### Using PVC for downloads (automatic creation)
 
 ```yaml
 persistence:
@@ -79,5 +83,29 @@ persistence:
     storageClassName: your-storage-class
     size: 500Gi
 ```
+
+#### Using existing PVC for shared storage ⭐
+
+Share storage with other media apps (Jellyfin, Plex, Sonarr, Radarr):
+
+```yaml
+persistence:
+  downloads:
+    type: pvc  # MUST be "pvc" when using existingClaim
+    existingClaim: "shared-media-storage"
+```
+
+**Important**: `existingClaim` requires `type: pvc`. The chart will fail validation if you try to use it with `type: nfs`.
+
+### Available Examples
+
+| File | Description | Use Case |
+|------|-------------|----------|
+| [values-nfs.yaml](examples/values-nfs.yaml) | NFS storage | Direct NFS mount |
+| [values-pvc-automatic.yaml](examples/values-pvc-automatic.yaml) | Automatic PVC | Let chart create PVC |
+| [values-shared-storage.yaml](examples/values-shared-storage.yaml) | Existing PVC | Share with other apps ⭐ |
+| [values-production.yaml](examples/values-production.yaml) | Production setup | Full production config 🚀 |
+
+See [examples/README.md](examples/README.md) for detailed documentation and usage instructions.
 
 {{ template "helm-docs.versionFooter" . }}
