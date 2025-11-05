@@ -1,0 +1,69 @@
+# Example: Using existing PVC for shared storage
+# This is the main use case: sharing storage between Transmission and other apps
+# like Jellyfin, Plex, Sonarr, Radarr, etc.
+#
+# Prerequisites:
+# 1. Create a PVC or PV+PVC first:
+#    kubectl apply -f shared-media-pvc.yaml
+# 2. Make sure the PVC has ReadWriteMany access mode if sharing with other apps
+#
+# Benefits:
+# - Single source of truth for downloaded media
+# - No data duplication
+# - Immediate availability in media servers
+# - Can use custom NFS mountOptions at PV level (rsize, wsize, hard, etc.)
+
+image:
+  repository: linuxserver/transmission
+  tag: 4.0.6
+  pullPolicy: IfNotPresent
+
+service:
+  type: LoadBalancer
+  annotations:
+    metallb.io/address-pool: transmission-pool
+  web:
+    port: 9091
+  torrent:
+    tcpPort: 51413
+    udpPort: 51413
+
+persistence:
+  config:
+    enabled: true
+    storageClassName: "local-path"
+    size: 1Gi
+
+  downloads:
+    enabled: true
+    # IMPORTANT: type MUST be "pvc" when using existingClaim
+    type: pvc
+    # Reference to existing PVC that is shared with other apps
+    existingClaim: "shared-media-storage"
+    # These fields are ignored when existingClaim is set:
+    storageClassName: ""
+    accessMode: ReadWriteMany
+    size: 100Gi
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "200m"
+  limits:
+    memory: "1Gi"
+    cpu: "1000m"
+
+# Example of the PVC that should be created separately:
+# ---
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   name: shared-media-storage
+#   namespace: media
+# spec:
+#   accessModes:
+#     - ReadWriteMany
+#   storageClassName: nfs-client
+#   resources:
+#     requests:
+#       storage: 2Ti

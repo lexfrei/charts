@@ -127,6 +127,7 @@ persistence:
   downloads:
     enabled: true
     # -- Type of storage (pvc or nfs)
+    # When using existingClaim, type MUST be set to "pvc"
     type: nfs
     # -- NFS server (when type is nfs)
     nfsServer: nfs-server.example.com
@@ -138,7 +139,9 @@ persistence:
     accessMode: ReadWriteMany
     # -- Size (when type is pvc)
     size: 100Gi
-    # -- Existing claim (when type is pvc)
+    # -- Existing PVC claim name. When specified, type MUST be "pvc".
+    # Useful for sharing storage between multiple apps (e.g., with Jellyfin).
+    # Example: set type to "pvc" and existingClaim to "shared-media-storage"
     existingClaim: ""
 
 nodeSelector: {}

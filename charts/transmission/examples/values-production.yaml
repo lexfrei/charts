@@ -1,0 +1,141 @@
+# Example: Production-ready configuration with shared storage
+# This example includes:
+# - Shared storage with other media apps (Jellyfin, Sonarr, Radarr)
+# - Ingress with TLS
+# - Network policies for security
+# - Resource limits
+# - Init containers for permissions
+
+image:
+  repository: linuxserver/transmission
+  tag: 4.0.6
+  pullPolicy: IfNotPresent
+
+service:
+  type: LoadBalancer
+  annotations:
+    metallb.io/address-pool: media-pool
+    metallb.io/loadBalancerIPs: 192.168.1.240
+  web:
+    port: 9091
+  torrent:
+    tcpPort: 51413
+    udpPort: 51413
+
+ingress:
+  enabled: true
+  className: "traefik"
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+    traefik.ingress.kubernetes.io/router.middlewares: "default-basic-auth@kubernetescrd"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: transmission.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: transmission-tls
+      hosts:
+        - transmission.example.com
+
+persistence:
+  config:
+    enabled: true
+    storageClassName: "longhorn"
+    accessMode: ReadWriteOnce
+    size: 5Gi
+
+  downloads:
+    enabled: true
+    # Using existing PVC shared with Jellyfin, Sonarr, Radarr
+    type: pvc
+    existingClaim: "media-storage-pvc"
+
+# Init container to fix permissions
+initContainers:
+  - name: fix-permissions
+    image: busybox:1.36
+    command: ['sh', '-c']
+    args:
+      - |
+        chown -R 1000:1000 /downloads || true
+        chmod -R 755 /downloads || true
+    volumeMounts:
+      - name: downloads
+        mountPath: /downloads
+    securityContext:
+      runAsUser: 0
+
+resources:
+  requests:
+    memory: "1Gi"
+    cpu: "500m"
+  limits:
+    memory: "2Gi"
+    cpu: "2000m"
+
+podSecurityContext:
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+
+networkPolicy:
+  enabled: true
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress
+      ports:
+        - protocol: TCP
+          port: 9091
+    # Allow torrent traffic from anywhere
+    - from: []
+      ports:
+        - protocol: TCP
+          port: 51413
+        - protocol: UDP
+          port: 51413
+  egress:
+    # DNS
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+    # HTTPS for trackers
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 443
+    # Torrent peers
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 51413
+        - protocol: UDP
+          port: 51413
+
+nodeSelector:
+  kubernetes.io/arch: amd64
+
+tolerations: []
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - transmission
+          topologyKey: kubernetes.io/hostname

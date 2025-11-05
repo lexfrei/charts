@@ -1,10 +1,8 @@
 annotations:
   artifacthub.io/category: storage
   artifacthub.io/changes: |-
-    - kind: added
-      description: Add support for initContainers in StatefulSet
-    - kind: security
-      description: Add SETUID, SETGID, and CHOWN capabilities to securityContext for proper file ownership management
+    - kind: changed
+      description: "existingClaim now takes priority over type for downloads volume, allowing shared storage with other apps"
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
