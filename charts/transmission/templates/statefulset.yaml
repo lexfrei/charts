@@ -71,7 +71,10 @@ spec:
             claimName: {{ include "transmission.fullname" . }}-config
           {{- end }}
         - name: downloads
-          {{- if .Values.persistence.downloads.existingClaim }}
+          {{- if and .Values.persistence.downloads.existingClaim (ne .Values.persistence.downloads.existingClaim "") }}
+          {{- if ne .Values.persistence.downloads.type "pvc" }}
+          {{- fail "persistence.downloads: existingClaim can only be used with type 'pvc'. Set type to 'pvc' or remove existingClaim." }}
+          {{- end }}
           persistentVolumeClaim:
             claimName: {{ .Values.persistence.downloads.existingClaim }}
           {{- else if eq .Values.persistence.downloads.type "nfs" }}

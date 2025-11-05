@@ -97,12 +97,12 @@ helm delete transmission
 | persistence.config.storageClassName | string | `""` | Storage class name |
 | persistence.downloads | object | `{"accessMode":"ReadWriteMany","enabled":true,"existingClaim":"","nfsPath":"/mnt/downloads","nfsServer":"nfs-server.example.com","size":"100Gi","storageClassName":"","type":"nfs"}` | Downloads volume configuration |
 | persistence.downloads.accessMode | string | `"ReadWriteMany"` | Access mode (when type is pvc) |
-| persistence.downloads.existingClaim | string | `""` | Existing PVC claim name. If set, takes priority over type and other settings. Useful for sharing storage between multiple apps (e.g., with Jellyfin). |
+| persistence.downloads.existingClaim | string | `""` | Existing PVC claim name. When specified, type MUST be "pvc". Useful for sharing storage between multiple apps (e.g., with Jellyfin). Example: set type to "pvc" and existingClaim to "shared-media-storage" |
 | persistence.downloads.nfsPath | string | `"/mnt/downloads"` | NFS path (when type is nfs) |
 | persistence.downloads.nfsServer | string | `"nfs-server.example.com"` | NFS server (when type is nfs) |
 | persistence.downloads.size | string | `"100Gi"` | Size (when type is pvc) |
 | persistence.downloads.storageClassName | string | `""` | Storage class (when type is pvc) |
-| persistence.downloads.type | string | `"nfs"` | Type of storage (pvc or nfs) |
+| persistence.downloads.type | string | `"nfs"` | Type of storage (pvc or nfs) When using existingClaim, type MUST be set to "pvc" |
 | podAnnotations | object | `{}` | Pod annotations |
 | podLabels | object | `{}` | Pod labels |
 | podSecurityContext | object | `{"fsGroup":1000,"seccompProfile":{"type":"RuntimeDefault"}}` | Security context for the pod |

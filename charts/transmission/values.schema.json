@@ -326,7 +326,7 @@
             "type": {
               "type": "string",
               "enum": ["pvc", "nfs"],
-              "description": "Type of storage"
+              "description": "Type of storage. When using existingClaim, type MUST be set to 'pvc'"
             },
             "nfsServer": {
               "type": "string",
@@ -352,10 +352,26 @@
             },
             "existingClaim": {
               "type": "string",
-              "description": "Existing claim (when type is pvc)"
+              "description": "Existing PVC claim name. When specified, type MUST be 'pvc'. Useful for sharing storage between multiple apps (e.g., with Jellyfin)."
             }
           },
-          "required": ["enabled", "type"]
+          "required": ["enabled", "type"],
+          "if": {
+            "properties": {
+              "existingClaim": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": ["existingClaim"]
+          },
+          "then": {
+            "properties": {
+              "type": {
+                "const": "pvc"
+              }
+            }
+          }
         }
       },
       "required": ["config", "downloads"]

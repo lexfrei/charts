@@ -98,3 +98,69 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[0].image
           value: busybox:latest
+
+  # Downloads volume tests
+  - it: should use NFS volume when type is nfs
+    set:
+      persistence.downloads.type: nfs
+      persistence.downloads.nfsServer: my-nfs-server.local
+      persistence.downloads.nfsPath: /exports/downloads
+      persistence.downloads.existingClaim: ""
+    asserts:
+      - equal:
+          path: spec.template.spec.volumes[1].nfs.server
+          value: my-nfs-server.local
+      - equal:
+          path: spec.template.spec.volumes[1].nfs.path
+          value: /exports/downloads
+      - isNull:
+          path: spec.template.spec.volumes[1].persistentVolumeClaim
+
+  - it: should use default PVC when type is pvc without existingClaim
+    set:
+      persistence.downloads.type: pvc
+      persistence.downloads.existingClaim: ""
+    asserts:
+      - equal:
+          path: spec.template.spec.volumes[1].persistentVolumeClaim.claimName
+          value: RELEASE-NAME-transmission-downloads
+      - isNull:
+          path: spec.template.spec.volumes[1].nfs
+
+  - it: should use existingClaim when type is pvc and existingClaim is set
+    set:
+      persistence.downloads.type: pvc
+      persistence.downloads.existingClaim: my-existing-pvc
+    asserts:
+      - equal:
+          path: spec.template.spec.volumes[1].persistentVolumeClaim.claimName
+          value: my-existing-pvc
+      - isNull:
+          path: spec.template.spec.volumes[1].nfs
+
+  # Note: The combination of existingClaim with type: nfs is blocked at the schema level
+  # (values.schema.json if/then validation), so no template-level test is needed
+
+  - it: should ignore empty existingClaim with type nfs
+    set:
+      persistence.downloads.type: nfs
+      persistence.downloads.nfsServer: nfs-server.example.com
+      persistence.downloads.nfsPath: /mnt/downloads
+      persistence.downloads.existingClaim: ""
+    asserts:
+      - equal:
+          path: spec.template.spec.volumes[1].nfs.server
+          value: nfs-server.example.com
+      - isNull:
+          path: spec.template.spec.volumes[1].persistentVolumeClaim
+
+  - it: should ignore empty existingClaim with type pvc
+    set:
+      persistence.downloads.type: pvc
+      persistence.downloads.existingClaim: ""
+    asserts:
+      - equal:
+          path: spec.template.spec.volumes[1].persistentVolumeClaim.claimName
+          value: RELEASE-NAME-transmission-downloads
+      - isNull:
+          path: spec.template.spec.volumes[1].nfs
