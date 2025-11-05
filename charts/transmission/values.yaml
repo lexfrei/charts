@@ -138,7 +138,8 @@ persistence:
     accessMode: ReadWriteMany
     # -- Size (when type is pvc)
     size: 100Gi
-    # -- Existing claim (when type is pvc)
+    # -- Existing PVC claim name. If set, takes priority over type and other settings.
+    # Useful for sharing storage between multiple apps (e.g., with Jellyfin).
     existingClaim: ""
 
 nodeSelector: {}
