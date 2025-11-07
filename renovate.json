@@ -47,8 +47,8 @@
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": [
-        "/(^|/)Chart\\.yaml$/"
+      "fileMatch": [
+        "(^|/)Chart\\.yaml$"
       ],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\\n.*?appVersion: \"(?<currentValue>.*?)\""
@@ -59,11 +59,11 @@
     {
       "customType": "regex",
       "description": "Update container image versions in Helm unit tests",
-      "managerFilePatterns": [
-        "/^charts/.+/tests/.+\\.yaml$/"
+      "fileMatch": [
+        "^charts/.+/tests/.+\\.yaml$"
       ],
       "matchStrings": [
-        "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\\s+value: [\"'](?:[^:]+):(?<currentValue>[^\"']+)[\"']"
+        "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\\n.*?value: [\"'](?:[^:]+):(?<currentValue>[^\"']+)[\"']"
       ],
       "datasourceTemplate": "{{datasource}}",
       "depNameTemplate": "{{depName}}"
