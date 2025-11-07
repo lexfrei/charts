@@ -60,7 +60,7 @@
       "customType": "regex",
       "description": "Update container image versions in Helm unit tests",
       "managerFilePatterns": [
-        "/^charts\\/.+\\/tests\\/.+\\.yaml$/"
+        "/^charts/.+/tests/.+\\.yaml$/"
       ],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\\s+value: [\"'](?:[^:]+):(?<currentValue>[^\"']+)[\"']"
