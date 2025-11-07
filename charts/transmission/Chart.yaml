@@ -2,7 +2,7 @@ annotations:
   artifacthub.io/category: storage
   artifacthub.io/changes: |-
     - kind: changed
-      description: "existingClaim now takes priority over type for downloads volume, allowing shared storage with other apps"
+      description: Update dependency linuxserver/transmission to v2021
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
