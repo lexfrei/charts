@@ -18,10 +18,10 @@ apiVersion: v2
 name: cloudflare-tunnel
 description: Creation of a cloudflared deployment - a reverse tunnel for an environment
 type: application
-version: "0.13.0"
+version: "0.14.0"
 kubeVersion: ">=1.21.0-0"
 # renovate: datasource=docker depName=cloudflare/cloudflared
-appVersion: "2025.10.1"
+appVersion: "2025.11.1"
 icon: https://avatars.githubusercontent.com/u/314135
 home: https://github.com/lexfrei/charts/
 keywords:
