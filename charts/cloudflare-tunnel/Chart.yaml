@@ -3,16 +3,8 @@ annotations:
   # Valid kinds for changes: added, changed, deprecated, removed, fixed, security
   # See: https://artifacthub.io/docs/topics/annotations/helm/
   artifacthub.io/changes: |-
-    - kind: added
-      description: Add NOTES.txt with post-installation instructions
-    - kind: added
-      description: Add NetworkPolicy template with configurable ingress/egress rules
-    - kind: added
-      description: Add HPA (Horizontal Pod Autoscaler) support with custom metrics
-    - kind: added
-      description: Add production and development example configurations
-    - kind: security
-      description: Add seccompProfile RuntimeDefault to pod security context
+    - kind: changed
+      description: Update dependency cloudflare/cloudflared to v2025.11.0
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
