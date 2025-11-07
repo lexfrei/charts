@@ -20,7 +20,7 @@ description: Creation of a cloudflared deployment - a reverse tunnel for an envi
 type: application
 version: "0.14.0"
 kubeVersion: ">=1.21.0-0"
-# renovate: datasource=github-releases depName=cloudflare/cloudflared
+# renovate: datasource=docker depName=cloudflare/cloudflared
 appVersion: "2025.11.0"
 icon: https://avatars.githubusercontent.com/u/314135
 home: https://github.com/lexfrei/charts/
