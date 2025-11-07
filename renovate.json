@@ -10,6 +10,15 @@
   "ignoreTests": false,
   "packageRules": [
     {
+      "description": "Group same dependencies across Chart.yaml and tests",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "groupName": "{{depName}}",
+      "groupSlug": "{{depName}}",
+      "commitMessageTopic": "dependency {{depName}}"
+    },
+    {
       "description": "Auto-bump chart version when appVersion changes",
       "matchManagers": [
         "custom.regex"

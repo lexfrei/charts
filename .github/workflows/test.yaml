@@ -69,6 +69,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
         with:
+          ref: ${{ github.event_name == 'repository_dispatch' && github.event.client_payload.sha || '' }}
           fetch-depth: 0
 
       - name: Set up Helm
