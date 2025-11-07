@@ -13,10 +13,49 @@ on:
         description: 'JSON array of chart paths to test (optional)'
         required: false
         type: string
+  repository_dispatch:
+    types:
+      - test-charts
 
 jobs:
+  create-pending-statuses:
+    # Only run for repository_dispatch events to create commit statuses
+    if: github.event_name == 'repository_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      statuses: write
+    strategy:
+      matrix:
+        chart:
+          - charts/cloudflare-tunnel
+          - charts/me-site
+          - charts/system-upgrade-controller
+          - charts/transmission
+          - charts/vipalived
+    steps:
+      - name: Create pending status
+        run: |
+          CONTEXT="lint-test (${{ matrix.chart }})"
+          SHA="${{ github.event.client_payload.sha }}"
+
+          echo "Creating pending status for $CONTEXT on commit $SHA"
+
+          gh api repos/${{ github.repository }}/statuses/$SHA \
+            --method POST \
+            --field state=pending \
+            --field context="$CONTEXT" \
+            --field description="Running tests..." \
+            --field target_url="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   lint-test:
     runs-on: ubuntu-latest
+    needs: [create-pending-statuses]
+    if: always() && (needs.create-pending-statuses.result == 'success' || needs.create-pending-statuses.result == 'skipped')
+    permissions:
+      contents: read
+      statuses: write
     strategy:
       matrix:
         chart:
@@ -144,3 +183,37 @@ jobs:
           else
             echo "ℹ️  No README.md found, skipping"
           fi
+
+      - name: Update commit status on success
+        if: success() && github.event_name == 'repository_dispatch'
+        run: |
+          CONTEXT="lint-test (${{ matrix.chart }})"
+          SHA="${{ github.event.client_payload.sha }}"
+
+          echo "✅ Updating status for $CONTEXT on commit $SHA to success"
+
+          gh api repos/${{ github.repository }}/statuses/$SHA \
+            --method POST \
+            --field state=success \
+            --field context="$CONTEXT" \
+            --field description="All checks passed" \
+            --field target_url="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update commit status on failure
+        if: failure() && github.event_name == 'repository_dispatch'
+        run: |
+          CONTEXT="lint-test (${{ matrix.chart }})"
+          SHA="${{ github.event.client_payload.sha }}"
+
+          echo "❌ Updating status for $CONTEXT on commit $SHA to failure"
+
+          gh api repos/${{ github.repository }}/statuses/$SHA \
+            --method POST \
+            --field state=failure \
+            --field context="$CONTEXT" \
+            --field description="Some checks failed" \
+            --field target_url="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
