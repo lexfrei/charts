@@ -63,7 +63,7 @@
         "charts/.+/tests/.+\\.yaml$"
       ],
       "matchStrings": [
-        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n +value: [\"'](?:[^:]+):(?<currentValue>[^\"']+)[\"']"
+        "\\s*# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n\\s*value: [\"'](?:[^:]+):(?<currentValue>[^\"']+)[\"']"
       ],
       "datasourceTemplate": "{{datasource}}",
       "depNameTemplate": "{{depName}}"
