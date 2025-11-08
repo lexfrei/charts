@@ -7,6 +7,8 @@ annotations:
       description: "Add schema validation for annotations (must be string values)"
     - kind: added
       description: "Add unit test for default annotations"
+    - kind: changed
+      description: "Improve test reliability by using regex pattern instead of hardcoded version"
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
