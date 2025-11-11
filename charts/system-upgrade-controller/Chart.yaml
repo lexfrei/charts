@@ -1,10 +1,8 @@
 annotations:
   artifacthub.io/category: integration-delivery
   artifacthub.io/changes: |-
-    - kind: added
-      description: Add NOTES.txt with example upgrade Plan and usage instructions
-    - kind: added
-      description: Add NetworkPolicy template for Kubernetes API access
+    - kind: changed
+      description: Update dependency rancher/system-upgrade-controller to v0.18.0
   artifacthub.io/crds: |
     - kind: Plan
       version: v1
