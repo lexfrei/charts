@@ -26,7 +26,7 @@ description: Kubernetes-native upgrade controller for nodes using declarative Pl
 type: application
 version: "0.2.0"
 # renovate: datasource=github-releases depName=rancher/system-upgrade-controller
-appVersion: "v0.17.0"
+appVersion: "v0.18.0"
 icon: https://avatars.githubusercontent.com/u/9343010
 home: https://github.com/lexfrei/charts/
 keywords:
