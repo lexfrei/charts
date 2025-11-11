@@ -1,10 +1,8 @@
 annotations:
   artifacthub.io/category: integration-delivery
   artifacthub.io/changes: |-
-    - kind: added
-      description: Add NOTES.txt with example upgrade Plan and usage instructions
-    - kind: added
-      description: Add NetworkPolicy template for Kubernetes API access
+    - kind: changed
+      description: Update dependency rancher/system-upgrade-controller to v0.18.0
   artifacthub.io/crds: |
     - kind: Plan
       version: v1
@@ -26,7 +24,7 @@ description: Kubernetes-native upgrade controller for nodes using declarative Pl
 type: application
 version: "0.2.0"
 # renovate: datasource=github-releases depName=rancher/system-upgrade-controller
-appVersion: "v0.17.0"
+appVersion: "v0.18.0"
 icon: https://avatars.githubusercontent.com/u/9343010
 home: https://github.com/lexfrei/charts/
 keywords:
