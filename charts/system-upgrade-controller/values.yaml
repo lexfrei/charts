@@ -47,7 +47,7 @@ job:
   # -- Image pull policy for upgrade jobs
   imagePullPolicy: Always
   # -- kubectl image for upgrade jobs
-  kubectlImage: rancher/kubectl:v1.34.1
+  kubectlImage: rancher/kubectl:v1.34.2
   # -- Run upgrade jobs as privileged
   privileged: true
   # -- TTL seconds after job finish

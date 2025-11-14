@@ -100,11 +100,11 @@ helm delete system-upgrade-controller
 | image | object | `{"pullPolicy":"IfNotPresent","repository":"rancher/system-upgrade-controller","tag":""}` | Image configuration |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion |
 | imagePullSecrets | list | `[]` |  |
-| job | object | `{"activeDeadlineSeconds":900,"backoffLimit":99,"imagePullPolicy":"Always","kubectlImage":"rancher/kubectl:v1.34.1","privileged":true,"ttlSecondsAfterFinish":900}` | Job configuration for upgrade plans |
+| job | object | `{"activeDeadlineSeconds":900,"backoffLimit":99,"imagePullPolicy":"Always","kubectlImage":"rancher/kubectl:v1.34.2","privileged":true,"ttlSecondsAfterFinish":900}` | Job configuration for upgrade plans |
 | job.activeDeadlineSeconds | int | `900` | Active deadline seconds for jobs |
 | job.backoffLimit | int | `99` | Backoff limit for job failures |
 | job.imagePullPolicy | string | `"Always"` | Image pull policy for upgrade jobs |
-| job.kubectlImage | string | `"rancher/kubectl:v1.34.1"` | kubectl image for upgrade jobs |
+| job.kubectlImage | string | `"rancher/kubectl:v1.34.2"` | kubectl image for upgrade jobs |
 | job.privileged | bool | `true` | Run upgrade jobs as privileged |
 | job.ttlSecondsAfterFinish | int | `900` | TTL seconds after job finish |
 | nameOverride | string | `""` |  |
