@@ -2,7 +2,7 @@ annotations:
   artifacthub.io/category: integration-delivery
   artifacthub.io/changes: |-
     - kind: changed
-      description: Update dependency rancher/system-upgrade-controller to v0.18.0
+      description: Update rancher/kubectl docker tag to v1.34.2
   artifacthub.io/crds: |
     - kind: Plan
       version: v1
