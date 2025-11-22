@@ -4,7 +4,7 @@ annotations:
   # See: https://artifacthub.io/docs/topics/annotations/helm/
   artifacthub.io/changes: |-
     - kind: changed
-      description: Update cloudflare/cloudflared docker tag to v2025.11.1
+      description: Update dependency cloudflare/cloudflared to v2025.11.1 - abandoned
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -18,7 +18,7 @@ apiVersion: v2
 name: cloudflare-tunnel
 description: Creation of a cloudflared deployment - a reverse tunnel for an environment
 type: application
-version: "0.13.1"
+version: "0.14.0"
 kubeVersion: ">=1.21.0-0"
 # renovate: datasource=docker depName=cloudflare/cloudflared
 appVersion: "2025.11.1"
