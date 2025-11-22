@@ -1,12 +1,14 @@
 annotations:
   artifacthub.io/category: storage
   artifacthub.io/changes: |-
-    - kind: changed
-      description: "Remove all environment-specific default annotations (ingress, service)"
     - kind: added
-      description: "Add schema validation for annotations (must be string values)"
+      description: "Add extraVolumes and extraVolumeMounts for flexible volume configuration"
     - kind: added
-      description: "Add unit tests for annotations"
+      description: "Add extraPersistentVolumes for static PV provisioning"
+    - kind: added
+      description: "Add extraPersistentVolumeClaims for additional PVC creation"
+    - kind: added
+      description: "Add example for separate incomplete downloads directory"
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -20,7 +22,7 @@ apiVersion: v2
 name: transmission
 description: Transmission BitTorrent client Helm chart for Kubernetes
 type: application
-version: "1.2.1"
+version: "1.3.0"
 # renovate: datasource=docker depName=linuxserver/transmission
 appVersion: "4.0.6"
 icon: https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/transmission-icon.png

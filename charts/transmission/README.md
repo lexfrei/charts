@@ -1,6 +1,6 @@
 # transmission
 
-![Version: 1.2.1](https://img.shields.io/badge/Version-1.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.0.6](https://img.shields.io/badge/AppVersion-4.0.6-informational?style=flat-square)
+![Version: 1.3.0](https://img.shields.io/badge/Version-1.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.0.6](https://img.shields.io/badge/AppVersion-4.0.6-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -38,12 +38,12 @@ This chart is published to GitHub Container Registry (GHCR) as an OCI artifact.
 # Install from GHCR
 helm install transmission \
   oci://ghcr.io/lexfrei/charts/transmission \
-  --version 1.2.1
+  --version 1.3.0
 
 # Install with custom values
 helm install transmission \
   oci://ghcr.io/lexfrei/charts/transmission \
-  --version 1.2.1 \
+  --version 1.3.0 \
   --values values.yaml
 ```
 
@@ -53,7 +53,7 @@ This chart is signed with [cosign](https://github.com/sigstore/cosign) using key
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/transmission:1.2.1 \
+  ghcr.io/lexfrei/charts/transmission:1.3.0 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -73,6 +73,10 @@ helm delete transmission
 | env.PGID | string | `"1000"` | Group ID to run as |
 | env.PUID | string | `"1000"` | User ID to run as |
 | env.TZ | string | `"Europe/Moscow"` | Timezone |
+| extraPersistentVolumeClaims | list | [] | Extra PersistentVolumeClaims (created by this chart) |
+| extraPersistentVolumes | list | [] | Extra PersistentVolumes for static provisioning (created by this chart) |
+| extraVolumeMounts | list | [] | Extra volume mounts for the container |
+| extraVolumes | list | [] | Extra volumes to add to the pod (raw Kubernetes volume specs) |
 | fullnameOverride | string | `""` |  |
 | httpRoute | object | `{"annotations":{},"enabled":false,"hostnames":["transmission.example.com"],"parentRefs":[{"name":"gateway","namespace":"gateway-system"}],"rules":[{"matches":[{"path":{"type":"PathPrefix","value":"/"}}]}]}` | HTTPRoute configuration (Gateway API) |
 | httpRoute.hostnames | list | `["transmission.example.com"]` | Hostnames for the route |

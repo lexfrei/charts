@@ -164,3 +164,105 @@ tests:
           value: RELEASE-NAME-transmission-downloads
       - isNull:
           path: spec.template.spec.volumes[1].nfs
+
+  # Extra volumes tests
+  - it: should not have extra volumes by default
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.volumes
+          count: 2
+      - lengthEqual:
+          path: spec.template.spec.containers[0].volumeMounts
+          count: 2
+
+  - it: should add extra volumes when specified
+    set:
+      extraVolumes:
+        - name: extra-data
+          persistentVolumeClaim:
+            claimName: my-existing-pvc
+        - name: temp-storage
+          emptyDir: {}
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.volumes
+          count: 4
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: extra-data
+            persistentVolumeClaim:
+              claimName: my-existing-pvc
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: temp-storage
+            emptyDir: {}
+
+  - it: should add extra volume mounts when specified
+    set:
+      extraVolumeMounts:
+        - name: extra-data
+          mountPath: /extra-data
+        - name: temp-storage
+          mountPath: /tmp
+          readOnly: true
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.containers[0].volumeMounts
+          count: 4
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: extra-data
+            mountPath: /extra-data
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: temp-storage
+            mountPath: /tmp
+            readOnly: true
+
+  - it: should handle extra volumes with subPath
+    set:
+      extraVolumeMounts:
+        - name: shared-volume
+          mountPath: /app/data
+          subPath: app-data
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: shared-volume
+            mountPath: /app/data
+            subPath: app-data
+
+  - it: should add both extra volumes and mounts together
+    set:
+      extraVolumes:
+        - name: incomplete
+          nfs:
+            server: nfs.example.com
+            path: /exports/incomplete
+      extraVolumeMounts:
+        - name: incomplete
+          mountPath: /downloads/incomplete
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.volumes
+          count: 3
+      - lengthEqual:
+          path: spec.template.spec.containers[0].volumeMounts
+          count: 3
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: incomplete
+            nfs:
+              server: nfs.example.com
+              path: /exports/incomplete
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: incomplete
+            mountPath: /downloads/incomplete

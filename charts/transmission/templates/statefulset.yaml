@@ -59,6 +59,9 @@ spec:
               mountPath: /config
             - name: downloads
               mountPath: /downloads
+            {{- with .Values.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:
@@ -85,6 +88,9 @@ spec:
           persistentVolumeClaim:
             claimName: {{ include "transmission.fullname" . }}-downloads
           {{- end }}
+        {{- with .Values.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
