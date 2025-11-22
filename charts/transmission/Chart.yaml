@@ -2,7 +2,11 @@ annotations:
   artifacthub.io/category: storage
   artifacthub.io/changes: |-
     - kind: changed
-      description: "Remove environment-specific default ingress annotations"
+      description: "Remove all environment-specific default annotations (ingress, service)"
+    - kind: added
+      description: "Add schema validation for annotations (must be string values)"
+    - kind: added
+      description: "Add unit tests for annotations"
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository

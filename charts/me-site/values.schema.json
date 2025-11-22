@@ -102,7 +102,11 @@
           "type": "string"
         },
         "annotations": {
-          "type": "object"
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Ingress annotations (must be string key-value pairs)"
         },
         "hosts": {
           "type": "array",
@@ -156,7 +160,11 @@
           "type": "boolean"
         },
         "annotations": {
-          "type": "object"
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "HTTPRoute annotations (must be string key-value pairs)"
         },
         "parentRefs": {
           "type": "array",

@@ -2,7 +2,7 @@ apiVersion: v2
 name: me-site
 description: A Helm chart for the Me-Site application
 type: application
-version: 0.5.0
+version: 0.5.1
 appVersion: 1.0.0
 maintainers:
   - name: lexfrei
@@ -11,11 +11,7 @@ maintainers:
 annotations:
   artifacthub.io/changes: |-
     - kind: added
-      description: Add NOTES.txt with post-installation instructions
+      description: "Add schema validation for annotations (must be string values)"
     - kind: added
-      description: Add NetworkPolicy template for network isolation
-    - kind: security
-      description: Add podSecurityContext and seccompProfile RuntimeDefault
-    - kind: changed
-      description: Migrate securityContext from hardcoded to configurable values
+      description: "Add unit test for default annotations"
 kubeVersion: '>=1.19.0-0'

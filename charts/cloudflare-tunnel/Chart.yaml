@@ -3,8 +3,10 @@ annotations:
   # Valid kinds for changes: added, changed, deprecated, removed, fixed, security
   # See: https://artifacthub.io/docs/topics/annotations/helm/
   artifacthub.io/changes: |-
-    - kind: changed
-      description: Update dependency cloudflare/cloudflared to v2025.11.0
+    - kind: added
+      description: "Add schema validation for annotations (must be string values)"
+    - kind: added
+      description: "Add unit test for default annotations"
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -18,7 +20,7 @@ apiVersion: v2
 name: cloudflare-tunnel
 description: Creation of a cloudflared deployment - a reverse tunnel for an environment
 type: application
-version: "0.13.0"
+version: "0.13.1"
 kubeVersion: ">=1.21.0-0"
 # renovate: datasource=docker depName=cloudflare/cloudflared
 appVersion: "2025.10.1"

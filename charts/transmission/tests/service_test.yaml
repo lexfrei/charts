@@ -44,6 +44,12 @@ tests:
           path: spec.selector["app.kubernetes.io/instance"]
           value: RELEASE-NAME
 
+  - it: should have no annotations by default for Web UI Service
+    documentIndex: 0
+    asserts:
+      - notExists:
+          path: metadata.annotations
+
   - it: should support custom annotations for Web UI Service
     set:
       service.web.annotations:
@@ -107,14 +113,13 @@ tests:
           path: spec.selector["app.kubernetes.io/instance"]
           value: RELEASE-NAME
 
-  - it: should set default metallb annotation for Torrent Service
+  - it: should have no annotations by default for Torrent Service
     documentIndex: 1
     asserts:
-      - equal:
-          path: metadata.annotations["metallb.io/address-pool"]
-          value: transmission-pool
+      - notExists:
+          path: metadata.annotations
 
-  - it: should support Cilium LB-IPAM annotation
+  - it: should support custom annotations for Torrent Service
     set:
       service.torrent.annotations:
         io.cilium/lb-ipam-ips: "172.16.100.252"

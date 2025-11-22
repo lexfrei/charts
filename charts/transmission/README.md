@@ -108,9 +108,9 @@ helm delete transmission
 | podSecurityContext | object | `{"fsGroup":1000,"seccompProfile":{"type":"RuntimeDefault"}}` | Security context for the pod |
 | resources | object | `{"limits":{"cpu":"400m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"256Mi"}}` | Resource limits and requests |
 | securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"add":["SETUID","SETGID","CHOWN"],"drop":["ALL"]},"readOnlyRootFilesystem":false}` | Security context for the container |
-| service | object | `{"torrent":{"annotations":{"metallb.io/address-pool":"transmission-pool"},"enabled":true,"tcpPort":51413,"type":"LoadBalancer","udpPort":51413},"web":{"annotations":{},"port":9091,"type":"ClusterIP"}}` | Service configuration |
-| service.torrent | object | `{"annotations":{"metallb.io/address-pool":"transmission-pool"},"enabled":true,"tcpPort":51413,"type":"LoadBalancer","udpPort":51413}` | Separate LoadBalancer service for torrent ports |
-| service.torrent.annotations | object | `{"metallb.io/address-pool":"transmission-pool"}` | Annotations for torrent service (e.g., Cilium LB-IPAM) |
+| service | object | `{"torrent":{"annotations":{},"enabled":true,"tcpPort":51413,"type":"LoadBalancer","udpPort":51413},"web":{"annotations":{},"port":9091,"type":"ClusterIP"}}` | Service configuration |
+| service.torrent | object | `{"annotations":{},"enabled":true,"tcpPort":51413,"type":"LoadBalancer","udpPort":51413}` | Separate LoadBalancer service for torrent ports |
+| service.torrent.annotations | object | `{}` | Annotations for torrent service (e.g., Cilium LB-IPAM, MetalLB) |
 | service.torrent.enabled | bool | `true` | Enable separate torrent service |
 | service.torrent.tcpPort | int | `51413` | Torrent TCP port |
 | service.torrent.type | string | `"LoadBalancer"` | Service type for torrent traffic |

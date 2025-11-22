@@ -48,7 +48,14 @@ tests:
           value: traefik
 
   # Annotations tests
-  - it: should set annotations
+  - it: should have no annotations by default
+    set:
+      ingress.enabled: true
+    asserts:
+      - isNull:
+          path: metadata.annotations
+
+  - it: should set annotations when provided
     set:
       ingress.enabled: true
       ingress.annotations:
