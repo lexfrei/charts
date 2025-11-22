@@ -133,7 +133,10 @@
         },
         "annotations": {
           "type": "object",
-          "description": "Ingress annotations"
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Ingress annotations (must be string key-value pairs)"
         },
         "hosts": {
           "type": "array",

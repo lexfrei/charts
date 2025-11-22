@@ -68,9 +68,7 @@ service:
 ingress:
   enabled: false
   className: ""
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
-    cert-manager.io/cluster-issuer: "cloudflare-issuer"
+  annotations: {}
   hosts:
     - host: transmission.example.com
       paths:
