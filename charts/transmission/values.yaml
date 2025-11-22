@@ -55,10 +55,8 @@ service:
     enabled: true
     # -- Service type for torrent traffic
     type: LoadBalancer
-    # -- Annotations for torrent service (e.g., Cilium LB-IPAM)
-    annotations:
-      # io.cilium/lb-ipam-ips: "172.16.100.252"
-      metallb.io/address-pool: transmission-pool
+    # -- Annotations for torrent service (e.g., Cilium LB-IPAM, MetalLB)
+    annotations: {}
     # -- Torrent TCP port
     tcpPort: 51413
     # -- Torrent UDP port
@@ -68,9 +66,7 @@ service:
 ingress:
   enabled: false
   className: ""
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
-    cert-manager.io/cluster-issuer: "cloudflare-issuer"
+  annotations: {}
   hosts:
     - host: transmission.example.com
       paths:

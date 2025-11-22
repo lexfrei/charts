@@ -165,7 +165,11 @@
       "type": "object",
       "properties": {
         "annotations": {
-          "type": "object"
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Annotations to add to the service account (must be string key-value pairs)"
         },
         "name": {
           "type": [
@@ -177,7 +181,11 @@
       }
     },
     "podAnnotations": {
-      "type": "object"
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Pod annotations (must be string key-value pairs)"
     },
     "podSecurityContext": {
       "type": "object",

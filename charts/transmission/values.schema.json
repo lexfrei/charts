@@ -81,7 +81,10 @@
             },
             "annotations": {
               "type": "object",
-              "description": "Annotations for Web UI service"
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "Annotations for Web UI service (must be string key-value pairs)"
             }
           },
           "required": ["type", "port"]
@@ -112,7 +115,10 @@
             },
             "annotations": {
               "type": "object",
-              "description": "Annotations for torrent service (e.g., Cilium LB-IPAM)"
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "Annotations for torrent service (must be string key-value pairs)"
             }
           },
           "required": ["enabled", "type", "tcpPort", "udpPort"]
@@ -133,7 +139,10 @@
         },
         "annotations": {
           "type": "object",
-          "description": "Ingress annotations"
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Ingress annotations (must be string key-value pairs)"
         },
         "hosts": {
           "type": "array",
@@ -191,7 +200,10 @@
         },
         "annotations": {
           "type": "object",
-          "description": "HTTPRoute annotations"
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "HTTPRoute annotations (must be string key-value pairs)"
         },
         "parentRefs": {
           "type": "array",
@@ -393,7 +405,10 @@
     },
     "podAnnotations": {
       "type": "object",
-      "description": "Pod annotations"
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Pod annotations (must be string key-value pairs)"
     },
     "podLabels": {
       "type": "object",
@@ -408,7 +423,10 @@
         },
         "annotations": {
           "type": "object",
-          "description": "Annotations to add to the service account"
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Annotations to add to the service account (must be string key-value pairs)"
         },
         "name": {
           "type": "string",

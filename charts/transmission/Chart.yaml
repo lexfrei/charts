@@ -2,7 +2,11 @@ annotations:
   artifacthub.io/category: storage
   artifacthub.io/changes: |-
     - kind: changed
-      description: "existingClaim now takes priority over type for downloads volume, allowing shared storage with other apps"
+      description: "Remove all environment-specific default annotations (ingress, service)"
+    - kind: added
+      description: "Add schema validation for annotations (must be string values)"
+    - kind: added
+      description: "Add unit tests for annotations"
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -16,7 +20,7 @@ apiVersion: v2
 name: transmission
 description: Transmission BitTorrent client Helm chart for Kubernetes
 type: application
-version: "1.2.0"
+version: "1.2.1"
 # renovate: datasource=docker depName=linuxserver/transmission
 appVersion: "4.0.6"
 icon: https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/transmission-icon.png

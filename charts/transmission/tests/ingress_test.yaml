@@ -34,3 +34,24 @@ tests:
       - equal:
           path: spec.tls[0].secretName
           value: transmission-tls
+
+  - it: should have no annotations by default
+    set:
+      ingress.enabled: true
+    asserts:
+      - notExists:
+          path: metadata.annotations
+
+  - it: should apply custom annotations when specified
+    set:
+      ingress.enabled: true
+      ingress.annotations:
+        nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+        cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    asserts:
+      - equal:
+          path: metadata.annotations["nginx.ingress.kubernetes.io/proxy-body-size"]
+          value: "100m"
+      - equal:
+          path: metadata.annotations["cert-manager.io/cluster-issuer"]
+          value: "letsencrypt-prod"

@@ -60,7 +60,10 @@
         },
         "annotations": {
           "type": "object",
-          "description": "Annotations to add to the service account"
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Annotations to add to the service account (must be string key-value pairs)"
         },
         "name": {
           "type": "string",
@@ -145,7 +148,10 @@
     },
     "podAnnotations": {
       "type": "object",
-      "description": "Pod annotations"
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Pod annotations (must be string key-value pairs)"
     },
     "podLabels": {
       "type": "object",

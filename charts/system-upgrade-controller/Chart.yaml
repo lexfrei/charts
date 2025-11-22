@@ -1,8 +1,10 @@
 annotations:
   artifacthub.io/category: integration-delivery
   artifacthub.io/changes: |-
-    - kind: changed
-      description: Update rancher/kubectl docker tag to v1.34.2
+    - kind: added
+      description: "Add schema validation for annotations (must be string values)"
+    - kind: added
+      description: "Add unit test for default annotations"
   artifacthub.io/crds: |
     - kind: Plan
       version: v1
@@ -22,7 +24,7 @@ apiVersion: v2
 name: system-upgrade-controller
 description: Kubernetes-native upgrade controller for nodes using declarative Plans
 type: application
-version: "0.2.0"
+version: "0.2.1"
 # renovate: datasource=github-releases depName=rancher/system-upgrade-controller
 appVersion: "v0.18.0"
 icon: https://avatars.githubusercontent.com/u/9343010

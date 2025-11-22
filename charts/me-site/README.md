@@ -1,6 +1,6 @@
 # me-site
 
-![Version: 0.5.0](https://img.shields.io/badge/Version-0.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.0.0](https://img.shields.io/badge/AppVersion-1.0.0-informational?style=flat-square)
+![Version: 0.5.1](https://img.shields.io/badge/Version-0.5.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.0.0](https://img.shields.io/badge/AppVersion-1.0.0-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -29,12 +29,12 @@ This chart is published to GitHub Container Registry (GHCR) as an OCI artifact.
 # Install from GHCR
 helm install me-site \
   oci://ghcr.io/lexfrei/charts/me-site \
-  --version 0.5.0
+  --version 0.5.1
 
 # Install with custom values
 helm install me-site \
   oci://ghcr.io/lexfrei/charts/me-site \
-  --version 0.5.0 \
+  --version 0.5.1 \
   --values values.yaml
 ```
 
@@ -44,7 +44,7 @@ This chart is signed with [cosign](https://github.com/sigstore/cosign) using key
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/me-site:0.5.0 \
+  ghcr.io/lexfrei/charts/me-site:0.5.1 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```

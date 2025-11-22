@@ -1,6 +1,6 @@
 # transmission
 
-![Version: 1.2.0](https://img.shields.io/badge/Version-1.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.0.6](https://img.shields.io/badge/AppVersion-4.0.6-informational?style=flat-square)
+![Version: 1.2.1](https://img.shields.io/badge/Version-1.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.0.6](https://img.shields.io/badge/AppVersion-4.0.6-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -38,12 +38,12 @@ This chart is published to GitHub Container Registry (GHCR) as an OCI artifact.
 # Install from GHCR
 helm install transmission \
   oci://ghcr.io/lexfrei/charts/transmission \
-  --version 1.2.0
+  --version 1.2.1
 
 # Install with custom values
 helm install transmission \
   oci://ghcr.io/lexfrei/charts/transmission \
-  --version 1.2.0 \
+  --version 1.2.1 \
   --values values.yaml
 ```
 
@@ -53,7 +53,7 @@ This chart is signed with [cosign](https://github.com/sigstore/cosign) using key
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/transmission:1.2.0 \
+  ghcr.io/lexfrei/charts/transmission:1.2.1 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -81,7 +81,7 @@ helm delete transmission
 | image | object | `{"pullPolicy":"IfNotPresent","repository":"linuxserver/transmission","tag":""}` | Image configuration |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion |
 | imagePullSecrets | list | `[]` |  |
-| ingress | object | `{"annotations":{"cert-manager.io/cluster-issuer":"cloudflare-issuer","traefik.ingress.kubernetes.io/router.entrypoints":"websecure"},"className":"","enabled":false,"hosts":[{"host":"transmission.example.com","paths":[{"path":"/","pathType":"Prefix"}]}],"tls":[{"hosts":["transmission.example.com"],"secretName":"transmission-tls"}]}` | Ingress configuration |
+| ingress | object | `{"annotations":{},"className":"","enabled":false,"hosts":[{"host":"transmission.example.com","paths":[{"path":"/","pathType":"Prefix"}]}],"tls":[{"hosts":["transmission.example.com"],"secretName":"transmission-tls"}]}` | Ingress configuration |
 | initContainers | list | [] | Init containers to run before the main container |
 | nameOverride | string | `""` |  |
 | networkPolicy | object | `{"egress":[],"enabled":false,"ingress":[]}` | Network Policy configuration |
@@ -108,9 +108,9 @@ helm delete transmission
 | podSecurityContext | object | `{"fsGroup":1000,"seccompProfile":{"type":"RuntimeDefault"}}` | Security context for the pod |
 | resources | object | `{"limits":{"cpu":"400m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"256Mi"}}` | Resource limits and requests |
 | securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"add":["SETUID","SETGID","CHOWN"],"drop":["ALL"]},"readOnlyRootFilesystem":false}` | Security context for the container |
-| service | object | `{"torrent":{"annotations":{"metallb.io/address-pool":"transmission-pool"},"enabled":true,"tcpPort":51413,"type":"LoadBalancer","udpPort":51413},"web":{"annotations":{},"port":9091,"type":"ClusterIP"}}` | Service configuration |
-| service.torrent | object | `{"annotations":{"metallb.io/address-pool":"transmission-pool"},"enabled":true,"tcpPort":51413,"type":"LoadBalancer","udpPort":51413}` | Separate LoadBalancer service for torrent ports |
-| service.torrent.annotations | object | `{"metallb.io/address-pool":"transmission-pool"}` | Annotations for torrent service (e.g., Cilium LB-IPAM) |
+| service | object | `{"torrent":{"annotations":{},"enabled":true,"tcpPort":51413,"type":"LoadBalancer","udpPort":51413},"web":{"annotations":{},"port":9091,"type":"ClusterIP"}}` | Service configuration |
+| service.torrent | object | `{"annotations":{},"enabled":true,"tcpPort":51413,"type":"LoadBalancer","udpPort":51413}` | Separate LoadBalancer service for torrent ports |
+| service.torrent.annotations | object | `{}` | Annotations for torrent service (e.g., Cilium LB-IPAM, MetalLB) |
 | service.torrent.enabled | bool | `true` | Enable separate torrent service |
 | service.torrent.tcpPort | int | `51413` | Torrent TCP port |
 | service.torrent.type | string | `"LoadBalancer"` | Service type for torrent traffic |
