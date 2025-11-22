@@ -27,10 +27,9 @@ tests:
           path: spec.replicas
           value: 2
       - template: deployment.yaml
-        equal:
+        matchRegex:
           path: spec.template.spec.containers[0].image
-          # renovate: datasource=docker depName=cloudflare/cloudflared
-          value: "cloudflare/cloudflared:2025.10.1"
+          pattern: ^cloudflare/cloudflared:.+$
 
   - it: should use custom image tag when specified
     set:

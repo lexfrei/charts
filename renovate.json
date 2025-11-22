@@ -8,42 +8,6 @@
   "automergeType": "pr",
   "automergeStrategy": "squash",
   "ignoreTests": false,
-  "packageRules": [
-    {
-      "description": "Group cloudflare/cloudflared updates across Chart.yaml and tests",
-      "matchDatasources": ["docker"],
-      "matchDepNames": ["cloudflare/cloudflared"],
-      "groupName": "cloudflare/cloudflared",
-      "commitMessageTopic": "dependency cloudflare/cloudflared"
-    },
-    {
-      "description": "Group linuxserver/transmission updates across Chart.yaml and tests",
-      "matchDatasources": ["docker"],
-      "matchDepNames": ["linuxserver/transmission"],
-      "groupName": "linuxserver/transmission",
-      "commitMessageTopic": "dependency linuxserver/transmission"
-    },
-    {
-      "description": "Auto-bump chart version when appVersion changes",
-      "matchManagers": [
-        "custom.regex"
-      ],
-      "matchFileNames": [
-        "charts/**/Chart.yaml"
-      ],
-      "bumpVersions": [
-        {
-          "filePatterns": [
-            "{{{packageFileDir}}}/Chart.{yaml,yml}"
-          ],
-          "matchStrings": [
-            "version:\\s+[\"']?(?<version>[^\"'\\s]+)[\"']?"
-          ],
-          "bumpType": "{{#if isPatch}}patch{{else}}minor{{/if}}"
-        }
-      ]
-    }
-  ],
   "customManagers": [
     {
       "customType": "regex",
@@ -52,18 +16,6 @@
       ],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\\n.*?appVersion: \"(?<currentValue>.*?)\""
-      ],
-      "datasourceTemplate": "{{datasource}}",
-      "depNameTemplate": "{{depName}}"
-    },
-    {
-      "customType": "regex",
-      "description": "Update container image versions in Helm unit tests",
-      "fileMatch": [
-        "charts/.+/tests/.+\\.yaml$"
-      ],
-      "matchStrings": [
-        "\\s*# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n\\s*value: [\"'](?:[^:]+):(?<currentValue>[^\"']+)[\"']"
       ],
       "datasourceTemplate": "{{datasource}}",
       "depNameTemplate": "{{depName}}"
