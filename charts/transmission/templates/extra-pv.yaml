@@ -1,0 +1,42 @@
+{{- range .Values.extraPersistentVolumes }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ include "transmission.fullname" $ }}-{{ .name }}
+  labels:
+    {{- include "transmission.labels" $ | nindent 4 }}
+spec:
+  capacity:
+    storage: {{ .capacity }}
+  accessModes:
+    {{- toYaml .accessModes | nindent 4 }}
+  {{- if .storageClassName }}
+  storageClassName: {{ .storageClassName }}
+  {{- else }}
+  storageClassName: ""
+  {{- end }}
+  {{- if .nfs }}
+  nfs:
+    server: {{ .nfs.server }}
+    path: {{ .nfs.path }}
+  {{- end }}
+  {{- if .hostPath }}
+  hostPath:
+    path: {{ .hostPath.path }}
+    {{- if .hostPath.type }}
+    type: {{ .hostPath.type }}
+    {{- end }}
+  {{- end }}
+  {{- if .local }}
+  local:
+    path: {{ .local.path }}
+  {{- if .nodeAffinity }}
+  nodeAffinity:
+    {{- toYaml .nodeAffinity | nindent 4 }}
+  {{- end }}
+  {{- end }}
+  {{- if .persistentVolumeReclaimPolicy }}
+  persistentVolumeReclaimPolicy: {{ .persistentVolumeReclaimPolicy }}
+  {{- end }}
+{{- end }}

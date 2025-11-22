@@ -1,0 +1,23 @@
+{{- range .Values.extraPersistentVolumeClaims }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "transmission.fullname" $ }}-{{ .name }}
+  labels:
+    {{- include "transmission.labels" $ | nindent 4 }}
+spec:
+  accessModes:
+    {{- toYaml .accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .size }}
+  {{- if .storageClassName }}
+  storageClassName: {{ .storageClassName }}
+  {{- else if eq .storageClassName "" }}
+  storageClassName: ""
+  {{- end }}
+  {{- if .volumeName }}
+  volumeName: {{ include "transmission.fullname" $ }}-{{ .volumeName }}
+  {{- end }}
+{{- end }}

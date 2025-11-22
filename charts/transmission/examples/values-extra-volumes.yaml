@@ -1,0 +1,78 @@
+# Example: Using extra volumes for separate incomplete downloads directory
+#
+# This example demonstrates how to mount a separate storage location for
+# incomplete downloads. This is useful when you want to:
+# - Keep incomplete files on faster/local storage (SSD)
+# - Keep completed downloads on network storage (NFS/iSCSI)
+# - Reduce wear on network storage from frequent writes
+#
+# IMPORTANT: After deploying, configure the incomplete directory path in
+# Transmission's UI settings: Settings -> Torrents -> Incomplete Directory
+# Set it to: /downloads/incomplete
+#
+# Or use environment variables to configure it automatically.
+
+persistence:
+  config:
+    enabled: true
+    size: 1Gi
+  downloads:
+    enabled: true
+    type: nfs
+    nfsServer: nfs-server.example.com
+    nfsPath: /exports/completed
+
+# Extra volume for incomplete downloads (separate storage)
+extraVolumes:
+  - name: incomplete
+    nfs:
+      server: nfs-server.example.com
+      path: /exports/incomplete
+
+extraVolumeMounts:
+  - name: incomplete
+    mountPath: /downloads/incomplete
+
+# Alternative: Using a PVC for incomplete directory on local/fast storage
+# extraPersistentVolumeClaims:
+#   - name: incomplete
+#     storageClassName: longhorn
+#     accessModes:
+#       - ReadWriteOnce
+#     size: 50Gi
+#
+# extraVolumes:
+#   - name: incomplete
+#     persistentVolumeClaim:
+#       claimName: RELEASE-NAME-transmission-incomplete
+#
+# extraVolumeMounts:
+#   - name: incomplete
+#     mountPath: /downloads/incomplete
+
+# Alternative: Using static PV with NFS for incomplete directory
+# extraPersistentVolumes:
+#   - name: incomplete-pv
+#     capacity: 100Gi
+#     accessModes:
+#       - ReadWriteMany
+#     storageClassName: ""
+#     nfs:
+#       server: 192.168.1.100
+#       path: /exports/incomplete
+#
+# extraPersistentVolumeClaims:
+#   - name: incomplete
+#     accessModes:
+#       - ReadWriteMany
+#     size: 100Gi
+#     volumeName: incomplete-pv
+#
+# extraVolumes:
+#   - name: incomplete
+#     persistentVolumeClaim:
+#       claimName: RELEASE-NAME-transmission-incomplete
+#
+# extraVolumeMounts:
+#   - name: incomplete
+#     mountPath: /downloads/incomplete

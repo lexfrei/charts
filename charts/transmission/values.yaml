@@ -186,3 +186,50 @@ networkPolicy:
   ingress: []
   # -- Additional egress rules
   egress: []
+
+# -- Extra volumes to add to the pod (raw Kubernetes volume specs)
+# @default -- []
+extraVolumes: []
+# - name: extra-data
+#   persistentVolumeClaim:
+#     claimName: my-existing-pvc
+# - name: temp-storage
+#   emptyDir: {}
+
+# -- Extra volume mounts for the container
+# @default -- []
+extraVolumeMounts: []
+# - name: extra-data
+#   mountPath: /extra-data
+# - name: temp-storage
+#   mountPath: /tmp
+
+# -- Extra PersistentVolumes for static provisioning (created by this chart)
+# @default -- []
+extraPersistentVolumes: []
+# - name: extra-nfs-pv
+#   capacity: 100Gi
+#   accessModes:
+#     - ReadWriteMany
+#   storageClassName: ""
+#   nfs:
+#     server: 192.168.1.100
+#     path: /exports/data
+# - name: extra-hostpath-pv
+#   capacity: 50Gi
+#   accessModes:
+#     - ReadWriteOnce
+#   storageClassName: manual
+#   hostPath:
+#     path: /mnt/data
+#     type: DirectoryOrCreate
+
+# -- Extra PersistentVolumeClaims (created by this chart)
+# @default -- []
+extraPersistentVolumeClaims: []
+# - name: extra-pvc
+#   storageClassName: ""
+#   accessModes:
+#     - ReadWriteOnce
+#   size: 10Gi
+#   volumeName: extra-nfs-pv  # Optional: bind to specific PV

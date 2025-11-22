@@ -1,0 +1,146 @@
+suite: test extra persistence
+templates:
+  - extra-pv.yaml
+  - extra-pvc.yaml
+tests:
+  - it: should not create extra PV when empty
+    template: extra-pv.yaml
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should create extra PV with NFS
+    template: extra-pv.yaml
+    set:
+      extraPersistentVolumes:
+        - name: test-nfs-pv
+          capacity: 100Gi
+          accessModes:
+            - ReadWriteMany
+          storageClassName: ""
+          nfs:
+            server: 192.168.1.100
+            path: /exports/data
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: PersistentVolume
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-transmission-test-nfs-pv
+      - equal:
+          path: spec.capacity.storage
+          value: 100Gi
+      - equal:
+          path: spec.nfs.server
+          value: "192.168.1.100"
+      - equal:
+          path: spec.nfs.path
+          value: /exports/data
+
+  - it: should create extra PV with hostPath
+    template: extra-pv.yaml
+    set:
+      extraPersistentVolumes:
+        - name: test-hostpath-pv
+          capacity: 50Gi
+          accessModes:
+            - ReadWriteOnce
+          storageClassName: manual
+          hostPath:
+            path: /mnt/data
+            type: DirectoryOrCreate
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: PersistentVolume
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-transmission-test-hostpath-pv
+      - equal:
+          path: spec.hostPath.path
+          value: /mnt/data
+      - equal:
+          path: spec.hostPath.type
+          value: DirectoryOrCreate
+
+  - it: should create multiple extra PVs
+    template: extra-pv.yaml
+    set:
+      extraPersistentVolumes:
+        - name: pv-one
+          capacity: 10Gi
+          accessModes:
+            - ReadWriteOnce
+          hostPath:
+            path: /mnt/one
+        - name: pv-two
+          capacity: 20Gi
+          accessModes:
+            - ReadWriteMany
+          nfs:
+            server: nfs.example.com
+            path: /exports/two
+    asserts:
+      - hasDocuments:
+          count: 2
+
+  - it: should not create extra PVC when empty
+    template: extra-pvc.yaml
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should create extra PVC
+    template: extra-pvc.yaml
+    set:
+      extraPersistentVolumeClaims:
+        - name: test-pvc
+          accessModes:
+            - ReadWriteOnce
+          size: 10Gi
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: PersistentVolumeClaim
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-transmission-test-pvc
+      - equal:
+          path: spec.resources.requests.storage
+          value: 10Gi
+
+  - it: should create extra PVC with volumeName binding
+    template: extra-pvc.yaml
+    set:
+      extraPersistentVolumeClaims:
+        - name: bound-pvc
+          accessModes:
+            - ReadWriteOnce
+          size: 50Gi
+          volumeName: my-pv
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: spec.volumeName
+          value: RELEASE-NAME-transmission-my-pv
+
+  - it: should create multiple extra PVCs
+    template: extra-pvc.yaml
+    set:
+      extraPersistentVolumeClaims:
+        - name: pvc-one
+          accessModes:
+            - ReadWriteOnce
+          size: 10Gi
+        - name: pvc-two
+          accessModes:
+            - ReadWriteMany
+          size: 20Gi
+    asserts:
+      - hasDocuments:
+          count: 2

@@ -477,6 +477,139 @@
         }
       },
       "required": ["enabled"]
+    },
+    "extraVolumes": {
+      "type": "array",
+      "description": "Extra volumes to add to the pod (raw Kubernetes volume specs)",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Volume name"
+          }
+        },
+        "required": ["name"]
+      }
+    },
+    "extraVolumeMounts": {
+      "type": "array",
+      "description": "Extra volume mounts for the container",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Volume name to mount"
+          },
+          "mountPath": {
+            "type": "string",
+            "description": "Path to mount the volume"
+          },
+          "subPath": {
+            "type": "string",
+            "description": "SubPath within the volume"
+          },
+          "readOnly": {
+            "type": "boolean",
+            "description": "Mount as read-only"
+          }
+        },
+        "required": ["name", "mountPath"]
+      }
+    },
+    "extraPersistentVolumes": {
+      "type": "array",
+      "description": "Extra PersistentVolumes for static provisioning",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "PV name"
+          },
+          "capacity": {
+            "type": "string",
+            "pattern": "^[0-9]+(Mi|Gi|Ti|M|G|T)$",
+            "description": "Storage capacity"
+          },
+          "accessModes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany"]
+            },
+            "description": "Access modes"
+          },
+          "storageClassName": {
+            "type": "string",
+            "description": "Storage class name"
+          },
+          "nfs": {
+            "type": "object",
+            "properties": {
+              "server": {
+                "type": "string",
+                "description": "NFS server address"
+              },
+              "path": {
+                "type": "string",
+                "description": "NFS export path"
+              }
+            }
+          },
+          "hostPath": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Host path"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["", "DirectoryOrCreate", "Directory", "FileOrCreate", "File", "Socket", "CharDevice", "BlockDevice"],
+                "description": "Host path type"
+              }
+            }
+          }
+        },
+        "required": ["name", "capacity", "accessModes"]
+      }
+    },
+    "extraPersistentVolumeClaims": {
+      "type": "array",
+      "description": "Extra PersistentVolumeClaims",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "PVC name"
+          },
+          "storageClassName": {
+            "type": "string",
+            "description": "Storage class name"
+          },
+          "accessModes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany"]
+            },
+            "description": "Access modes"
+          },
+          "size": {
+            "type": "string",
+            "pattern": "^[0-9]+(Mi|Gi|Ti|M|G|T)$",
+            "description": "Storage size"
+          },
+          "volumeName": {
+            "type": "string",
+            "description": "Bind to specific PV by name"
+          }
+        },
+        "required": ["name", "accessModes", "size"]
+      }
     }
   },
   "required": ["image", "service", "persistence"]
