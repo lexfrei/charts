@@ -1,0 +1,270 @@
+suite: test remote-managed mode
+templates:
+  - deployment.yaml
+  - daemonset.yaml
+  - configmap.yaml
+  - secret.yaml
+  - secret-token.yaml
+values:
+  - ../values.yaml
+tests:
+  # ConfigMap tests
+  - it: should create ConfigMap in local mode (default)
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+    asserts:
+      - template: configmap.yaml
+        hasDocuments:
+          count: 1
+
+  - it: should NOT create ConfigMap in remote mode
+    set:
+      cloudflare:
+        mode: remote
+        tunnelToken: "eyJhIjoiNjM..."
+    asserts:
+      - template: configmap.yaml
+        hasDocuments:
+          count: 0
+
+  # Secret credentials tests
+  - it: should create credentials Secret in local mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+    asserts:
+      - template: secret.yaml
+        hasDocuments:
+          count: 1
+
+  - it: should NOT create credentials Secret in remote mode
+    set:
+      cloudflare:
+        mode: remote
+        tunnelToken: "eyJhIjoiNjM..."
+    asserts:
+      - template: secret.yaml
+        hasDocuments:
+          count: 0
+
+  # Token Secret tests
+  - it: should NOT create token Secret in local mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+    asserts:
+      - template: secret-token.yaml
+        hasDocuments:
+          count: 0
+
+  - it: should create token Secret in remote mode with tunnelToken
+    set:
+      cloudflare:
+        mode: remote
+        tunnelToken: "eyJhIjoiNjM..."
+    asserts:
+      - template: secret-token.yaml
+        hasDocuments:
+          count: 1
+      - template: secret-token.yaml
+        equal:
+          path: stringData.token
+          value: "eyJhIjoiNjM..."
+
+  - it: should NOT create token Secret when tunnelTokenSecretName is set
+    set:
+      cloudflare:
+        mode: remote
+        tunnelTokenSecretName: my-external-secret
+    asserts:
+      - template: secret-token.yaml
+        hasDocuments:
+          count: 0
+
+  # Deployment args tests
+  - it: should use --config args in local mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].args
+          content: "--config"
+
+  - it: should use --token in remote mode
+    set:
+      cloudflare:
+        mode: remote
+        tunnelToken: "eyJhIjoiNjM..."
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].args
+          content: "--token"
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].args
+          content: "$(TUNNEL_TOKEN)"
+
+  # Volume mounts tests
+  - it: should have config and creds volumes in local mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.volumes
+          content:
+            name: config
+          any: true
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.volumes
+          content:
+            name: creds
+          any: true
+
+  - it: should NOT have config and creds volumes in remote mode
+    set:
+      cloudflare:
+        mode: remote
+        tunnelToken: "eyJhIjoiNjM..."
+    asserts:
+      - template: deployment.yaml
+        notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: config
+          any: true
+      - template: deployment.yaml
+        notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: creds
+          any: true
+
+  # Environment variable tests
+  - it: should have TUNNEL_TOKEN env in remote mode
+    set:
+      cloudflare:
+        mode: remote
+        tunnelToken: "eyJhIjoiNjM..."
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TOKEN
+          any: true
+
+  - it: should reference external secret when tunnelTokenSecretName is set
+    set:
+      cloudflare:
+        mode: remote
+        tunnelTokenSecretName: my-external-secret
+    asserts:
+      - template: deployment.yaml
+        equal:
+          path: spec.template.spec.containers[0].env[?(@.name=="TUNNEL_TOKEN")].valueFrom.secretKeyRef.name
+          value: my-external-secret
+
+  # Validation tests
+  - it: should fail in remote mode without token
+    set:
+      cloudflare:
+        mode: remote
+    asserts:
+      - template: deployment.yaml
+        failedTemplate:
+          errorMessage: "cloudflare.tunnelToken or cloudflare.tunnelTokenSecretName is required when mode is 'remote'"
+
+  # DaemonSet tests
+  - it: should use --token in remote mode for DaemonSet
+    set:
+      cloudflare:
+        mode: remote
+        tunnelToken: "eyJhIjoiNjM..."
+      deploymentMode: daemonset
+    asserts:
+      - template: daemonset.yaml
+        contains:
+          path: spec.template.spec.containers[0].args
+          content: "--token"
+
+  - it: should NOT have volumes in remote mode for DaemonSet
+    set:
+      cloudflare:
+        mode: remote
+        tunnelToken: "eyJhIjoiNjM..."
+      deploymentMode: daemonset
+    asserts:
+      - template: daemonset.yaml
+        notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: config
+          any: true
+
+  # Protocol and other flags in remote mode
+  - it: should support protocol flag in remote mode
+    set:
+      cloudflare:
+        mode: remote
+        tunnelToken: "eyJhIjoiNjM..."
+      protocol: http2
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_TRANSPORT_PROTOCOL
+            value: http2
+          any: true
+
+  - it: should support logLevel in remote mode
+    set:
+      cloudflare:
+        mode: remote
+        tunnelToken: "eyJhIjoiNjM..."
+      logLevel: debug
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TUNNEL_LOGLEVEL
+            value: debug
+          any: true

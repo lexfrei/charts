@@ -475,16 +475,19 @@ Kubernetes: `>=1.21.0-0`
 | autoscaling.minReplicas | int | `2` | Minimum number of replicas |
 | autoscaling.targetCPUUtilizationPercentage | int | `80` | Target CPU utilization percentage |
 | autoscaling.targetMemoryUtilizationPercentage | string | `nil` | Target memory utilization percentage |
-| cloudflare | object | `{"account":"","enableDefault404":true,"enableWarp":false,"ingress":[],"originRequest":{},"secret":"","secretName":null,"tunnelId":"","tunnelName":""}` | Cloudflare parameters |
-| cloudflare.account | string | `""` | Your Cloudflare account number |
+| cloudflare | object | `{"account":"","enableDefault404":true,"enableWarp":false,"ingress":[],"mode":"local","originRequest":{},"secret":"","secretName":null,"tunnelId":"","tunnelName":"","tunnelToken":"","tunnelTokenSecretName":""}` | Cloudflare parameters |
+| cloudflare.account | string | `""` | Your Cloudflare account number (local mode only) |
 | cloudflare.enableDefault404 | bool | `true` | If true, enable the default 404 page. Needs to be false if you want to use a '*' wildcard rule. |
 | cloudflare.enableWarp | bool | `false` | If true, turn on WARP routing for TCP |
 | cloudflare.ingress | list | `[]` | Define ingress rules for the tunnel See <https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress> |
+| cloudflare.mode | string | `"local"` | Tunnel management mode: "local" or "remote" local: ingress rules defined in values.yaml, stored in ConfigMap remote: ingress rules managed via Cloudflare dashboard/API |
 | cloudflare.originRequest | object | `{}` | Global originRequest configuration for all ingress rules See <https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress#origin-request> |
-| cloudflare.secret | string | `""` | The secret for the tunnel |
-| cloudflare.secretName | string | `nil` | If defined, no secret is created for the credentials, and instead, the secret referenced is used |
-| cloudflare.tunnelId | string | `""` | The ID of the above tunnel |
-| cloudflare.tunnelName | string | `""` | The name of the tunnel this instance will serve |
+| cloudflare.secret | string | `""` | The secret for the tunnel (local mode only) |
+| cloudflare.secretName | string | `nil` | If defined, no secret is created for the credentials (local mode only) |
+| cloudflare.tunnelId | string | `""` | The ID of the above tunnel (local mode only) |
+| cloudflare.tunnelName | string | `""` | The name of the tunnel this instance will serve (local mode only) |
+| cloudflare.tunnelToken | string | `""` | Tunnel token for remote mode (alternative to credentials file) Get from: Zero Trust Dashboard > Networks > Tunnels > Configure |
+| cloudflare.tunnelTokenSecretName | string | `""` | Secret name containing tunnel token (key: token) If set, tunnelToken value is ignored |
 | deploymentMode | string | `"deployment"` | Deployment mode: "deployment" or "daemonset" DaemonSet mode ensures one tunnel pod per node, useful for: - Preventing port exhaustion from multiple pods on same node - Following Cloudflare's recommendation to limit instances per node - Ensuring predictable distribution and node-level reliability |
 | edgeBindAddress | string | `""` | Edge bind address for outgoing connections Specify the outgoing IP address for tunnel connections to Cloudflare edge Useful for multi-homed servers with multiple network interfaces Leave empty to use system default |
 | edgeIpVersion | string | `""` | IP version for edge connections (auto, 4, 6) auto: Cloudflare selects optimal IP version automatically 4: Force IPv4 connections to Cloudflare edge 6: Force IPv6 connections to Cloudflare edge Leave empty to use cloudflared default |

@@ -2,8 +2,12 @@
 {{- if and .Values.postQuantum (eq .Values.protocol "http2") }}
 {{- fail "postQuantum cannot be enabled with http2 protocol. Use 'auto' or 'quic' instead." }}
 {{- end }}
+{{- if eq .Values.cloudflare.mode "remote" }}
+{{- if and (not .Values.cloudflare.tunnelToken) (not .Values.cloudflare.tunnelTokenSecretName) }}
+{{- fail "cloudflare.tunnelToken or cloudflare.tunnelTokenSecretName is required when mode is 'remote'" }}
+{{- end }}
+{{- end }}
 # DaemonSet ensures one cloudflared pod per node
-# Useful for preventing port exhaustion and following Cloudflare recommendations
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -49,8 +53,15 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          {{- if or (and .Values.logLevel (ne .Values.logLevel "")) (and .Values.protocol (ne .Values.protocol "")) .Values.postQuantum (and .Values.region (ne .Values.region "")) (and .Values.retries (ne .Values.retries "")) (and .Values.edgeIpVersion (ne .Values.edgeIpVersion "")) (and .Values.gracePeriod (ne .Values.gracePeriod "")) (and .Values.edgeBindAddress (ne .Values.edgeBindAddress "")) (and .Values.tags (gt (len .Values.tags) 0)) }}
+          {{- if or (eq .Values.cloudflare.mode "remote") (and .Values.logLevel (ne .Values.logLevel "")) (and .Values.protocol (ne .Values.protocol "")) .Values.postQuantum (and .Values.region (ne .Values.region "")) (and .Values.retries (ne .Values.retries "")) (and .Values.edgeIpVersion (ne .Values.edgeIpVersion "")) (and .Values.gracePeriod (ne .Values.gracePeriod "")) (and .Values.edgeBindAddress (ne .Values.edgeBindAddress "")) (and .Values.tags (gt (len .Values.tags) 0)) }}
           env:
+            {{- if eq .Values.cloudflare.mode "remote" }}
+            - name: TUNNEL_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.cloudflare.tunnelTokenSecretName | default (printf "%s-token" (include "cloudflare-tunnel.fullname" .)) }}
+                  key: token
+            {{- end }}
             {{- if and .Values.logLevel (ne .Values.logLevel "") }}
             - name: TUNNEL_LOGLEVEL
               value: {{ .Values.logLevel }}
@@ -90,11 +101,15 @@ spec:
           {{- end }}
           args:
             - tunnel
-            # Points cloudflared to the config file, which configures what
-            # cloudflared will actually do. This file is created by a ConfigMap.
+            {{- if eq .Values.cloudflare.mode "remote" }}
+            - run
+            - --token
+            - $(TUNNEL_TOKEN)
+            {{- else }}
             - --config
             - /etc/cloudflared/config/config.yaml
             - run
+            {{- end }}
           livenessProbe:
             httpGet:
               # Cloudflared has a /ready endpoint which returns 200 if and only if
@@ -107,25 +122,28 @@ spec:
             {{- with .Values.livenessProbe.timeoutSeconds }}
             timeoutSeconds: {{ . }}
             {{- end }}
+          {{- if or (ne .Values.cloudflare.mode "remote") .Values.sidecar.extraVolumeMounts }}
           volumeMounts:
+            {{- if ne .Values.cloudflare.mode "remote" }}
             - name: config
               mountPath: /etc/cloudflared/config
               readOnly: true
-            # Each tunnel has an associated "credentials file" which authorizes machines
-            # to run the tunnel. cloudflared will read this file from its local filesystem,
-            # and it'll be stored in a k8s secret.
             - name: creds
               mountPath: /etc/cloudflared/creds
               readOnly: true
+            {{- end }}
             {{- with .Values.sidecar.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
+          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
         {{- with .Values.sidecar.containers }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
+      {{- if or (ne .Values.cloudflare.mode "remote") .Values.sidecar.extraVolumes }}
       volumes:
+        {{- if ne .Values.cloudflare.mode "remote" }}
         - name: creds
           secret:
             secretName: {{ .Values.cloudflare.secretName | default (include "cloudflare-tunnel.fullname" .) }}
@@ -135,9 +153,11 @@ spec:
             items:
               - key: config.yaml
                 path: config.yaml
+        {{- end }}
         {{- with .Values.sidecar.extraVolumes }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
