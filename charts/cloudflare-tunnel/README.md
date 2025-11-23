@@ -1,6 +1,6 @@
 # cloudflare-tunnel
 
-![Version: 0.14.0](https://img.shields.io/badge/Version-0.14.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.11.1](https://img.shields.io/badge/AppVersion-2025.11.1-informational?style=flat-square)
+![Version: 0.15.0](https://img.shields.io/badge/Version-0.15.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.11.1](https://img.shields.io/badge/AppVersion-2025.11.1-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -69,7 +69,7 @@ Before installing the chart, create a tunnel in Cloudflare:
 # Install with inline configuration
 helm install cloudflare-tunnel \
   oci://ghcr.io/lexfrei/charts/cloudflare-tunnel \
-  --version 0.14.0 \
+  --version 0.15.0 \
   --set cloudflare.account=YOUR_ACCOUNT_ID \
   --set cloudflare.tunnelName=YOUR_TUNNEL_NAME \
   --set cloudflare.tunnelId=YOUR_TUNNEL_ID \
@@ -80,7 +80,7 @@ helm install cloudflare-tunnel \
 # Install with values file
 helm install cloudflare-tunnel \
   oci://ghcr.io/lexfrei/charts/cloudflare-tunnel \
-  --version 0.14.0 \
+  --version 0.15.0 \
   --values values.yaml
 ```
 
@@ -90,7 +90,7 @@ This chart is signed with [cosign](https://github.com/sigstore/cosign) using key
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/cloudflare-tunnel:0.14.0 \
+  ghcr.io/lexfrei/charts/cloudflare-tunnel:0.15.0 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -526,6 +526,11 @@ Kubernetes: `>=1.21.0-0`
 | serviceMonitor.jobLabel | string | `""` | Job label for the ServiceMonitor |
 | serviceMonitor.metricRelabelings | list | `[]` | Metric relabelings for the ServiceMonitor |
 | serviceMonitor.relabelings | list | `[]` | Relabelings for the ServiceMonitor |
+| sidecar | object | `{"containers":[],"extraVolumeMounts":[],"extraVolumes":[],"initContainers":[]}` | Sidecar configuration for additional containers |
+| sidecar.containers | list | `[]` | Additional sidecar containers All containers share the same network namespace |
+| sidecar.extraVolumeMounts | list | `[]` | Extra volume mounts for the cloudflared container |
+| sidecar.extraVolumes | list | `[]` | Extra volumes for sidecar containers |
+| sidecar.initContainers | list | `[]` | Init containers to run before main containers |
 | tags | object | `{}` | Tags for tunnel identification and monitoring Key-value pairs for tagging tunnel instances in Cloudflare dashboard Useful for grouping, monitoring, and analytics Example: {"environment": "production", "team": "backend"} |
 | tolerations | list | `[]` |  |
 | topologySpreadConstraints | list | `[]` | Topology spread constraints for pod distribution across zones/nodes See <https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/> |

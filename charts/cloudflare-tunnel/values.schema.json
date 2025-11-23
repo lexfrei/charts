@@ -406,6 +406,44 @@
         "type": "string"
       },
       "default": {}
+    },
+    "sidecar": {
+      "type": "object",
+      "description": "Sidecar configuration for additional containers",
+      "properties": {
+        "initContainers": {
+          "type": "array",
+          "description": "Init containers to run before main containers",
+          "items": {
+            "type": "object"
+          },
+          "default": []
+        },
+        "containers": {
+          "type": "array",
+          "description": "Additional sidecar containers",
+          "items": {
+            "type": "object"
+          },
+          "default": []
+        },
+        "extraVolumes": {
+          "type": "array",
+          "description": "Extra volumes for sidecar containers",
+          "items": {
+            "type": "object"
+          },
+          "default": []
+        },
+        "extraVolumeMounts": {
+          "type": "array",
+          "description": "Extra volume mounts for the cloudflared container",
+          "items": {
+            "type": "object"
+          },
+          "default": []
+        }
+      }
     }
   },
   "required": [
