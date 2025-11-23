@@ -2,15 +2,27 @@
 
 # -- Cloudflare parameters
 cloudflare:
-  # -- Your Cloudflare account number
+  # -- Tunnel management mode: "local" or "remote"
+  # local: ingress rules defined in values.yaml, stored in ConfigMap
+  # remote: ingress rules managed via Cloudflare dashboard/API
+  mode: local
+
+  # -- Tunnel token for remote mode (alternative to credentials file)
+  # Get from: Zero Trust Dashboard > Networks > Tunnels > Configure
+  tunnelToken: ""
+  # -- Secret name containing tunnel token (key: token)
+  # If set, tunnelToken value is ignored
+  tunnelTokenSecretName: ""
+
+  # -- Your Cloudflare account number (local mode only)
   account: ""
-  # -- The name of the tunnel this instance will serve
+  # -- The name of the tunnel this instance will serve (local mode only)
   tunnelName: ""
-  # -- The ID of the above tunnel
+  # -- The ID of the above tunnel (local mode only)
   tunnelId: ""
-  # -- The secret for the tunnel
+  # -- The secret for the tunnel (local mode only)
   secret: ""
-  # -- If defined, no secret is created for the credentials, and instead, the secret referenced is used
+  # -- If defined, no secret is created for the credentials (local mode only)
   secretName: null
   # -- If true, turn on WARP routing for TCP
   enableWarp: false
@@ -214,6 +226,24 @@ edgeBindAddress: ""
 # Useful for grouping, monitoring, and analytics
 # Example: {"environment": "production", "team": "backend"}
 tags: {}
+
+# -- Sidecar configuration for additional containers
+sidecar:
+  # -- Init containers to run before main containers
+  initContainers: []
+    # - name: init-setup
+    #   image: busybox:1.36
+    #   command: ["sh", "-c", "sleep 5"]
+
+  # -- Additional sidecar containers
+  # All containers share the same network namespace
+  containers: []
+
+  # -- Extra volumes for sidecar containers
+  extraVolumes: []
+
+  # -- Extra volume mounts for the cloudflared container
+  extraVolumeMounts: []
 
 # -- Network Policy configuration
 networkPolicy:

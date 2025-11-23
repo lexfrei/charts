@@ -1,6 +1,6 @@
 # cloudflare-tunnel
 
-![Version: 0.14.0](https://img.shields.io/badge/Version-0.14.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.11.1](https://img.shields.io/badge/AppVersion-2025.11.1-informational?style=flat-square)
+![Version: 0.15.0](https://img.shields.io/badge/Version-0.15.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2025.11.1](https://img.shields.io/badge/AppVersion-2025.11.1-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -69,7 +69,7 @@ Before installing the chart, create a tunnel in Cloudflare:
 # Install with inline configuration
 helm install cloudflare-tunnel \
   oci://ghcr.io/lexfrei/charts/cloudflare-tunnel \
-  --version 0.14.0 \
+  --version 0.15.0 \
   --set cloudflare.account=YOUR_ACCOUNT_ID \
   --set cloudflare.tunnelName=YOUR_TUNNEL_NAME \
   --set cloudflare.tunnelId=YOUR_TUNNEL_ID \
@@ -80,7 +80,7 @@ helm install cloudflare-tunnel \
 # Install with values file
 helm install cloudflare-tunnel \
   oci://ghcr.io/lexfrei/charts/cloudflare-tunnel \
-  --version 0.14.0 \
+  --version 0.15.0 \
   --values values.yaml
 ```
 
@@ -90,7 +90,7 @@ This chart is signed with [cosign](https://github.com/sigstore/cosign) using key
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/cloudflare-tunnel:0.14.0 \
+  ghcr.io/lexfrei/charts/cloudflare-tunnel:0.15.0 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -475,16 +475,19 @@ Kubernetes: `>=1.21.0-0`
 | autoscaling.minReplicas | int | `2` | Minimum number of replicas |
 | autoscaling.targetCPUUtilizationPercentage | int | `80` | Target CPU utilization percentage |
 | autoscaling.targetMemoryUtilizationPercentage | string | `nil` | Target memory utilization percentage |
-| cloudflare | object | `{"account":"","enableDefault404":true,"enableWarp":false,"ingress":[],"originRequest":{},"secret":"","secretName":null,"tunnelId":"","tunnelName":""}` | Cloudflare parameters |
-| cloudflare.account | string | `""` | Your Cloudflare account number |
+| cloudflare | object | `{"account":"","enableDefault404":true,"enableWarp":false,"ingress":[],"mode":"local","originRequest":{},"secret":"","secretName":null,"tunnelId":"","tunnelName":"","tunnelToken":"","tunnelTokenSecretName":""}` | Cloudflare parameters |
+| cloudflare.account | string | `""` | Your Cloudflare account number (local mode only) |
 | cloudflare.enableDefault404 | bool | `true` | If true, enable the default 404 page. Needs to be false if you want to use a '*' wildcard rule. |
 | cloudflare.enableWarp | bool | `false` | If true, turn on WARP routing for TCP |
 | cloudflare.ingress | list | `[]` | Define ingress rules for the tunnel See <https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress> |
+| cloudflare.mode | string | `"local"` | Tunnel management mode: "local" or "remote" local: ingress rules defined in values.yaml, stored in ConfigMap remote: ingress rules managed via Cloudflare dashboard/API |
 | cloudflare.originRequest | object | `{}` | Global originRequest configuration for all ingress rules See <https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/configuration-file/ingress#origin-request> |
-| cloudflare.secret | string | `""` | The secret for the tunnel |
-| cloudflare.secretName | string | `nil` | If defined, no secret is created for the credentials, and instead, the secret referenced is used |
-| cloudflare.tunnelId | string | `""` | The ID of the above tunnel |
-| cloudflare.tunnelName | string | `""` | The name of the tunnel this instance will serve |
+| cloudflare.secret | string | `""` | The secret for the tunnel (local mode only) |
+| cloudflare.secretName | string | `nil` | If defined, no secret is created for the credentials (local mode only) |
+| cloudflare.tunnelId | string | `""` | The ID of the above tunnel (local mode only) |
+| cloudflare.tunnelName | string | `""` | The name of the tunnel this instance will serve (local mode only) |
+| cloudflare.tunnelToken | string | `""` | Tunnel token for remote mode (alternative to credentials file) Get from: Zero Trust Dashboard > Networks > Tunnels > Configure |
+| cloudflare.tunnelTokenSecretName | string | `""` | Secret name containing tunnel token (key: token) If set, tunnelToken value is ignored |
 | deploymentMode | string | `"deployment"` | Deployment mode: "deployment" or "daemonset" DaemonSet mode ensures one tunnel pod per node, useful for: - Preventing port exhaustion from multiple pods on same node - Following Cloudflare's recommendation to limit instances per node - Ensuring predictable distribution and node-level reliability |
 | edgeBindAddress | string | `""` | Edge bind address for outgoing connections Specify the outgoing IP address for tunnel connections to Cloudflare edge Useful for multi-homed servers with multiple network interfaces Leave empty to use system default |
 | edgeIpVersion | string | `""` | IP version for edge connections (auto, 4, 6) auto: Cloudflare selects optimal IP version automatically 4: Force IPv4 connections to Cloudflare edge 6: Force IPv6 connections to Cloudflare edge Leave empty to use cloudflared default |
@@ -526,6 +529,11 @@ Kubernetes: `>=1.21.0-0`
 | serviceMonitor.jobLabel | string | `""` | Job label for the ServiceMonitor |
 | serviceMonitor.metricRelabelings | list | `[]` | Metric relabelings for the ServiceMonitor |
 | serviceMonitor.relabelings | list | `[]` | Relabelings for the ServiceMonitor |
+| sidecar | object | `{"containers":[],"extraVolumeMounts":[],"extraVolumes":[],"initContainers":[]}` | Sidecar configuration for additional containers |
+| sidecar.containers | list | `[]` | Additional sidecar containers All containers share the same network namespace |
+| sidecar.extraVolumeMounts | list | `[]` | Extra volume mounts for the cloudflared container |
+| sidecar.extraVolumes | list | `[]` | Extra volumes for sidecar containers |
+| sidecar.initContainers | list | `[]` | Init containers to run before main containers |
 | tags | object | `{}` | Tags for tunnel identification and monitoring Key-value pairs for tagging tunnel instances in Cloudflare dashboard Useful for grouping, monitoring, and analytics Example: {"environment": "production", "team": "backend"} |
 | tolerations | list | `[]` |  |
 | topologySpreadConstraints | list | `[]` | Topology spread constraints for pod distribution across zones/nodes See <https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/> |

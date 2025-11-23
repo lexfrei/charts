@@ -6,28 +6,42 @@
     "cloudflare": {
       "type": "object",
       "properties": {
+        "mode": {
+          "type": "string",
+          "description": "Tunnel management mode: local or remote.",
+          "enum": ["local", "remote"],
+          "default": "local"
+        },
+        "tunnelToken": {
+          "type": "string",
+          "description": "Tunnel token for remote mode."
+        },
+        "tunnelTokenSecretName": {
+          "type": "string",
+          "description": "Secret name containing tunnel token (key: token)."
+        },
         "account": {
           "type": "string",
-          "description": "Your Cloudflare account number."
+          "description": "Your Cloudflare account number (local mode only)."
         },
         "tunnelName": {
           "type": "string",
-          "description": "The name of the tunnel this instance will serve."
+          "description": "The name of the tunnel (local mode only)."
         },
         "tunnelId": {
           "type": "string",
-          "description": "The ID of the above tunnel."
+          "description": "The ID of the tunnel (local mode only)."
         },
         "secret": {
           "type": "string",
-          "description": "The secret for the tunnel."
+          "description": "The secret for the tunnel (local mode only)."
         },
         "secretName": {
           "type": [
             "string",
             "null"
           ],
-          "description": "Reference to a secret if no credentials are created."
+          "description": "Reference to a secret (local mode only)."
         },
         "enableWarp": {
           "type": "boolean",
@@ -121,10 +135,26 @@
           }
         }
       },
-      "required": [
-        "account",
-        "tunnelName",
-        "tunnelId"
+      "allOf": [
+        {
+          "if": {
+            "properties": { "mode": { "const": "local" } }
+          },
+          "then": {
+            "required": ["account", "tunnelName", "tunnelId"]
+          }
+        },
+        {
+          "if": {
+            "properties": { "mode": { "const": "remote" } }
+          },
+          "then": {
+            "anyOf": [
+              { "required": ["tunnelToken"] },
+              { "required": ["tunnelTokenSecretName"] }
+            ]
+          }
+        }
       ]
     },
     "image": {
@@ -406,6 +436,44 @@
         "type": "string"
       },
       "default": {}
+    },
+    "sidecar": {
+      "type": "object",
+      "description": "Sidecar configuration for additional containers",
+      "properties": {
+        "initContainers": {
+          "type": "array",
+          "description": "Init containers to run before main containers",
+          "items": {
+            "type": "object"
+          },
+          "default": []
+        },
+        "containers": {
+          "type": "array",
+          "description": "Additional sidecar containers",
+          "items": {
+            "type": "object"
+          },
+          "default": []
+        },
+        "extraVolumes": {
+          "type": "array",
+          "description": "Extra volumes for sidecar containers",
+          "items": {
+            "type": "object"
+          },
+          "default": []
+        },
+        "extraVolumeMounts": {
+          "type": "array",
+          "description": "Extra volume mounts for the cloudflared container",
+          "items": {
+            "type": "object"
+          },
+          "default": []
+        }
+      }
     }
   },
   "required": [

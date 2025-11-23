@@ -1,0 +1,251 @@
+suite: test sidecar configuration
+templates:
+  - deployment.yaml
+  - daemonset.yaml
+  - configmap.yaml
+  - secret.yaml
+values:
+  - ../values.yaml
+tests:
+  - it: should not render initContainers when sidecar.initContainers is empty
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+    asserts:
+      - template: deployment.yaml
+        isNull:
+          path: spec.template.spec.initContainers
+
+  - it: should render initContainers when configured
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      sidecar:
+        initContainers:
+          - name: wait-for-vpn
+            image: busybox:1.36
+            command: ["sh", "-c", "sleep 5"]
+    asserts:
+      - template: deployment.yaml
+        equal:
+          path: spec.template.spec.initContainers[0].name
+          value: wait-for-vpn
+      - template: deployment.yaml
+        equal:
+          path: spec.template.spec.initContainers[0].image
+          value: busybox:1.36
+
+  - it: should render sidecar containers when configured
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      sidecar:
+        containers:
+          - name: amneziawg
+            image: ghcr.io/zeozeozeo/amneziawg-client:latest
+            stdin: true
+            tty: true
+    asserts:
+      - template: deployment.yaml
+        equal:
+          path: spec.template.spec.containers[1].name
+          value: amneziawg
+      - template: deployment.yaml
+        equal:
+          path: spec.template.spec.containers[1].image
+          value: ghcr.io/zeozeozeo/amneziawg-client:latest
+      - template: deployment.yaml
+        equal:
+          path: spec.template.spec.containers[1].stdin
+          value: true
+      - template: deployment.yaml
+        equal:
+          path: spec.template.spec.containers[1].tty
+          value: true
+
+  - it: should render extra volumes when configured
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      sidecar:
+        extraVolumes:
+          - name: awg-config
+            secret:
+              secretName: awg-config
+          - name: tun-device
+            hostPath:
+              path: /dev/net/tun
+              type: CharDevice
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.volumes
+          content:
+            name: awg-config
+            secret:
+              secretName: awg-config
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.volumes
+          content:
+            name: tun-device
+            hostPath:
+              path: /dev/net/tun
+              type: CharDevice
+
+  - it: should render extra volume mounts for cloudflared container
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      sidecar:
+        extraVolumeMounts:
+          - name: shared-data
+            mountPath: /shared
+    asserts:
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: shared-data
+            mountPath: /shared
+
+  - it: should work with full AWG sidecar configuration
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      podSecurityContext:
+        runAsNonRoot: false
+      sidecar:
+        initContainers:
+          - name: wait-for-awg
+            image: busybox:1.36
+            command: ["sh", "-c", "sleep 5"]
+            securityContext:
+              runAsUser: 0
+              runAsNonRoot: false
+        containers:
+          - name: amneziawg
+            image: ghcr.io/zeozeozeo/amneziawg-client:latest
+            stdin: true
+            tty: true
+            securityContext:
+              privileged: true
+              runAsUser: 0
+              runAsNonRoot: false
+            volumeMounts:
+              - name: awg-config
+                mountPath: /config
+                readOnly: true
+              - name: tun-device
+                mountPath: /dev/net/tun
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 64Mi
+        extraVolumes:
+          - name: awg-config
+            secret:
+              secretName: awg-config
+          - name: tun-device
+            hostPath:
+              path: /dev/net/tun
+              type: CharDevice
+    asserts:
+      - template: deployment.yaml
+        equal:
+          path: spec.template.spec.initContainers[0].name
+          value: wait-for-awg
+      - template: deployment.yaml
+        equal:
+          path: spec.template.spec.containers[1].name
+          value: amneziawg
+      - template: deployment.yaml
+        equal:
+          path: spec.template.spec.containers[1].securityContext.privileged
+          value: true
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.volumes
+          content:
+            name: tun-device
+            hostPath:
+              path: /dev/net/tun
+              type: CharDevice
+
+  - it: should support sidecar in DaemonSet mode
+    set:
+      cloudflare:
+        account: test-account
+        tunnelName: test-tunnel
+        tunnelId: test-id
+        secret: test-secret
+        ingress:
+          - hostname: test.example.com
+            service: http://test-service:80
+      deploymentMode: daemonset
+      sidecar:
+        initContainers:
+          - name: wait-for-vpn
+            image: busybox:1.36
+            command: ["sh", "-c", "sleep 5"]
+        containers:
+          - name: amneziawg
+            image: ghcr.io/zeozeozeo/amneziawg-client:latest
+        extraVolumes:
+          - name: awg-config
+            secret:
+              secretName: awg-config
+    asserts:
+      - template: daemonset.yaml
+        equal:
+          path: spec.template.spec.initContainers[0].name
+          value: wait-for-vpn
+      - template: daemonset.yaml
+        equal:
+          path: spec.template.spec.containers[1].name
+          value: amneziawg
+      - template: daemonset.yaml
+        contains:
+          path: spec.template.spec.volumes
+          content:
+            name: awg-config
+            secret:
+              secretName: awg-config
