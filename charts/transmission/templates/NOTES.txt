@@ -12,9 +12,9 @@ To check the status of your deployment:
 {{- if .Values.ingress.enabled }}
 
 Web UI is accessible at:
-{{- range .Values.ingress.hosts }}
+{{- range $host := .Values.ingress.hosts }}
   {{- range .paths }}
-  - http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}{{ .path }}
+  - http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
   {{- end }}
 {{- end }}
 {{- else }}

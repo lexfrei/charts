@@ -1,6 +1,6 @@
 # transmission
 
-![Version: 1.3.0](https://img.shields.io/badge/Version-1.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.0.6](https://img.shields.io/badge/AppVersion-4.0.6-informational?style=flat-square)
+![Version: 1.4.0](https://img.shields.io/badge/Version-1.4.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.0.6](https://img.shields.io/badge/AppVersion-4.0.6-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -38,12 +38,12 @@ This chart is published to GitHub Container Registry (GHCR) as an OCI artifact.
 # Install from GHCR
 helm install transmission \
   oci://ghcr.io/lexfrei/charts/transmission \
-  --version 1.3.0
+  --version 1.4.0
 
 # Install with custom values
 helm install transmission \
   oci://ghcr.io/lexfrei/charts/transmission \
-  --version 1.3.0 \
+  --version 1.4.0 \
   --values values.yaml
 ```
 
@@ -53,7 +53,7 @@ This chart is signed with [cosign](https://github.com/sigstore/cosign) using key
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/transmission:1.3.0 \
+  ghcr.io/lexfrei/charts/transmission:1.4.0 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -87,6 +87,11 @@ helm delete transmission
 | imagePullSecrets | list | `[]` |  |
 | ingress | object | `{"annotations":{},"className":"","enabled":false,"hosts":[{"host":"transmission.example.com","paths":[{"path":"/","pathType":"Prefix"}]}],"tls":[{"hosts":["transmission.example.com"],"secretName":"transmission-tls"}]}` | Ingress configuration |
 | initContainers | list | [] | Init containers to run before the main container |
+| livenessProbe | object | `{"failureThreshold":6,"initialDelaySeconds":30,"periodSeconds":10,"timeoutSeconds":5}` | Liveness probe configuration |
+| livenessProbe.failureThreshold | int | `6` | Failure threshold for liveness probe |
+| livenessProbe.initialDelaySeconds | int | `30` | Initial delay before liveness probe starts |
+| livenessProbe.periodSeconds | int | `10` | Period between liveness probe checks |
+| livenessProbe.timeoutSeconds | int | `5` | Timeout for liveness probe |
 | nameOverride | string | `""` |  |
 | networkPolicy | object | `{"egress":[],"enabled":false,"ingress":[]}` | Network Policy configuration |
 | networkPolicy.egress | list | `[]` | Additional egress rules |
@@ -110,6 +115,11 @@ helm delete transmission
 | podAnnotations | object | `{}` | Pod annotations |
 | podLabels | object | `{}` | Pod labels |
 | podSecurityContext | object | `{"fsGroup":1000,"seccompProfile":{"type":"RuntimeDefault"}}` | Security context for the pod |
+| readinessProbe | object | `{"failureThreshold":3,"initialDelaySeconds":10,"periodSeconds":5,"timeoutSeconds":3}` | Readiness probe configuration |
+| readinessProbe.failureThreshold | int | `3` | Failure threshold for readiness probe |
+| readinessProbe.initialDelaySeconds | int | `10` | Initial delay before readiness probe starts |
+| readinessProbe.periodSeconds | int | `5` | Period between readiness probe checks |
+| readinessProbe.timeoutSeconds | int | `3` | Timeout for readiness probe |
 | resources | object | `{"limits":{"cpu":"400m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"256Mi"}}` | Resource limits and requests |
 | securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"add":["SETUID","SETGID","CHOWN"],"drop":["ALL"]},"readOnlyRootFilesystem":false}` | Security context for the container |
 | service | object | `{"torrent":{"annotations":{},"enabled":true,"tcpPort":51413,"type":"LoadBalancer","udpPort":51413},"web":{"annotations":{},"port":9091,"type":"ClusterIP"}}` | Service configuration |
