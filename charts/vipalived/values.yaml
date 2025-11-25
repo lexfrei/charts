@@ -127,6 +127,17 @@ securityContext:
       - NET_RAW
       - NET_BROADCAST
 
+# -- Liveness probe configuration
+livenessProbe:
+  # -- Initial delay before liveness probe starts
+  initialDelaySeconds: 15
+  # -- Period between liveness probe checks
+  periodSeconds: 10
+  # -- Timeout for liveness probe
+  timeoutSeconds: 5
+  # -- Failure threshold for liveness probe
+  failureThreshold: 3
+
 # -- Resource requests and limits
 resources:
   limits:

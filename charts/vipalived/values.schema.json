@@ -195,6 +195,33 @@
       "type": "object",
       "description": "Security context for the container"
     },
+    "livenessProbe": {
+      "type": "object",
+      "description": "Liveness probe configuration",
+      "properties": {
+        "initialDelaySeconds": {
+          "type": "integer",
+          "description": "Initial delay before liveness probe starts",
+          "minimum": 0
+        },
+        "periodSeconds": {
+          "type": "integer",
+          "description": "Period between liveness probe checks",
+          "minimum": 1
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "description": "Timeout for liveness probe",
+          "minimum": 1
+        },
+        "failureThreshold": {
+          "type": "integer",
+          "description": "Failure threshold for liveness probe",
+          "minimum": 1
+        }
+      },
+      "required": ["initialDelaySeconds", "periodSeconds", "timeoutSeconds", "failureThreshold"]
+    },
     "resources": {
       "type": "object",
       "properties": {
@@ -237,6 +264,7 @@
     "image",
     "keepalived",
     "hostNetwork",
-    "priorityClassName"
+    "priorityClassName",
+    "livenessProbe"
   ]
 }
