@@ -284,3 +284,55 @@ tests:
         equal:
           path: metadata.name
           value: custom-name
+
+  - it: should have liveness probe with default values
+    asserts:
+      - template: daemonset.yaml
+        equal:
+          path: spec.template.spec.containers[0].livenessProbe.exec.command[0]
+          value: pgrep
+      - template: daemonset.yaml
+        equal:
+          path: spec.template.spec.containers[0].livenessProbe.exec.command[1]
+          value: keepalived
+      - template: daemonset.yaml
+        equal:
+          path: spec.template.spec.containers[0].livenessProbe.initialDelaySeconds
+          value: 15
+      - template: daemonset.yaml
+        equal:
+          path: spec.template.spec.containers[0].livenessProbe.periodSeconds
+          value: 10
+      - template: daemonset.yaml
+        equal:
+          path: spec.template.spec.containers[0].livenessProbe.timeoutSeconds
+          value: 5
+      - template: daemonset.yaml
+        equal:
+          path: spec.template.spec.containers[0].livenessProbe.failureThreshold
+          value: 3
+
+  - it: should allow custom liveness probe values
+    set:
+      livenessProbe:
+        initialDelaySeconds: 30
+        periodSeconds: 20
+        timeoutSeconds: 10
+        failureThreshold: 5
+    asserts:
+      - template: daemonset.yaml
+        equal:
+          path: spec.template.spec.containers[0].livenessProbe.initialDelaySeconds
+          value: 30
+      - template: daemonset.yaml
+        equal:
+          path: spec.template.spec.containers[0].livenessProbe.periodSeconds
+          value: 20
+      - template: daemonset.yaml
+        equal:
+          path: spec.template.spec.containers[0].livenessProbe.timeoutSeconds
+          value: 10
+      - template: daemonset.yaml
+        equal:
+          path: spec.template.spec.containers[0].livenessProbe.failureThreshold
+          value: 5

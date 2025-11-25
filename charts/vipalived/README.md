@@ -1,6 +1,6 @@
 # vipalived
 
-![Version: 0.4.0](https://img.shields.io/badge/Version-0.4.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.22](https://img.shields.io/badge/AppVersion-3.22-informational?style=flat-square)
+![Version: 0.5.0](https://img.shields.io/badge/Version-0.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.22](https://img.shields.io/badge/AppVersion-3.22-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -16,16 +16,16 @@ Keepalived-based VIP management for Kubernetes control plane high availability
 
 ```bash
 # Day 2: Install with default VIP (172.16.101.101/32) on existing cluster
-helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived --version 0.4.0
+helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived --version 0.5.0
 
 # Day 2: Install with custom VIP address
 helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived \
-  --version 0.4.0 \
+  --version 0.5.0 \
   --set keepalived.vrrpInstance.virtualIpAddress=192.168.1.100/24
 
 # Day 1: Generate static pod manifest for cluster bootstrap
 helm template vipalived oci://ghcr.io/lexfrei/charts/vipalived \
-  --version 0.4.0 \
+  --version 0.5.0 \
   --set static=true \
   --set keepalived.vrrpInstance.virtualIpAddress=192.168.1.100/24 > /etc/kubernetes/manifests/vipalived.yaml
 ```
@@ -75,7 +75,7 @@ For **Day 1 cluster bootstrapping**, when you need the VIP available BEFORE the 
 
    ```bash
    helm template vipalived oci://ghcr.io/lexfrei/charts/vipalived \
-     --version 0.4.0 \
+     --version 0.5.0 \
      --set static=true \
      --set keepalived.vrrpInstance.virtualIpAddress=YOUR_VIP_ADDRESS/CIDR \
      --namespace kube-system > vipalived-static-pod.yaml
@@ -138,7 +138,7 @@ All charts published to GHCR are signed using cosign. To verify the chart signat
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/vipalived:0.4.0 \
+  ghcr.io/lexfrei/charts/vipalived:0.5.0 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -170,6 +170,11 @@ cosign verify \
 | keepalived.vrrpInstance.virtualIpAddress | string | `"172.16.101.101/32"` | Virtual IP address with CIDR notation |
 | keepalived.vrrpInstance.virtualRouterId | int | `51` | Virtual router ID (must be unique in the network) |
 | keepalived.vrrpVersion | int | `3` | VRRP protocol version (2 or 3) |
+| livenessProbe | object | `{"failureThreshold":3,"initialDelaySeconds":15,"periodSeconds":10,"timeoutSeconds":5}` | Liveness probe configuration |
+| livenessProbe.failureThreshold | int | `3` | Failure threshold for liveness probe |
+| livenessProbe.initialDelaySeconds | int | `15` | Initial delay before liveness probe starts |
+| livenessProbe.periodSeconds | int | `10` | Period between liveness probe checks |
+| livenessProbe.timeoutSeconds | int | `5` | Timeout for liveness probe |
 | nameOverride | string | `""` | Override the name of the chart |
 | namespace | string | `"kube-system"` | Namespace to deploy vipalived into |
 | nodeSelector | object | `{"node-role.kubernetes.io/control-plane":"true"}` | Node selector for pod assignment |

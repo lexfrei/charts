@@ -211,3 +211,36 @@ tests:
       - notMatchRegex:
           path: spec.containers[0].command[2]
           pattern: "\\s+nopreempt"
+
+  - it: should have liveness probe with default values
+    set:
+      static: true
+    asserts:
+      - equal:
+          path: spec.containers[0].livenessProbe.exec.command[0]
+          value: pgrep
+      - equal:
+          path: spec.containers[0].livenessProbe.exec.command[1]
+          value: keepalived
+      - equal:
+          path: spec.containers[0].livenessProbe.initialDelaySeconds
+          value: 15
+      - equal:
+          path: spec.containers[0].livenessProbe.periodSeconds
+          value: 10
+
+  - it: should allow custom liveness probe values
+    set:
+      static: true
+      livenessProbe:
+        initialDelaySeconds: 30
+        periodSeconds: 20
+        timeoutSeconds: 10
+        failureThreshold: 5
+    asserts:
+      - equal:
+          path: spec.containers[0].livenessProbe.initialDelaySeconds
+          value: 30
+      - equal:
+          path: spec.containers[0].livenessProbe.periodSeconds
+          value: 20

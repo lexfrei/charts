@@ -2,11 +2,13 @@ annotations:
   artifacthub.io/category: networking
   artifacthub.io/changes: |-
     - kind: added
-      description: Add NOTES.txt with VIP configuration details and troubleshooting
+      description: Add liveness probe for keepalived process monitoring
     - kind: added
-      description: Add production HA example configuration
-    - kind: security
-      description: Add seccompProfile RuntimeDefault to pod security context
+      description: Add chart icon
+    - kind: fixed
+      description: Fix NOTES.txt to use correct namespace from values
+    - kind: changed
+      description: Remove unused serviceAccountName helper
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -20,7 +22,7 @@ apiVersion: v2
 name: vipalived
 description: Keepalived-based VIP management for Kubernetes control plane high availability
 type: application
-version: 0.4.0
+version: 0.5.0
 # renovate: datasource=docker depName=alpine
 appVersion: "3.22"
 keywords:
@@ -33,4 +35,5 @@ keywords:
 maintainers:
   - name: lexfrei
     email: f@lex.la
+icon: https://www.keepalived.org/images/ka_favicon.png
 kubeVersion: '>=1.16.0-0'

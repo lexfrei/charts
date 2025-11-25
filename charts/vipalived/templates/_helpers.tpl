@@ -52,17 +52,6 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
-Create the name of the service account to use
-*/}}
-{{- define "vipalived.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create }}
-{{- default (include "vipalived.fullname" .) .Values.serviceAccount.name }}
-{{- else }}
-{{- default "default" .Values.serviceAccount.name }}
-{{- end }}
-{{- end }}
-
-{{/*
 Generate keepalived.conf content
 This helper is used by both ConfigMap (for DaemonSet) and Pod (for static pod mode)
 */}}

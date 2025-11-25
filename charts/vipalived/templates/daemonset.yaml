@@ -67,6 +67,15 @@ spec:
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          livenessProbe:
+            exec:
+              command:
+                - pgrep
+                - keepalived
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
           {{- with .Values.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
