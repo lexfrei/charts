@@ -105,6 +105,28 @@ resources:
     memory: "512Mi"
     cpu: "400m"
 
+# -- Liveness probe configuration
+livenessProbe:
+  # -- Initial delay before liveness probe starts
+  initialDelaySeconds: 30
+  # -- Period between liveness probe checks
+  periodSeconds: 10
+  # -- Timeout for liveness probe
+  timeoutSeconds: 5
+  # -- Failure threshold for liveness probe
+  failureThreshold: 6
+
+# -- Readiness probe configuration
+readinessProbe:
+  # -- Initial delay before readiness probe starts
+  initialDelaySeconds: 10
+  # -- Period between readiness probe checks
+  periodSeconds: 5
+  # -- Timeout for readiness probe
+  timeoutSeconds: 3
+  # -- Failure threshold for readiness probe
+  failureThreshold: 3
+
 # -- Persistence configuration
 persistence:
   # -- Config volume configuration
