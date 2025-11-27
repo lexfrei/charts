@@ -3,10 +3,8 @@ annotations:
   # Valid kinds for changes: added, changed, deprecated, removed, fixed, security
   # See: https://artifacthub.io/docs/topics/annotations/helm/
   artifacthub.io/changes: |-
-    - kind: added
-      description: Add sidecar containers support
-    - kind: added
-      description: Add remote-managed tunnel mode with token authentication
+    - kind: fixed
+      description: Fix liveness probe port mismatch in remote mode by setting TUNNEL_METRICS
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -20,7 +18,7 @@ apiVersion: v2
 name: cloudflare-tunnel
 description: Creation of a cloudflared deployment - a reverse tunnel for an environment
 type: application
-version: "0.15.0"
+version: "0.15.1"
 kubeVersion: ">=1.21.0-0"
 # renovate: datasource=docker depName=cloudflare/cloudflared
 appVersion: "2025.11.1"

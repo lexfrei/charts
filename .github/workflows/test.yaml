@@ -88,7 +88,7 @@ jobs:
       - name: Install tools
         run: |
           # helm-unittest
-          helm plugin install https://github.com/helm-unittest/helm-unittest.git
+          helm plugin install https://github.com/helm-unittest/helm-unittest.git --verify=false
 
           # JSON schema validator
           pip install check-jsonschema
@@ -123,7 +123,7 @@ jobs:
           CHART_DIR="${{ matrix.chart }}"
           if [ -d "$CHART_DIR/tests" ]; then
             echo "🧪 Running unit tests..."
-            helm unittest $CHART_DIR --color --with-subchart=false
+            helm unittest $CHART_DIR --with-subchart=false
           else
             echo "ℹ️  No tests directory found, skipping unit tests"
           fi
