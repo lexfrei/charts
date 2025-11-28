@@ -205,32 +205,64 @@ jobs:
 
       - name: Package and push chart
         if: steps.check-version.outputs.exists == 'false'
-        id: push
         run: |
           CHART_PATH="${{ steps.chart-metadata.outputs.path }}"
           CHART_NAME="${{ steps.chart-metadata.outputs.name }}"
           CHART_VERSION="${{ steps.chart-metadata.outputs.version }}"
+          CHART_REPO="ghcr.io/${{ github.repository_owner }}/charts/${CHART_NAME}"
 
           # Package chart
           helm package "${CHART_PATH}"
-
-          # Push to GHCR and capture output
           CHART_FILE="${CHART_NAME}-${CHART_VERSION}.tgz"
-          helm push "${CHART_FILE}" oci://ghcr.io/${{ github.repository_owner }}/charts > /tmp/push-output.txt 2>&1
-          cat /tmp/push-output.txt
 
-          # Extract digest from helm push output
-          DIGEST=$(awk '/Digest: /{print $2}' /tmp/push-output.txt)
-          echo "digest=${DIGEST}" >> $GITHUB_OUTPUT
-          echo "Pushed chart with digest: ${DIGEST}"
+          # Extract Chart.yaml and convert to JSON for config layer
+          # Helm OCI spec requires JSON config blob (helm does json.Marshal(metadata))
+          # See: https://github.com/helm/helm/blob/main/pkg/registry/client.go
+          tar --extract --gzip --file "${CHART_FILE}" "${CHART_NAME}/Chart.yaml"
+          yq eval --output-format=json "${CHART_NAME}/Chart.yaml" > "${CHART_NAME}/config.json"
+
+          # Push chart using oras for full path control
+          # Media types per Helm OCI spec: https://helm.sh/docs/topics/registries/
+          oras push "${CHART_REPO}:${CHART_VERSION}" \
+            --config "${CHART_NAME}/config.json:application/vnd.cncf.helm.config.v1+json" \
+            "${CHART_FILE}:application/vnd.cncf.helm.chart.content.v1.tar+gzip"
+
+          rm --recursive --force "${CHART_NAME}"
+
+          echo "Chart pushed: oci://${CHART_REPO}:${CHART_VERSION}"
 
       - name: Sign chart with cosign
         if: steps.check-version.outputs.exists == 'false'
         run: |
-          IMAGE_URI="ghcr.io/${{ github.repository_owner }}/charts/${{ steps.chart-metadata.outputs.name }}@${{ steps.push.outputs.digest }}"
-          echo "Signing ${IMAGE_URI}"
-          cosign sign --yes "${IMAGE_URI}"
+          CHART_NAME="${{ steps.chart-metadata.outputs.name }}"
+          CHART_VERSION="${{ steps.chart-metadata.outputs.version }}"
+          CHART_REPO="ghcr.io/${{ github.repository_owner }}/charts/${CHART_NAME}"
+
+          # Get chart digest for signing (reliable method via oras)
+          CHART_DIGEST=$(oras manifest fetch "${CHART_REPO}:${CHART_VERSION}" --descriptor | jq --raw-output '.digest')
+
+          # Sign the chart by digest (immutable reference)
+          echo "Signing ${CHART_REPO}@${CHART_DIGEST}"
+          cosign sign --yes "${CHART_REPO}@${CHART_DIGEST}"
+
           echo "Chart signed successfully"
+
+      - name: Add semver tags
+        if: steps.check-version.outputs.exists == 'false'
+        run: |
+          CHART_NAME="${{ steps.chart-metadata.outputs.name }}"
+          CHART_VERSION="${{ steps.chart-metadata.outputs.version }}"
+          CHART_REPO="ghcr.io/${{ github.repository_owner }}/charts/${CHART_NAME}"
+
+          MAJOR_MINOR=$(echo "${CHART_VERSION}" | cut --delimiter=. --fields=1,2)
+          MAJOR=$(echo "${CHART_VERSION}" | cut --delimiter=. --fields=1)
+
+          oras tag "${CHART_REPO}:${CHART_VERSION}" \
+            "${MAJOR_MINOR}" \
+            "${MAJOR}" \
+            "latest"
+
+          echo "Additional tags created: ${MAJOR_MINOR}, ${MAJOR}, latest"
 
       - name: Publish Artifact Hub metadata
         if: steps.check-version.outputs.exists == 'false'
@@ -307,10 +339,16 @@ jobs:
           "
           fi
 
+          # Calculate semver tags
+          MAJOR_MINOR=$(echo "${CHART_VERSION}" | cut --delimiter=. --fields=1,2)
+          MAJOR=$(echo "${CHART_VERSION}" | cut --delimiter=. --fields=1)
+
           # Build release body with changelog first
           RELEASE_BODY="## Chart: ${CHART_NAME} v${CHART_VERSION}
 
           **App Version**: ${APP_VERSION}
+
+          **Available tags**: \`${CHART_VERSION}\`, \`${MAJOR_MINOR}\`, \`${MAJOR}\`, \`latest\`
 
           ${CHANGELOG_SECTION}### Installation
 
@@ -352,19 +390,25 @@ jobs:
       - name: Summary
         if: steps.check-version.outputs.exists == 'false'
         run: |
+          CHART_NAME="${{ steps.chart-metadata.outputs.name }}"
+          CHART_VERSION="${{ steps.chart-metadata.outputs.version }}"
+          MAJOR_MINOR=$(echo "${CHART_VERSION}" | cut --delimiter=. --fields=1,2)
+          MAJOR=$(echo "${CHART_VERSION}" | cut --delimiter=. --fields=1)
+
           echo "## 🚀 Release Published" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Chart**: ${{ steps.chart-metadata.outputs.name }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Version**: ${{ steps.chart-metadata.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Chart**: ${CHART_NAME}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: ${CHART_VERSION}" >> $GITHUB_STEP_SUMMARY
           echo "- **App Version**: ${{ steps.chart-metadata.outputs.app_version }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Registry**: \`ghcr.io/${{ github.repository_owner }}/charts/${{ steps.chart-metadata.outputs.name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Registry**: \`ghcr.io/${{ github.repository_owner }}/charts/${CHART_NAME}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Available tags**: \`${CHART_VERSION}\`, \`${MAJOR_MINOR}\`, \`${MAJOR}\`, \`latest\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Signed**: ✅ (cosign keyless)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Installation" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
-          echo "helm install ${{ steps.chart-metadata.outputs.name }} \\" >> $GITHUB_STEP_SUMMARY
-          echo "  oci://ghcr.io/${{ github.repository_owner }}/charts/${{ steps.chart-metadata.outputs.name }} \\" >> $GITHUB_STEP_SUMMARY
-          echo "  --version ${{ steps.chart-metadata.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "helm install ${CHART_NAME} \\" >> $GITHUB_STEP_SUMMARY
+          echo "  oci://ghcr.io/${{ github.repository_owner }}/charts/${CHART_NAME} \\" >> $GITHUB_STEP_SUMMARY
+          echo "  --version ${CHART_VERSION}" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
       - name: Version already exists
