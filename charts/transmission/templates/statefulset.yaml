@@ -59,7 +59,7 @@ spec:
               command:
                 - sh
                 - -c
-                - test -w {{ .Values.livenessProbe.fsCheckPath }} && curl -sf http://localhost:9091/transmission/web/ >/dev/null
+                - touch {{ .Values.livenessProbe.fsCheckPath }}/.healthcheck && rm --force {{ .Values.livenessProbe.fsCheckPath }}/.healthcheck && curl --silent --fail --max-time 5 http://localhost:9091/transmission/web/ >/dev/null
             initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
             timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
