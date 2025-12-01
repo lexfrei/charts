@@ -107,6 +107,8 @@ resources:
 
 # -- Liveness probe configuration
 livenessProbe:
+  # -- Path to check for write access (detects NFS mount failures)
+  fsCheckPath: /downloads
   # -- Initial delay before liveness probe starts
   initialDelaySeconds: 30
   # -- Period between liveness probe checks

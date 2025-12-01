@@ -79,14 +79,17 @@ tests:
           value: RuntimeDefault
 
   # Health probes tests
-  - it: should have liveness probe with default values
+  - it: should have liveness probe with exec command and default values
     asserts:
       - equal:
-          path: spec.template.spec.containers[0].livenessProbe.httpGet.path
-          value: /transmission/web/
+          path: spec.template.spec.containers[0].livenessProbe.exec.command[0]
+          value: sh
       - equal:
-          path: spec.template.spec.containers[0].livenessProbe.httpGet.port
-          value: http
+          path: spec.template.spec.containers[0].livenessProbe.exec.command[1]
+          value: -c
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.exec.command[2]
+          value: "test -w /downloads && curl -sf http://localhost:9091/transmission/web/ >/dev/null"
       - equal:
           path: spec.template.spec.containers[0].livenessProbe.initialDelaySeconds
           value: 30
@@ -124,11 +127,15 @@ tests:
   - it: should allow custom liveness probe values
     set:
       livenessProbe:
+        fsCheckPath: /data
         initialDelaySeconds: 60
         periodSeconds: 20
         timeoutSeconds: 10
         failureThreshold: 3
     asserts:
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.exec.command[2]
+          value: "test -w /data && curl -sf http://localhost:9091/transmission/web/ >/dev/null"
       - equal:
           path: spec.template.spec.containers[0].livenessProbe.initialDelaySeconds
           value: 60
