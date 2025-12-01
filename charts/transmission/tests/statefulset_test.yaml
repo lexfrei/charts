@@ -89,7 +89,7 @@ tests:
           value: -c
       - equal:
           path: spec.template.spec.containers[0].livenessProbe.exec.command[2]
-          value: "test -w /downloads && curl -sf http://localhost:9091/transmission/web/ >/dev/null"
+          value: "touch /downloads/.healthcheck && rm --force /downloads/.healthcheck && curl --silent --fail --max-time 5 http://localhost:9091/transmission/web/ >/dev/null"
       - equal:
           path: spec.template.spec.containers[0].livenessProbe.initialDelaySeconds
           value: 30
@@ -135,7 +135,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[0].livenessProbe.exec.command[2]
-          value: "test -w /data && curl -sf http://localhost:9091/transmission/web/ >/dev/null"
+          value: "touch /data/.healthcheck && rm --force /data/.healthcheck && curl --silent --fail --max-time 5 http://localhost:9091/transmission/web/ >/dev/null"
       - equal:
           path: spec.template.spec.containers[0].livenessProbe.initialDelaySeconds
           value: 60
