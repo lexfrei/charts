@@ -55,9 +55,11 @@ spec:
               containerPort: 51413
               protocol: UDP
           livenessProbe:
-            httpGet:
-              path: /transmission/web/
-              port: http
+            exec:
+              command:
+                - sh
+                - -c
+                - test -w {{ .Values.livenessProbe.fsCheckPath }} && curl -sf http://localhost:9091/transmission/web/ >/dev/null
             initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
             timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}

@@ -301,6 +301,11 @@
       "type": "object",
       "description": "Liveness probe configuration",
       "properties": {
+        "fsCheckPath": {
+          "type": "string",
+          "description": "Path to check for write access (detects NFS mount failures)",
+          "default": "/downloads"
+        },
         "initialDelaySeconds": {
           "type": "integer",
           "description": "Initial delay before liveness probe starts",
