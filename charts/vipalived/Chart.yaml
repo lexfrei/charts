@@ -1,8 +1,8 @@
 annotations:
   artifacthub.io/category: networking
   artifacthub.io/changes: |-
-    - kind: fixed
-      description: Remove hardcoded alpine version from tests to prevent Renovate update failures
+    - kind: changed
+      description: Update alpine docker tag to v3.23
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -18,7 +18,7 @@ description: Keepalived-based VIP management for Kubernetes control plane high a
 type: application
 version: 0.5.2
 # renovate: datasource=docker depName=alpine
-appVersion: "3.22"
+appVersion: "3.23"
 keywords:
   - keepalived
   - vrrp
