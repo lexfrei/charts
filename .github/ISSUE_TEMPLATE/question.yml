@@ -1,0 +1,36 @@
+name: Question
+description: Ask a question about chart usage or configuration
+labels: ["question"]
+body:
+  - type: dropdown
+    id: chart
+    attributes:
+      label: Chart
+      description: Which chart is your question about?
+      options:
+        - cloudflare-tunnel
+        - system-upgrade-controller
+        - transmission
+        - vipalived
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: What would you like to know?
+    validations:
+      required: true
+
+  - type: textarea
+    id: tried
+    attributes:
+      label: What Have You Tried?
+      description: What have you already tried or researched?
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Any other context that might help answer your question
