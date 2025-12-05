@@ -1,6 +1,6 @@
 # transmission
 
-![Version: 1.4.2](https://img.shields.io/badge/Version-1.4.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.0.6](https://img.shields.io/badge/AppVersion-4.0.6-informational?style=flat-square)
+![Version: 1.5.0](https://img.shields.io/badge/Version-1.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.0.6](https://img.shields.io/badge/AppVersion-4.0.6-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -38,12 +38,12 @@ This chart is published to GitHub Container Registry (GHCR) as an OCI artifact.
 # Install from GHCR
 helm install transmission \
   oci://ghcr.io/lexfrei/charts/transmission \
-  --version 1.4.2
+  --version 1.5.0
 
 # Install with custom values
 helm install transmission \
   oci://ghcr.io/lexfrei/charts/transmission \
-  --version 1.4.2 \
+  --version 1.5.0 \
   --values values.yaml
 ```
 
@@ -53,7 +53,7 @@ This chart is signed with [cosign](https://github.com/sigstore/cosign) using key
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/transmission:1.4.2 \
+  ghcr.io/lexfrei/charts/transmission:1.5.0 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -73,6 +73,7 @@ helm delete transmission
 | env.PGID | string | `"1000"` | Group ID to run as |
 | env.PUID | string | `"1000"` | User ID to run as |
 | env.TZ | string | `"Europe/Moscow"` | Timezone |
+| extraContainers | list | [] | Extra containers to run alongside transmission (sidecars) Useful for VPN containers like gluetun |
 | extraPersistentVolumeClaims | list | [] | Extra PersistentVolumeClaims (created by this chart) |
 | extraPersistentVolumes | list | [] | Extra PersistentVolumes for static provisioning (created by this chart) |
 | extraVolumeMounts | list | [] | Extra volume mounts for the container |

@@ -509,6 +509,13 @@
       },
       "description": "Init containers to run before the main container"
     },
+    "extraContainers": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Extra containers to run alongside transmission (sidecars)"
+    },
     "podSecurityContext": {
       "type": "object",
       "description": "Security context for the pod"

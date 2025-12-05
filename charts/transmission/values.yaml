@@ -202,6 +202,24 @@ initContainers: []
 #   securityContext:
 #     runAsUser: 0
 
+# -- Extra containers to run alongside transmission (sidecars)
+# Useful for VPN containers like gluetun
+# @default -- []
+extraContainers: []
+# Example with gluetun VPN:
+# - name: gluetun
+#   image: qmcgaw/gluetun:latest
+#   securityContext:
+#     capabilities:
+#       add:
+#         - NET_ADMIN
+#   env:
+#     - name: VPN_SERVICE_PROVIDER
+#       value: "custom"
+#   volumeMounts:
+#     - name: gluetun-config
+#       mountPath: /gluetun
+
 # -- Network Policy configuration
 networkPolicy:
   # -- Enable NetworkPolicy
