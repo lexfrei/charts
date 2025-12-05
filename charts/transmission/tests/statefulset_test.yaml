@@ -358,3 +358,71 @@ tests:
           content:
             name: incomplete
             mountPath: /downloads/incomplete
+
+  # Extra containers (sidecar) tests
+  - it: should not have extra containers by default
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.containers
+          count: 1
+
+  - it: should render extra containers when configured
+    set:
+      extraContainers:
+        - name: sidecar
+          image: busybox:latest
+          command: ["sh", "-c", "sleep infinity"]
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.containers
+          count: 2
+      - equal:
+          path: spec.template.spec.containers[1].name
+          value: sidecar
+      - equal:
+          path: spec.template.spec.containers[1].image
+          value: busybox:latest
+
+  - it: should work with gluetun VPN sidecar configuration
+    set:
+      extraContainers:
+        - name: gluetun
+          image: qmcgaw/gluetun:latest
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+          env:
+            - name: VPN_SERVICE_PROVIDER
+              value: "custom"
+          volumeMounts:
+            - name: gluetun-config
+              mountPath: /gluetun
+      extraVolumes:
+        - name: gluetun-config
+          secret:
+            secretName: gluetun-config
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.containers
+          count: 2
+      - equal:
+          path: spec.template.spec.containers[1].name
+          value: gluetun
+      - equal:
+          path: spec.template.spec.containers[1].image
+          value: qmcgaw/gluetun:latest
+      - contains:
+          path: spec.template.spec.containers[1].securityContext.capabilities.add
+          content: NET_ADMIN
+      - contains:
+          path: spec.template.spec.containers[1].env
+          content:
+            name: VPN_SERVICE_PROVIDER
+            value: "custom"
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: gluetun-config
+            secret:
+              secretName: gluetun-config

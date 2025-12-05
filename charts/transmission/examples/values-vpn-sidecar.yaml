@@ -1,0 +1,118 @@
+# Example: VPN sidecar with gluetun
+#
+# This example demonstrates how to run Transmission behind a VPN using
+# gluetun as a sidecar container. All traffic from Transmission will
+# go through the VPN tunnel.
+#
+# IMPORTANT: You need to create a secret with your VPN credentials first:
+#
+# kubectl create secret generic gluetun-config \
+#   --from-literal=OPENVPN_USER=your-username \
+#   --from-literal=OPENVPN_PASSWORD=your-password \
+#   --namespace media
+#
+# Or for WireGuard:
+#
+# kubectl create secret generic gluetun-config \
+#   --from-literal=WIREGUARD_PRIVATE_KEY=your-private-key \
+#   --from-literal=WIREGUARD_ADDRESSES=10.x.x.x/32 \
+#   --namespace media
+
+# Pod security context - gluetun needs NET_ADMIN capability
+podSecurityContext:
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+
+# Main transmission container security context
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    add:
+      - SETUID
+      - SETGID
+      - CHOWN
+    drop:
+      - ALL
+  readOnlyRootFilesystem: false
+
+# Gluetun VPN sidecar container
+extraContainers:
+  - name: gluetun
+    image: qmcgaw/gluetun:latest
+    securityContext:
+      capabilities:
+        add:
+          - NET_ADMIN
+    env:
+      # VPN provider configuration
+      # See https://github.com/qdm12/gluetun-wiki for all providers
+      - name: VPN_SERVICE_PROVIDER
+        value: "custom"
+      - name: VPN_TYPE
+        value: "openvpn"
+      # Server configuration
+      - name: OPENVPN_CUSTOM_CONFIG
+        value: "/gluetun/config.ovpn"
+      # Credentials from secret
+      - name: OPENVPN_USER
+        valueFrom:
+          secretKeyRef:
+            name: gluetun-config
+            key: OPENVPN_USER
+      - name: OPENVPN_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: gluetun-config
+            key: OPENVPN_PASSWORD
+      # Firewall settings - allow Transmission ports
+      - name: FIREWALL_INPUT_PORTS
+        value: "9091"
+      - name: FIREWALL_OUTBOUND_SUBNETS
+        value: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+    ports:
+      - name: http
+        containerPort: 9091
+        protocol: TCP
+    volumeMounts:
+      - name: gluetun-config
+        mountPath: /gluetun
+        readOnly: true
+      - name: tun-device
+        mountPath: /dev/net/tun
+    resources:
+      requests:
+        cpu: 10m
+        memory: 64Mi
+      limits:
+        memory: 256Mi
+
+# Extra volumes for gluetun
+extraVolumes:
+  - name: gluetun-config
+    secret:
+      secretName: gluetun-config
+  - name: tun-device
+    hostPath:
+      path: /dev/net/tun
+      type: CharDevice
+
+# Storage configuration
+persistence:
+  config:
+    enabled: true
+    size: 1Gi
+  downloads:
+    enabled: true
+    type: pvc
+    storageClassName: ""
+    size: 100Gi
+
+# Resources for transmission container
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "100m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"

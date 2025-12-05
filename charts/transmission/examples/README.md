@@ -127,7 +127,50 @@ persistence:
 
 ---
 
-### 4. Production Configuration (`values-production.yaml`) 🚀
+### 4. VPN Sidecar with Gluetun (`values-vpn-sidecar.yaml`) 🔒
+
+**Use case**: Route all Transmission traffic through a VPN for privacy.
+
+**Features**:
+- Gluetun VPN client as sidecar container
+- All torrent traffic goes through VPN tunnel
+- Supports OpenVPN and WireGuard
+- Works with most VPN providers
+
+**Prerequisites**:
+
+1. Create a secret with VPN credentials:
+
+```bash
+# For OpenVPN
+kubectl create secret generic gluetun-config \
+  --from-literal=OPENVPN_USER=your-username \
+  --from-literal=OPENVPN_PASSWORD=your-password \
+  --namespace media
+
+# For WireGuard
+kubectl create secret generic gluetun-config \
+  --from-literal=WIREGUARD_PRIVATE_KEY=your-private-key \
+  --from-literal=WIREGUARD_ADDRESSES=10.x.x.x/32 \
+  --namespace media
+```
+
+2. Install Transmission with VPN sidecar:
+
+```bash
+helm install transmission oci://ghcr.io/lexfrei/charts/transmission \
+  --values examples/values-vpn-sidecar.yaml \
+  --namespace media
+```
+
+**Configuration**:
+- Modify `VPN_SERVICE_PROVIDER` for your provider
+- See [gluetun wiki](https://github.com/qdm12/gluetun-wiki) for provider-specific settings
+- Adjust `FIREWALL_OUTBOUND_SUBNETS` for your cluster network
+
+---
+
+### 5. Production Configuration (`values-production.yaml`) 🚀
 
 **Use case**: Full production deployment with security, monitoring, and shared storage.
 
