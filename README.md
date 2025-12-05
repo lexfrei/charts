@@ -26,14 +26,6 @@ Deploy Cloudflare Tunnel (cloudflared) for secure Zero Trust access to Kubernete
 
 [📖 Documentation](./charts/cloudflare-tunnel/README.md) | [🔧 Values](./charts/cloudflare-tunnel/values.yaml)
 
-### [me-site](./charts/me-site)
-
-![Kubernetes](https://img.shields.io/badge/Kubernetes-1.19%2B-blue?logo=kubernetes)
-
-Personal site deployment with HTTPRoute/Gateway API support.
-
-[📖 Documentation](./charts/me-site/README.md) | [🔧 Values](./charts/me-site/values.yaml)
-
 ### [system-upgrade-controller](./charts/system-upgrade-controller)
 
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-1.16%2B-blue?logo=kubernetes)
@@ -95,11 +87,6 @@ helm install system-upgrade-controller \
 # Install transmission
 helm install transmission \
   oci://ghcr.io/lexfrei/charts/transmission \
-  --version <VERSION>
-
-# Install me-site
-helm install me-site \
-  oci://ghcr.io/lexfrei/charts/me-site \
   --version <VERSION>
 
 # Install vipalived
