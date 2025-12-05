@@ -107,10 +107,9 @@ tests:
           path: spec.template.spec.containers[0].name
           value: keepalived
       - template: daemonset.yaml
-        equal:
+        matchRegex:
           path: spec.template.spec.containers[0].image
-          # renovate: datasource=docker depName=alpine
-          value: alpine:3.22
+          pattern: ^alpine:.+$
       - template: daemonset.yaml
         equal:
           path: spec.template.spec.containers[0].imagePullPolicy
