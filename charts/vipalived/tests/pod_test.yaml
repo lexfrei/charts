@@ -87,11 +87,11 @@ tests:
       static: true
       image:
         repository: alpine
-        tag: "3.22"
+        tag: "test-tag"
     asserts:
       - equal:
           path: spec.containers[0].image
-          value: alpine:3.22
+          value: alpine:test-tag
 
   - it: should not have ConfigMap volumes
     set:

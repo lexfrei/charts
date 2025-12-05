@@ -1,6 +1,6 @@
 # vipalived
 
-![Version: 0.5.1](https://img.shields.io/badge/Version-0.5.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.22](https://img.shields.io/badge/AppVersion-3.22-informational?style=flat-square)
+![Version: 0.5.2](https://img.shields.io/badge/Version-0.5.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.22](https://img.shields.io/badge/AppVersion-3.22-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -16,16 +16,16 @@ Keepalived-based VIP management for Kubernetes control plane high availability
 
 ```bash
 # Day 2: Install with default VIP (172.16.101.101/32) on existing cluster
-helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived --version 0.5.1
+helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived --version 0.5.2
 
 # Day 2: Install with custom VIP address
 helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived \
-  --version 0.5.1 \
+  --version 0.5.2 \
   --set keepalived.vrrpInstance.virtualIpAddress=192.168.1.100/24
 
 # Day 1: Generate static pod manifest for cluster bootstrap
 helm template vipalived oci://ghcr.io/lexfrei/charts/vipalived \
-  --version 0.5.1 \
+  --version 0.5.2 \
   --set static=true \
   --set keepalived.vrrpInstance.virtualIpAddress=192.168.1.100/24 > /etc/kubernetes/manifests/vipalived.yaml
 ```
@@ -75,7 +75,7 @@ For **Day 1 cluster bootstrapping**, when you need the VIP available BEFORE the 
 
    ```bash
    helm template vipalived oci://ghcr.io/lexfrei/charts/vipalived \
-     --version 0.5.1 \
+     --version 0.5.2 \
      --set static=true \
      --set keepalived.vrrpInstance.virtualIpAddress=YOUR_VIP_ADDRESS/CIDR \
      --namespace kube-system > vipalived-static-pod.yaml
@@ -138,7 +138,7 @@ All charts published to GHCR are signed using cosign. To verify the chart signat
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/vipalived:0.5.1 \
+  ghcr.io/lexfrei/charts/vipalived:0.5.2 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
