@@ -107,6 +107,8 @@ resources:
 
 # -- Liveness probe configuration
 livenessProbe:
+  # -- User to run filesystem check as (linuxserver images use 'abc')
+  runAsUser: "abc"
   # -- Path to check for write access (detects NFS mount failures)
   fsCheckPath: /downloads
   # -- Initial delay before liveness probe starts

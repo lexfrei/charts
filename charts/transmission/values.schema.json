@@ -301,6 +301,11 @@
       "type": "object",
       "description": "Liveness probe configuration",
       "properties": {
+        "runAsUser": {
+          "type": "string",
+          "description": "User to run filesystem check as (use 'abc' for NFS compatibility with linuxserver images)",
+          "default": "abc"
+        },
         "fsCheckPath": {
           "type": "string",
           "description": "Path to check for write access (detects NFS mount failures)",
