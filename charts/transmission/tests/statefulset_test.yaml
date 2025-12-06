@@ -79,7 +79,7 @@ tests:
           value: RuntimeDefault
 
   # Health probes tests
-  - it: should have liveness probe with exec command and default values
+  - it: should have liveness probe with exec command and default values (runAsUser abc)
     asserts:
       - equal:
           path: spec.template.spec.containers[0].livenessProbe.exec.command[0]
@@ -89,7 +89,7 @@ tests:
           value: -c
       - equal:
           path: spec.template.spec.containers[0].livenessProbe.exec.command[2]
-          value: "touch /downloads/.healthcheck && rm --force /downloads/.healthcheck && curl --silent --fail --max-time 5 http://localhost:9091/transmission/web/ >/dev/null"
+          value: "su -s /bin/sh - abc -c 'touch /downloads/.healthcheck && rm --force /downloads/.healthcheck' && curl --silent --fail --max-time 5 http://localhost:9091/transmission/web/ >/dev/null"
       - equal:
           path: spec.template.spec.containers[0].livenessProbe.initialDelaySeconds
           value: 30
@@ -102,6 +102,15 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].livenessProbe.failureThreshold
           value: 6
+
+  - it: should run liveness probe as root when runAsUser is empty
+    set:
+      livenessProbe:
+        runAsUser: ""
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.exec.command[2]
+          value: "touch /downloads/.healthcheck && rm --force /downloads/.healthcheck && curl --silent --fail --max-time 5 http://localhost:9091/transmission/web/ >/dev/null"
 
   - it: should have readiness probe with default values
     asserts:
@@ -124,9 +133,10 @@ tests:
           path: spec.template.spec.containers[0].readinessProbe.failureThreshold
           value: 3
 
-  - it: should allow custom liveness probe values
+  - it: should allow custom liveness probe values with custom runAsUser
     set:
       livenessProbe:
+        runAsUser: "customuser"
         fsCheckPath: /data
         initialDelaySeconds: 60
         periodSeconds: 20
@@ -135,7 +145,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[0].livenessProbe.exec.command[2]
-          value: "touch /data/.healthcheck && rm --force /data/.healthcheck && curl --silent --fail --max-time 5 http://localhost:9091/transmission/web/ >/dev/null"
+          value: "su -s /bin/sh - customuser -c 'touch /data/.healthcheck && rm --force /data/.healthcheck' && curl --silent --fail --max-time 5 http://localhost:9091/transmission/web/ >/dev/null"
       - equal:
           path: spec.template.spec.containers[0].livenessProbe.initialDelaySeconds
           value: 60
