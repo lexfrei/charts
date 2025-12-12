@@ -1,10 +1,8 @@
 annotations:
   artifacthub.io/category: integration-delivery
   artifacthub.io/changes: |-
-    - kind: added
-      description: "Add schema validation for annotations (must be string values)"
-    - kind: added
-      description: "Add unit test for default annotations"
+    - kind: changed
+      description: Update rancher/kubectl docker tag to v1.34.3
   artifacthub.io/crds: |
     - kind: Plan
       version: v1
