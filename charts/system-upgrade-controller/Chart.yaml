@@ -2,7 +2,7 @@ annotations:
   artifacthub.io/category: integration-delivery
   artifacthub.io/changes: |-
     - kind: changed
-      description: Update rancher/kubectl docker tag to v1.34.3
+      description: Update rancher/kubectl docker tag to v1.35.0
   artifacthub.io/crds: |
     - kind: Plan
       version: v1
