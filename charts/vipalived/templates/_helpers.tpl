@@ -81,5 +81,12 @@ vrrp_instance {{ .Values.keepalived.vrrpInstance.name }} {
   virtual_ipaddress {
     {{ .Values.keepalived.vrrpInstance.virtualIpAddress }}
   }
+  {{- if .Values.keepalived.vrrpInstance.trackInterface }}
+  track_interface {
+    {{- range .Values.keepalived.vrrpInstance.trackInterface }}
+    {{ . }}
+    {{- end }}
+  }
+  {{- end }}
 }
 {{- end }}

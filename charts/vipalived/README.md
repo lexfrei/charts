@@ -1,6 +1,6 @@
 # vipalived
 
-![Version: 0.5.2](https://img.shields.io/badge/Version-0.5.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.23](https://img.shields.io/badge/AppVersion-3.23-informational?style=flat-square)
+![Version: 0.6.0](https://img.shields.io/badge/Version-0.6.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.23](https://img.shields.io/badge/AppVersion-3.23-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -16,16 +16,16 @@ Keepalived-based VIP management for Kubernetes control plane high availability
 
 ```bash
 # Day 2: Install with default VIP (172.16.101.101/32) on existing cluster
-helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived --version 0.5.2
+helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived --version 0.6.0
 
 # Day 2: Install with custom VIP address
 helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived \
-  --version 0.5.2 \
+  --version 0.6.0 \
   --set keepalived.vrrpInstance.virtualIpAddress=192.168.1.100/24
 
 # Day 1: Generate static pod manifest for cluster bootstrap
 helm template vipalived oci://ghcr.io/lexfrei/charts/vipalived \
-  --version 0.5.2 \
+  --version 0.6.0 \
   --set static=true \
   --set keepalived.vrrpInstance.virtualIpAddress=192.168.1.100/24 > /etc/kubernetes/manifests/vipalived.yaml
 ```
@@ -75,7 +75,7 @@ For **Day 1 cluster bootstrapping**, when you need the VIP available BEFORE the 
 
    ```bash
    helm template vipalived oci://ghcr.io/lexfrei/charts/vipalived \
-     --version 0.5.2 \
+     --version 0.6.0 \
      --set static=true \
      --set keepalived.vrrpInstance.virtualIpAddress=YOUR_VIP_ADDRESS/CIDR \
      --namespace kube-system > vipalived-static-pod.yaml
@@ -138,7 +138,7 @@ All charts published to GHCR are signed using cosign. To verify the chart signat
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/vipalived:0.5.2 \
+  ghcr.io/lexfrei/charts/vipalived:0.6.0 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -167,10 +167,14 @@ cosign verify \
 | keepalived.vrrpInstance.nopreempt | bool | `true` | Enable non-preemptive mode |
 | keepalived.vrrpInstance.priority | int | `100` | VRRP priority (higher values are preferred) |
 | keepalived.vrrpInstance.state | string | `"BACKUP"` | Initial VRRP state (MASTER or BACKUP) |
+| keepalived.vrrpInstance.trackInterface | list | [] (no tracking) | Interfaces to track for VRRP state transitions. When a tracked interface goes down, keepalived transitions to FAULT state. This is a workaround for keepalived issue 1847. |
 | keepalived.vrrpInstance.virtualIpAddress | string | `"172.16.101.101/32"` | Virtual IP address with CIDR notation |
 | keepalived.vrrpInstance.virtualRouterId | int | `51` | Virtual router ID (must be unique in the network) |
 | keepalived.vrrpVersion | int | `3` | VRRP protocol version (2 or 3) |
-| livenessProbe | object | `{"failureThreshold":3,"initialDelaySeconds":15,"periodSeconds":10,"timeoutSeconds":5}` | Liveness probe configuration |
+| livenessProbe | object | `{"enabled":true,"exec":{"command":["pgrep","keepalived"]},"failureThreshold":3,"initialDelaySeconds":15,"periodSeconds":10,"timeoutSeconds":5}` | Liveness probe configuration |
+| livenessProbe.enabled | bool | `true` | Enable liveness probe |
+| livenessProbe.exec | object | `{"command":["pgrep","keepalived"]}` | Exec probe configuration |
+| livenessProbe.exec.command | list | `["pgrep","keepalived"]` | Command to execute for the probe |
 | livenessProbe.failureThreshold | int | `3` | Failure threshold for liveness probe |
 | livenessProbe.initialDelaySeconds | int | `15` | Initial delay before liveness probe starts |
 | livenessProbe.periodSeconds | int | `10` | Period between liveness probe checks |
@@ -182,8 +186,23 @@ cosign verify \
 | podLabels | object | `{}` | Additional labels for pods |
 | podSecurityContext | object | `{"seccompProfile":{"type":"RuntimeDefault"}}` | Security context for the pod |
 | priorityClassName | string | `"system-node-critical"` | Priority class name for pod scheduling |
+| readinessProbe | object | `{"enabled":false,"exec":{"command":[]},"failureThreshold":3,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":5}` | Readiness probe configuration |
+| readinessProbe.enabled | bool | `false` | Enable readiness probe |
+| readinessProbe.exec | object | `{"command":[]}` | Exec probe configuration |
+| readinessProbe.exec.command | list | [] (no command, must be set when enabled) | Command to execute for the probe |
+| readinessProbe.failureThreshold | int | `3` | Failure threshold for readiness probe |
+| readinessProbe.periodSeconds | int | `10` | Period between readiness probe checks |
+| readinessProbe.successThreshold | int | `1` | Success threshold for readiness probe |
+| readinessProbe.timeoutSeconds | int | `5` | Timeout for readiness probe |
 | resources | object | `{"limits":{"cpu":"100m","memory":"64Mi"},"requests":{"cpu":"50m","memory":"32Mi"}}` | Resource requests and limits |
 | securityContext | object | `{"capabilities":{"add":["NET_ADMIN","NET_RAW","NET_BROADCAST"]}}` | Security context for the container |
+| startupProbe | object | `{"enabled":false,"exec":{"command":[]},"failureThreshold":12,"periodSeconds":5,"timeoutSeconds":5}` | Startup probe configuration for initial VIP acquisition |
+| startupProbe.enabled | bool | `false` | Enable startup probe |
+| startupProbe.exec | object | `{"command":[]}` | Exec probe configuration |
+| startupProbe.exec.command | list | [] (no command, must be set when enabled) | Command to execute for the probe |
+| startupProbe.failureThreshold | int | `12` | Failure threshold for startup probe |
+| startupProbe.periodSeconds | int | `5` | Period between startup probe checks |
+| startupProbe.timeoutSeconds | int | `5` | Timeout for startup probe |
 | static | bool | `false` | Enable static pod mode for Day 1 cluster bootstrap. When true, renders a Pod manifest instead of DaemonSet with embedded configuration. Use this for pre-CNI VIP availability during initial cluster setup. For Day 2 operations (existing cluster), keep this false (default). |
 | tolerations | list | `[{"key":"CriticalAddonsOnly","operator":"Exists"},{"effect":"NoExecute","key":"node.kubernetes.io/not-ready","operator":"Exists"},{"effect":"NoExecute","key":"node.kubernetes.io/unreachable","operator":"Exists"},{"effect":"NoSchedule","key":"node.kubernetes.io/disk-pressure","operator":"Exists"},{"effect":"NoSchedule","key":"node.kubernetes.io/memory-pressure","operator":"Exists"},{"effect":"NoSchedule","key":"node.kubernetes.io/pid-pressure","operator":"Exists"},{"effect":"NoSchedule","key":"node.kubernetes.io/unschedulable","operator":"Exists"},{"effect":"NoSchedule","key":"node.kubernetes.io/network-unavailable","operator":"Exists"}]` | Tolerations for pod assignment |
 | updateStrategy.maxUnavailable | int | `1` | Maximum number of unavailable pods during update |

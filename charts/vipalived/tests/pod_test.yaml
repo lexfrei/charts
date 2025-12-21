@@ -233,6 +233,11 @@ tests:
     set:
       static: true
       livenessProbe:
+        enabled: true
+        exec:
+          command:
+            - pgrep
+            - keepalived
         initialDelaySeconds: 30
         periodSeconds: 20
         timeoutSeconds: 10
@@ -244,3 +249,107 @@ tests:
       - equal:
           path: spec.containers[0].livenessProbe.periodSeconds
           value: 20
+
+  - it: should allow custom liveness probe command
+    set:
+      static: true
+      livenessProbe:
+        enabled: true
+        exec:
+          command:
+            - sh
+            - -c
+            - ip addr show eth0 | grep -q 172.16.101.101
+        initialDelaySeconds: 15
+        periodSeconds: 10
+        timeoutSeconds: 5
+        failureThreshold: 3
+    asserts:
+      - equal:
+          path: spec.containers[0].livenessProbe.exec.command[0]
+          value: sh
+      - equal:
+          path: spec.containers[0].livenessProbe.exec.command[1]
+          value: "-c"
+      - equal:
+          path: spec.containers[0].livenessProbe.exec.command[2]
+          value: "ip addr show eth0 | grep -q 172.16.101.101"
+
+  - it: should disable liveness probe when enabled is false
+    set:
+      static: true
+      livenessProbe:
+        enabled: false
+        exec:
+          command:
+            - pgrep
+            - keepalived
+        initialDelaySeconds: 15
+        periodSeconds: 10
+        timeoutSeconds: 5
+        failureThreshold: 3
+    asserts:
+      - isNull:
+          path: spec.containers[0].livenessProbe
+
+  - it: should enable startup probe when configured
+    set:
+      static: true
+      startupProbe:
+        enabled: true
+        exec:
+          command:
+            - sh
+            - -c
+            - ip addr show eth0 | grep -q 172.16.101.101
+        periodSeconds: 5
+        timeoutSeconds: 5
+        failureThreshold: 12
+    asserts:
+      - equal:
+          path: spec.containers[0].startupProbe.exec.command[0]
+          value: sh
+      - equal:
+          path: spec.containers[0].startupProbe.periodSeconds
+          value: 5
+      - equal:
+          path: spec.containers[0].startupProbe.failureThreshold
+          value: 12
+
+  - it: should not have startup probe by default
+    set:
+      static: true
+    asserts:
+      - isNull:
+          path: spec.containers[0].startupProbe
+
+  - it: should enable readiness probe when configured
+    set:
+      static: true
+      readinessProbe:
+        enabled: true
+        exec:
+          command:
+            - pgrep
+            - keepalived
+        periodSeconds: 10
+        timeoutSeconds: 5
+        failureThreshold: 3
+        successThreshold: 1
+    asserts:
+      - equal:
+          path: spec.containers[0].readinessProbe.exec.command[0]
+          value: pgrep
+      - equal:
+          path: spec.containers[0].readinessProbe.periodSeconds
+          value: 10
+      - equal:
+          path: spec.containers[0].readinessProbe.successThreshold
+          value: 1
+
+  - it: should not have readiness probe by default
+    set:
+      static: true
+    asserts:
+      - isNull:
+          path: spec.containers[0].readinessProbe

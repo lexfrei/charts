@@ -141,3 +141,51 @@ tests:
       - notMatchRegex:
           path: data["keepalived.conf"]
           pattern: "nopreempt"
+
+  - it: should include track_interface with single interface
+    set:
+      keepalived:
+        vrrpInstance:
+          trackInterface:
+            - eth0
+    asserts:
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "track_interface \\{"
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "eth0"
+
+  - it: should include track_interface with multiple interfaces
+    set:
+      keepalived:
+        vrrpInstance:
+          trackInterface:
+            - eth0
+            - eth1
+    asserts:
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "track_interface \\{"
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "eth0"
+      - matchRegex:
+          path: data["keepalived.conf"]
+          pattern: "eth1"
+
+  - it: should not include track_interface when empty
+    set:
+      keepalived:
+        vrrpInstance:
+          trackInterface: []
+    asserts:
+      - notMatchRegex:
+          path: data["keepalived.conf"]
+          pattern: "track_interface"
+
+  - it: should not include track_interface when not set
+    asserts:
+      - notMatchRegex:
+          path: data["keepalived.conf"]
+          pattern: "track_interface"

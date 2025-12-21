@@ -141,6 +141,14 @@
               "type": "string",
               "pattern": "^([0-9]{1,3}\\.){3}[0-9]{1,3}/[0-9]{1,2}$",
               "description": "Virtual IP address with CIDR notation"
+            },
+            "trackInterface": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Interfaces to track for VRRP state transitions. When a tracked interface goes down, keepalived transitions to FAULT state.",
+              "default": []
             }
           },
           "required": ["name", "state", "interface", "priority", "virtualRouterId", "advertInt", "nopreempt", "authentication", "virtualIpAddress"]
@@ -195,10 +203,65 @@
       "type": "object",
       "description": "Security context for the container"
     },
+    "startupProbe": {
+      "type": "object",
+      "description": "Startup probe configuration for initial VIP acquisition",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable startup probe",
+          "default": false
+        },
+        "exec": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Command to execute for the probe"
+            }
+          }
+        },
+        "periodSeconds": {
+          "type": "integer",
+          "description": "Period between startup probe checks",
+          "minimum": 1
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "description": "Timeout for startup probe",
+          "minimum": 1
+        },
+        "failureThreshold": {
+          "type": "integer",
+          "description": "Failure threshold for startup probe",
+          "minimum": 1
+        }
+      }
+    },
     "livenessProbe": {
       "type": "object",
       "description": "Liveness probe configuration",
       "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable liveness probe",
+          "default": true
+        },
+        "exec": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Command to execute for the probe"
+            }
+          }
+        },
         "initialDelaySeconds": {
           "type": "integer",
           "description": "Initial delay before liveness probe starts",
@@ -219,8 +282,50 @@
           "description": "Failure threshold for liveness probe",
           "minimum": 1
         }
-      },
-      "required": ["initialDelaySeconds", "periodSeconds", "timeoutSeconds", "failureThreshold"]
+      }
+    },
+    "readinessProbe": {
+      "type": "object",
+      "description": "Readiness probe configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable readiness probe",
+          "default": false
+        },
+        "exec": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Command to execute for the probe"
+            }
+          }
+        },
+        "periodSeconds": {
+          "type": "integer",
+          "description": "Period between readiness probe checks",
+          "minimum": 1
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "description": "Timeout for readiness probe",
+          "minimum": 1
+        },
+        "failureThreshold": {
+          "type": "integer",
+          "description": "Failure threshold for readiness probe",
+          "minimum": 1
+        },
+        "successThreshold": {
+          "type": "integer",
+          "description": "Success threshold for readiness probe",
+          "minimum": 1
+        }
+      }
     },
     "resources": {
       "type": "object",
@@ -264,7 +369,6 @@
     "image",
     "keepalived",
     "hostNetwork",
-    "priorityClassName",
-    "livenessProbe"
+    "priorityClassName"
   ]
 }

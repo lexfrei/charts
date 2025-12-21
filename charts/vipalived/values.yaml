@@ -69,6 +69,12 @@ keepalived:
     # -- Virtual IP address with CIDR notation
     virtualIpAddress: 172.16.101.101/32
 
+    # -- Interfaces to track for VRRP state transitions.
+    # When a tracked interface goes down, keepalived transitions to FAULT state.
+    # This is a workaround for keepalived issue 1847.
+    # @default -- [] (no tracking)
+    trackInterface: []
+
 updateStrategy:
   # -- Update strategy type
   type: RollingUpdate
@@ -127,8 +133,32 @@ securityContext:
       - NET_RAW
       - NET_BROADCAST
 
+# -- Startup probe configuration for initial VIP acquisition
+startupProbe:
+  # -- Enable startup probe
+  enabled: false
+  # -- Exec probe configuration
+  exec:
+    # -- Command to execute for the probe
+    # @default -- [] (no command, must be set when enabled)
+    command: []
+  # -- Period between startup probe checks
+  periodSeconds: 5
+  # -- Timeout for startup probe
+  timeoutSeconds: 5
+  # -- Failure threshold for startup probe
+  failureThreshold: 12
+
 # -- Liveness probe configuration
 livenessProbe:
+  # -- Enable liveness probe
+  enabled: true
+  # -- Exec probe configuration
+  exec:
+    # -- Command to execute for the probe
+    command:
+      - pgrep
+      - keepalived
   # -- Initial delay before liveness probe starts
   initialDelaySeconds: 15
   # -- Period between liveness probe checks
@@ -137,6 +167,24 @@ livenessProbe:
   timeoutSeconds: 5
   # -- Failure threshold for liveness probe
   failureThreshold: 3
+
+# -- Readiness probe configuration
+readinessProbe:
+  # -- Enable readiness probe
+  enabled: false
+  # -- Exec probe configuration
+  exec:
+    # -- Command to execute for the probe
+    # @default -- [] (no command, must be set when enabled)
+    command: []
+  # -- Period between readiness probe checks
+  periodSeconds: 10
+  # -- Timeout for readiness probe
+  timeoutSeconds: 5
+  # -- Failure threshold for readiness probe
+  failureThreshold: 3
+  # -- Success threshold for readiness probe
+  successThreshold: 1
 
 # -- Resource requests and limits
 resources:
