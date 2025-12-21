@@ -71,7 +71,7 @@ keepalived:
 
     # -- Interfaces to track for VRRP state transitions.
     # When a tracked interface goes down, keepalived transitions to FAULT state.
-    # This is a workaround for https://github.com/acassen/keepalived/issues/1847
+    # This is a workaround for keepalived issue 1847.
     # @default -- [] (no tracking)
     trackInterface: []
 

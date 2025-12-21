@@ -167,7 +167,7 @@ cosign verify \
 | keepalived.vrrpInstance.nopreempt | bool | `true` | Enable non-preemptive mode |
 | keepalived.vrrpInstance.priority | int | `100` | VRRP priority (higher values are preferred) |
 | keepalived.vrrpInstance.state | string | `"BACKUP"` | Initial VRRP state (MASTER or BACKUP) |
-| keepalived.vrrpInstance.trackInterface | list | [] (no tracking) | Interfaces to track for VRRP state transitions. When a tracked interface goes down, keepalived transitions to FAULT state. This is a workaround for https://github.com/acassen/keepalived/issues/1847 |
+| keepalived.vrrpInstance.trackInterface | list | [] (no tracking) | Interfaces to track for VRRP state transitions. When a tracked interface goes down, keepalived transitions to FAULT state. This is a workaround for keepalived issue 1847. |
 | keepalived.vrrpInstance.virtualIpAddress | string | `"172.16.101.101/32"` | Virtual IP address with CIDR notation |
 | keepalived.vrrpInstance.virtualRouterId | int | `51` | Virtual router ID (must be unique in the network) |
 | keepalived.vrrpVersion | int | `3` | VRRP protocol version (2 or 3) |
