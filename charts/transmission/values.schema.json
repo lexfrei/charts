@@ -359,6 +359,11 @@
         }
       }
     },
+    "terminationGracePeriodSeconds": {
+      "type": ["integer", "null"],
+      "description": "Duration in seconds the pod needs to terminate gracefully",
+      "minimum": 0
+    },
     "persistence": {
       "type": "object",
       "properties": {

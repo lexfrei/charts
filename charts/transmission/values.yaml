@@ -131,6 +131,10 @@ readinessProbe:
   # -- Failure threshold for readiness probe
   failureThreshold: 3
 
+# -- Duration in seconds the pod needs to terminate gracefully
+# @default -- Kubernetes default (30 seconds)
+terminationGracePeriodSeconds:
+
 # -- Persistence configuration
 persistence:
   # -- Config volume configuration

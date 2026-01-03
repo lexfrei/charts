@@ -436,3 +436,25 @@ tests:
             name: gluetun-config
             secret:
               secretName: gluetun-config
+
+  # terminationGracePeriodSeconds tests
+  - it: should not set terminationGracePeriodSeconds by default
+    asserts:
+      - isNull:
+          path: spec.template.spec.terminationGracePeriodSeconds
+
+  - it: should set terminationGracePeriodSeconds when specified
+    set:
+      terminationGracePeriodSeconds: 120
+    asserts:
+      - equal:
+          path: spec.template.spec.terminationGracePeriodSeconds
+          value: 120
+
+  - it: should allow terminationGracePeriodSeconds to be 0
+    set:
+      terminationGracePeriodSeconds: 0
+    asserts:
+      - equal:
+          path: spec.template.spec.terminationGracePeriodSeconds
+          value: 0
