@@ -3,8 +3,8 @@ annotations:
   # Valid kinds for changes: added, changed, deprecated, removed, fixed, security
   # See: https://artifacthub.io/docs/topics/annotations/helm/
   artifacthub.io/changes: |-
-    - kind: fixed
-      description: Fix liveness probe port mismatch in remote mode by setting TUNNEL_METRICS
+    - kind: changed
+      description: Update cloudflare/cloudflared docker tag to v2026
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -21,7 +21,7 @@ type: application
 version: "0.15.1"
 kubeVersion: ">=1.21.0-0"
 # renovate: datasource=docker depName=cloudflare/cloudflared
-appVersion: "2025.11.1"
+appVersion: "2026.1.1"
 icon: https://avatars.githubusercontent.com/u/314135
 home: https://github.com/lexfrei/charts/
 keywords:
