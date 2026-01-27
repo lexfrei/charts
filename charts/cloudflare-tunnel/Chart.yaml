@@ -4,7 +4,7 @@ annotations:
   # See: https://artifacthub.io/docs/topics/annotations/helm/
   artifacthub.io/changes: |-
     - kind: changed
-      description: Update cloudflare/cloudflared docker tag to v2026
+      description: Update cloudflare/cloudflared docker tag to v2026.1.2
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
