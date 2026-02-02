@@ -3,8 +3,8 @@ annotations:
   # Valid kinds for changes: added, changed, deprecated, removed, fixed, security
   # See: https://artifacthub.io/docs/topics/annotations/helm/
   artifacthub.io/changes: |-
-    - kind: added
-      description: Initial release of Eclipse EDC Helm chart
+    - kind: changed
+      description: Update postgresql docker tag to v16.7.27
   artifacthub.io/license: Apache-2.0
   artifacthub.io/links: |
     - name: Chart Repository
@@ -46,6 +46,6 @@ sources:
   - https://github.com/eclipse-edc/Connector
 dependencies:
   - name: postgresql
-    version: "16.4.1"
+    version: "16.7.27"
     repository: oci://registry-1.docker.io/bitnamicharts
     condition: postgresql.enabled
