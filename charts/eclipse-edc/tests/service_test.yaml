@@ -1,0 +1,122 @@
+suite: service tests
+templates:
+  - templates/service.yaml
+set:
+  connector.config.participantId: "test-participant"
+tests:
+  - it: should create a Service
+    asserts:
+      - isKind:
+          of: Service
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-eclipse-edc
+
+  - it: should use ClusterIP by default
+    asserts:
+      - equal:
+          path: spec.type
+          value: ClusterIP
+
+  - it: should allow custom service type
+    set:
+      connector.service.type: LoadBalancer
+    asserts:
+      - equal:
+          path: spec.type
+          value: LoadBalancer
+
+  - it: should expose all 5 ports
+    asserts:
+      - lengthEqual:
+          path: spec.ports
+          count: 5
+
+  - it: should configure default port
+    asserts:
+      - contains:
+          path: spec.ports
+          content:
+            port: 8181
+            targetPort: default
+            protocol: TCP
+            name: default
+
+  - it: should configure management port
+    asserts:
+      - contains:
+          path: spec.ports
+          content:
+            port: 8182
+            targetPort: management
+            protocol: TCP
+            name: management
+
+  - it: should configure protocol port
+    asserts:
+      - contains:
+          path: spec.ports
+          content:
+            port: 8183
+            targetPort: protocol
+            protocol: TCP
+            name: protocol
+
+  - it: should configure public port
+    asserts:
+      - contains:
+          path: spec.ports
+          content:
+            port: 8184
+            targetPort: public
+            protocol: TCP
+            name: public
+
+  - it: should configure control port
+    asserts:
+      - contains:
+          path: spec.ports
+          content:
+            port: 8185
+            targetPort: control
+            protocol: TCP
+            name: control
+
+  - it: should allow custom ports
+    set:
+      connector.ports.default: 9181
+      connector.ports.management: 9182
+    asserts:
+      - contains:
+          path: spec.ports
+          content:
+            port: 9181
+            targetPort: default
+            protocol: TCP
+            name: default
+      - contains:
+          path: spec.ports
+          content:
+            port: 9182
+            targetPort: management
+            protocol: TCP
+            name: management
+
+  - it: should add annotations when specified
+    set:
+      connector.service.annotations:
+        external-dns.alpha.kubernetes.io/hostname: edc.example.com
+    asserts:
+      - equal:
+          path: metadata.annotations
+          value:
+            external-dns.alpha.kubernetes.io/hostname: edc.example.com
+
+  - it: should have correct selector labels
+    asserts:
+      - equal:
+          path: spec.selector["app.kubernetes.io/name"]
+          value: eclipse-edc
+      - equal:
+          path: spec.selector["app.kubernetes.io/instance"]
+          value: RELEASE-NAME

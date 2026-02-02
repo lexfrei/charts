@@ -1,0 +1,144 @@
+suite: ingress tests
+templates:
+  - templates/ingress.yaml
+set:
+  connector.config.participantId: "test-participant"
+tests:
+  - it: should not create Ingress by default
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should create Ingress when enabled
+    set:
+      ingress.enabled: true
+      ingress.hosts:
+        - host: edc.example.com
+          paths:
+            - path: /
+              pathType: Prefix
+              port: default
+    asserts:
+      - isKind:
+          of: Ingress
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-eclipse-edc
+
+  - it: should set ingress class when specified
+    set:
+      ingress.enabled: true
+      ingress.className: nginx
+      ingress.hosts:
+        - host: edc.example.com
+          paths:
+            - path: /
+              pathType: Prefix
+              port: default
+    asserts:
+      - equal:
+          path: spec.ingressClassName
+          value: nginx
+
+  - it: should configure host and path
+    set:
+      ingress.enabled: true
+      ingress.hosts:
+        - host: edc.example.com
+          paths:
+            - path: /protocol
+              pathType: Prefix
+              port: protocol
+    asserts:
+      - equal:
+          path: spec.rules[0].host
+          value: "edc.example.com"
+      - equal:
+          path: spec.rules[0].http.paths[0].path
+          value: /protocol
+      - equal:
+          path: spec.rules[0].http.paths[0].pathType
+          value: Prefix
+      - equal:
+          path: spec.rules[0].http.paths[0].backend.service.port.name
+          value: protocol
+
+  - it: should configure TLS when specified
+    set:
+      ingress.enabled: true
+      ingress.hosts:
+        - host: edc.example.com
+          paths:
+            - path: /
+              pathType: Prefix
+              port: default
+      ingress.tls:
+        - secretName: edc-tls
+          hosts:
+            - edc.example.com
+    asserts:
+      - equal:
+          path: spec.tls[0].secretName
+          value: edc-tls
+      - contains:
+          path: spec.tls[0].hosts
+          content: edc.example.com
+
+  - it: should add annotations when specified
+    set:
+      ingress.enabled: true
+      ingress.annotations:
+        nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      ingress.hosts:
+        - host: edc.example.com
+          paths:
+            - path: /
+              pathType: Prefix
+              port: default
+    asserts:
+      - equal:
+          path: metadata.annotations
+          value:
+            nginx.ingress.kubernetes.io/ssl-redirect: "true"
+
+  - it: should support multiple paths
+    set:
+      ingress.enabled: true
+      ingress.hosts:
+        - host: edc.example.com
+          paths:
+            - path: /protocol
+              pathType: Prefix
+              port: protocol
+            - path: /public
+              pathType: Prefix
+              port: public
+    asserts:
+      - lengthEqual:
+          path: spec.rules[0].http.paths
+          count: 2
+
+  - it: should support multiple hosts
+    set:
+      ingress.enabled: true
+      ingress.hosts:
+        - host: edc1.example.com
+          paths:
+            - path: /
+              pathType: Prefix
+              port: default
+        - host: edc2.example.com
+          paths:
+            - path: /
+              pathType: Prefix
+              port: default
+    asserts:
+      - lengthEqual:
+          path: spec.rules
+          count: 2
+      - equal:
+          path: spec.rules[0].host
+          value: "edc1.example.com"
+      - equal:
+          path: spec.rules[1].host
+          value: "edc2.example.com"
