@@ -84,6 +84,12 @@ jobs:
 
             echo "✅ Updated Chart.yaml changelog"
 
+            # Bump patch version to trigger new release
+            current_version=$(yq eval '.version' "$chart_file")
+            new_version=$(echo "$current_version" | awk -F. '{print $1"."$2"."$3+1}')
+            yq eval -i ".version = \"$new_version\"" "$chart_file"
+            echo "✅ Bumped version: $current_version -> $new_version"
+
             # Generate documentation if README.md.gotmpl exists
             if [ -f "$chart_dir/README.md.gotmpl" ]; then
               echo "📚 Generating documentation for $chart_dir"
