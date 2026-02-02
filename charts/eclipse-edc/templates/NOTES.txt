@@ -1,0 +1,62 @@
+Eclipse EDC has been installed.
+
+{{- if .Values.controlPlane.enabled }}
+
+Control Plane:
+  Service: {{ include "eclipse-edc.controlplane.fullname" . }}
+  Ports:
+    - Management API: {{ .Values.controlPlane.ports.management }}
+    - Protocol (DSP): {{ .Values.controlPlane.ports.protocol }}
+    - Default API: {{ .Values.controlPlane.ports.default }}
+
+  Access Management API:
+    kubectl port-forward svc/{{ include "eclipse-edc.controlplane.fullname" . }} {{ .Values.controlPlane.ports.management }}:{{ .Values.controlPlane.ports.management }}
+
+{{- end }}
+
+{{- if .Values.dataPlane.enabled }}
+
+Data Plane:
+  Service: {{ include "eclipse-edc.dataplane.fullname" . }}
+  Ports:
+    - Public API: {{ .Values.dataPlane.ports.public }}
+    - Control API: {{ .Values.dataPlane.ports.control }}
+
+  Access Public API:
+    kubectl port-forward svc/{{ include "eclipse-edc.dataplane.fullname" . }} {{ .Values.dataPlane.ports.public }}:{{ .Values.dataPlane.ports.public }}
+
+{{- end }}
+
+{{- if not (or .Values.controlPlane.enabled .Values.dataPlane.enabled) }}
+
+WARNING: Both Control Plane and Data Plane are disabled.
+No EDC components were deployed.
+
+{{- end }}
+
+{{- if .Values.postgresql.enabled }}
+
+PostgreSQL:
+  Host: {{ include "eclipse-edc.postgresql.host" . }}
+  Port: {{ include "eclipse-edc.postgresql.port" . }}
+  Database: {{ include "eclipse-edc.postgresql.database" . }}
+
+{{- else if .Values.postgresql.external.host }}
+
+External PostgreSQL:
+  Host: {{ .Values.postgresql.external.host }}
+  Port: {{ .Values.postgresql.external.port }}
+  Database: {{ .Values.postgresql.external.database }}
+
+{{- else }}
+
+WARNING: No PostgreSQL configured.
+EDC requires PostgreSQL for persistence. Configure either:
+  - postgresql.enabled=true (deploy PostgreSQL subchart)
+  - postgresql.external.host (use external PostgreSQL)
+
+{{- end }}
+
+For more information, visit:
+  - Eclipse EDC: https://github.com/eclipse-edc/Connector
+  - Documentation: https://eclipse-edc.github.io/

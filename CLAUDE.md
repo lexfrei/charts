@@ -358,6 +358,8 @@ To validate locally:
 check-jsonschema --schemafile charts/<chart-name>/values.schema.json charts/<chart-name>/values.yaml
 ```
 
+**Nullable integers**: For optional integer values that default to null/undefined, use `"type": ["integer", "null"]` in schema, not just `"integer"`.
+
 ## Chart Publishing Summary
 
 Charts are automatically published to GHCR (GitHub Container Registry) as OCI artifacts when changes are merged to master.
@@ -453,9 +455,15 @@ gh workflow run test.yaml --field charts='["charts/cloudflare-tunnel"]'
 - Always quote string values
 - Use `required` for mandatory values
 - Add helpful NOTES.txt for post-install instructions
+- **GOTCHA: `with` doesn't work for zero values** — `{{- with .Values.X }}` skips when X=0 (falsy in Go). Use `{{- if not (kindIs "invalid" .Values.X) }}` for optional integers that can be 0
 
 ### Testing Guidelines
 
+- **TDD approach preferred**: Write tests FIRST (RED), then implement (GREEN)
+  - Add failing tests to `tests/<resource>_test.yaml`
+  - Run `helm unittest` to confirm RED
+  - Implement template/values changes
+  - Run tests to confirm GREEN
 - Test all chart resources
 - Test with different value combinations
 - Test upgrade scenarios
