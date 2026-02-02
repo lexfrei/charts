@@ -1,4 +1,7 @@
-repositoryID: lexfrei-charts
+# Artifact Hub repository metadata
+# See: https://artifacthub.io/docs/topics/repositories/helm-charts/#oci-support
+
+repositoryID: ce6b1c72-6e76-450b-a906-c4e6c292910b
 owners:
-  - name: lexfrei
+  - name: Aleksei Sviridkin
     email: f@lex.la
