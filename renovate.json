@@ -11,8 +11,8 @@
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": [
-        "(^|/)Chart\\.yaml$"
+      "managerFilePatterns": [
+        "/(^|/)Chart\\.yaml$/"
       ],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\\n.*?appVersion: \"(?<currentValue>.*?)\""
