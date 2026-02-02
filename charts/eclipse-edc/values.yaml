@@ -15,11 +15,11 @@ controlPlane:
 
   image:
     # -- Control Plane image repository
-    repository: eclipseedc/edc-controlplane
+    repository: ghcr.io/lexfrei/edc-controlplane
     # -- Image pull policy
     pullPolicy: IfNotPresent
     # -- Control Plane image tag (defaults to appVersion)
-    tag: ""
+    tag: "latest"
 
   # -- Number of Control Plane replicas
   replicaCount: 1
@@ -83,11 +83,11 @@ dataPlane:
 
   image:
     # -- Data Plane image repository
-    repository: eclipseedc/edc-dataplane
+    repository: ghcr.io/lexfrei/edc-dataplane
     # -- Image pull policy
     pullPolicy: IfNotPresent
     # -- Data Plane image tag (defaults to appVersion)
-    tag: ""
+    tag: "latest"
 
   # -- Number of Data Plane replicas
   replicaCount: 1
