@@ -1,0 +1,194 @@
+# Default values for eclipse-edc.
+
+# -- Override the chart name
+nameOverride: ""
+# -- Override the full release name
+fullnameOverride: ""
+
+# -- Image pull secrets for private registries
+imagePullSecrets: []
+
+# -- Control Plane configuration
+controlPlane:
+  # -- Enable Control Plane deployment
+  enabled: true
+
+  image:
+    # -- Control Plane image repository
+    repository: eclipseedc/edc-controlplane
+    # -- Image pull policy
+    pullPolicy: IfNotPresent
+    # -- Control Plane image tag (defaults to appVersion)
+    tag: ""
+
+  # -- Number of Control Plane replicas
+  replicaCount: 1
+
+  # -- Control Plane ports
+  ports:
+    # -- Management API port
+    management: 8181
+    # -- Protocol (DSP) port
+    protocol: 8182
+    # -- Default API port
+    default: 8282
+
+  # -- Resource requests and limits
+  resources: {}
+    # limits:
+    #   cpu: 500m
+    #   memory: 512Mi
+    # requests:
+    #   cpu: 250m
+    #   memory: 256Mi
+
+  # -- Node selector for pod assignment
+  nodeSelector: {}
+
+  # -- Tolerations for pod assignment
+  tolerations: []
+
+  # -- Affinity rules for pod assignment
+  affinity: {}
+
+  # -- Annotations to add to pods
+  podAnnotations: {}
+
+  # -- Labels to add to pods
+  podLabels: {}
+
+  serviceAccount:
+    # -- Create a service account
+    create: true
+    # -- Service account annotations
+    annotations: {}
+    # -- Service account name (generated if not set)
+    name: ""
+
+  service:
+    # -- Service type
+    type: ClusterIP
+    # -- Service annotations
+    annotations: {}
+
+  # -- EDC Control Plane configuration properties
+  config:
+    # -- Participant ID for this connector
+    participantId: ""
+
+# -- Data Plane configuration
+dataPlane:
+  # -- Enable Data Plane deployment
+  enabled: true
+
+  image:
+    # -- Data Plane image repository
+    repository: eclipseedc/edc-dataplane
+    # -- Image pull policy
+    pullPolicy: IfNotPresent
+    # -- Data Plane image tag (defaults to appVersion)
+    tag: ""
+
+  # -- Number of Data Plane replicas
+  replicaCount: 1
+
+  # -- Data Plane ports
+  ports:
+    # -- Public API port
+    public: 8185
+    # -- Control API port
+    control: 8186
+
+  # -- Resource requests and limits
+  resources: {}
+    # limits:
+    #   cpu: 500m
+    #   memory: 512Mi
+    # requests:
+    #   cpu: 250m
+    #   memory: 256Mi
+
+  # -- Node selector for pod assignment
+  nodeSelector: {}
+
+  # -- Tolerations for pod assignment
+  tolerations: []
+
+  # -- Affinity rules for pod assignment
+  affinity: {}
+
+  # -- Annotations to add to pods
+  podAnnotations: {}
+
+  # -- Labels to add to pods
+  podLabels: {}
+
+  serviceAccount:
+    # -- Create a service account
+    create: true
+    # -- Service account annotations
+    annotations: {}
+    # -- Service account name (generated if not set)
+    name: ""
+
+  service:
+    # -- Service type
+    type: ClusterIP
+    # -- Service annotations
+    annotations: {}
+
+  # -- EDC Data Plane configuration properties
+  config: {}
+
+# -- Pod security context applied to all pods
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  seccompProfile:
+    type: RuntimeDefault
+
+# -- Container security context applied to all containers
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+
+# -- PostgreSQL configuration
+postgresql:
+  # -- Enable PostgreSQL subchart deployment
+  # If false, use external PostgreSQL configuration
+  enabled: false
+
+  # -- External PostgreSQL configuration
+  # Used when postgresql.enabled is false
+  external:
+    # -- External PostgreSQL host
+    host: ""
+    # -- External PostgreSQL port
+    port: 5432
+    # -- Database name
+    database: "edc"
+    # -- Existing secret name containing PostgreSQL credentials
+    existingSecret: ""
+    # -- Key in existing secret for password
+    existingSecretPasswordKey: "password"
+    # -- Key in existing secret for username
+    existingSecretUsernameKey: "username"
+
+  # -- PostgreSQL subchart auth configuration
+  # Only used when postgresql.enabled is true
+  auth:
+    database: "edc"
+    username: "edc"
+    # -- Password for PostgreSQL (auto-generated if not set)
+    password: ""
+    # -- Use existing secret for PostgreSQL password
+    existingSecret: ""
+
+  # -- PostgreSQL subchart primary configuration
+  primary:
+    service:
+      ports:
+        postgresql: 5432

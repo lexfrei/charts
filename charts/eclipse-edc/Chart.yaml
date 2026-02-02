@@ -1,0 +1,51 @@
+annotations:
+  artifacthub.io/category: integration-delivery
+  # Valid kinds for changes: added, changed, deprecated, removed, fixed, security
+  # See: https://artifacthub.io/docs/topics/annotations/helm/
+  artifacthub.io/changes: |-
+    - kind: added
+      description: Initial release of Eclipse EDC Helm chart
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/links: |
+    - name: Chart Repository
+      url: https://github.com/lexfrei/charts/
+    - name: Eclipse EDC
+      url: https://github.com/eclipse-edc/Connector
+    - name: Eclipse EDC Documentation
+      url: https://eclipse-edc.github.io/
+  artifacthub.io/signKey: |
+    fingerprint: keyless
+    url: https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master
+apiVersion: v2
+name: eclipse-edc
+description: Eclipse EDC (Eclipse Dataspace Connector) for secure data exchange in EU Data Spaces
+type: application
+version: "0.1.0"
+kubeVersion: ">=1.21.0-0"
+# renovate: datasource=docker depName=eclipseedc/edc-controlplane
+appVersion: "0.10.1"
+icon: https://eclipse.dev/edc/assets/images/logo.png
+home: https://github.com/lexfrei/charts/
+keywords:
+  - eclipse-edc
+  - dataspace
+  - data-exchange
+  - connector
+  - eu-dataspace
+  - idsa
+  - gaia-x
+  - catena-x
+  - kubernetes
+  - helm-chart
+maintainers:
+  - name: lexfrei
+    email: f@lex.la
+    url: https://github.com/lexfrei
+sources:
+  - https://github.com/lexfrei/charts/
+  - https://github.com/eclipse-edc/Connector
+dependencies:
+  - name: postgresql
+    version: "16.4.1"
+    repository: oci://registry-1.docker.io/bitnamicharts
+    condition: postgresql.enabled

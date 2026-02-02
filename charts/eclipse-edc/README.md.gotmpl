@@ -1,0 +1,108 @@
+{{ template "chart.header" . }}
+
+{{ template "chart.deprecationWarning" . }}
+
+{{ template "chart.badgesSection" . }}
+
+{{ template "chart.description" . }}
+
+{{ template "chart.homepageLine" . }}
+
+{{ template "chart.maintainersSection" . }}
+
+{{ template "chart.sourcesSection" . }}
+
+{{ template "chart.requirementsSection" . }}
+
+## Overview
+
+This Helm chart deploys [Eclipse EDC (Eclipse Dataspace Connector)](https://github.com/eclipse-edc/Connector), a framework for sovereign data exchange in compliance with EU Data Space initiatives.
+
+## Architecture
+
+The chart deploys two main components:
+
+- **Control Plane**: Handles management, policy negotiation, and contract management
+- **Data Plane**: Handles actual data transfer between participants
+
+Both components can be enabled/disabled independently using feature flags.
+
+## Installation
+
+```bash
+helm install my-edc oci://ghcr.io/lexfrei/charts/eclipse-edc \
+  --set controlPlane.config.participantId=my-connector \
+  --set postgresql.external.host=postgres.example.com \
+  --set postgresql.external.existingSecret=postgres-credentials
+```
+
+## PostgreSQL Configuration
+
+EDC requires PostgreSQL for persistence. You have two options:
+
+### Option 1: External PostgreSQL (Recommended for Production)
+
+```yaml
+postgresql:
+  enabled: false
+  external:
+    host: "postgres.example.com"
+    port: 5432
+    database: "edc"
+    existingSecret: "postgres-credentials"
+    existingSecretPasswordKey: "password"
+    existingSecretUsernameKey: "username"
+```
+
+### Option 2: Deploy PostgreSQL Subchart
+
+```yaml
+postgresql:
+  enabled: true
+  auth:
+    database: "edc"
+    username: "edc"
+    password: "your-password"
+```
+
+## Secrets Management
+
+For Vault/OpenBao integration, we recommend using [External Secrets Operator (ESO)](https://external-secrets.io/) to sync secrets from your vault to Kubernetes secrets. This chart does not include Vault integration directly.
+
+Example ESO SecretStore configuration:
+
+```yaml
+apiVersion: external-secrets.io/v1beta1
+kind: SecretStore
+metadata:
+  name: vault-backend
+spec:
+  provider:
+    vault:
+      server: "https://vault.example.com"
+      path: "secret"
+      auth:
+        kubernetes:
+          mountPath: "kubernetes"
+          role: "edc"
+```
+
+{{ template "chart.valuesSection" . }}
+
+## Security
+
+This chart follows security best practices:
+
+- Runs as non-root user (UID 65532)
+- Read-only root filesystem
+- Drops all capabilities
+- Uses seccomp RuntimeDefault profile
+- ServiceAccount tokens not auto-mounted
+
+## Links
+
+- [Eclipse EDC Repository](https://github.com/eclipse-edc/Connector)
+- [Eclipse EDC Documentation](https://eclipse-edc.github.io/)
+- [EU Data Spaces](https://dssc.eu/)
+
+{{ template "helm-docs.versionFooter" . }}
