@@ -22,7 +22,7 @@ apiVersion: v2
 name: system-upgrade-controller
 description: Kubernetes-native upgrade controller for nodes using declarative Plans
 type: application
-version: "0.2.1"
+version: "0.2.2"
 # renovate: datasource=github-releases depName=rancher/system-upgrade-controller
 appVersion: "v0.18.0"
 icon: https://avatars.githubusercontent.com/u/9343010
