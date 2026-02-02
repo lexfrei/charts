@@ -131,3 +131,29 @@ ingress:
   # - secretName: edc-tls
   #   hosts:
   #     - edc.example.com
+
+# -- HTTPRoute configuration (Gateway API)
+httpRoute:
+  # -- Enable HTTPRoute
+  enabled: false
+  # -- HTTPRoute annotations
+  annotations: {}
+  # -- Parent gateway references
+  parentRefs:
+    - name: gateway
+      namespace: gateway-system
+  # -- Hostnames for the route
+  hostnames: []
+  # - edc.example.com
+  # -- Routing rules (each rule routes to a specific service port)
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /protocol
+      port: 8183
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /public
+      port: 8184

@@ -20,72 +20,92 @@ This Helm chart deploys [Eclipse EDC (Eclipse Dataspace Connector)](https://gith
 
 ## Architecture
 
-The chart deploys two main components:
+This chart deploys a **unified connector** that combines Control Plane and Data Plane functionality in a single container. This is based on the [eclipse-edc/Samples](https://github.com/eclipse-edc/Samples) implementation with mock IAM, suitable for development and testing.
 
-- **Control Plane**: Handles management, policy negotiation, and contract management
-- **Data Plane**: Handles actual data transfer between participants
-
-Both components can be enabled/disabled independently using feature flags.
+**Note**: This connector uses InMemoryVault which is NOT suitable for production. For production deployments, configure HashiCorp Vault or another secure vault solution.
 
 ## Installation
 
 ```bash
 helm install my-edc oci://ghcr.io/lexfrei/charts/eclipse-edc \
-  --set controlPlane.config.participantId=my-connector \
-  --set postgresql.external.host=postgres.example.com \
-  --set postgresql.external.existingSecret=postgres-credentials
+  --set connector.config.participantId=my-connector \
+  --set connector.config.hostname=edc.example.com
 ```
 
-## PostgreSQL Configuration
+### Required Values
 
-EDC requires PostgreSQL for persistence. You have two options:
+| Value | Description |
+|-------|-------------|
+| `connector.config.participantId` | Unique identifier for this connector in the dataspace |
+| `connector.config.hostname` | Public hostname for external access (DSP callbacks) |
 
-### Option 1: External PostgreSQL (Recommended for Production)
+## Exposed APIs
+
+The connector exposes 5 HTTP endpoints:
+
+| Port | Path | Description |
+|------|------|-------------|
+| 8181 | /api | Default API (health checks) |
+| 8182 | /management | Management API |
+| 8183 | /protocol | DSP Protocol (connector-to-connector) |
+| 8184 | /public | Public API (data transfer) |
+| 8185 | /control | Control API |
+
+## External Access
+
+### Using HTTPRoute (Gateway API) - Recommended
 
 ```yaml
-postgresql:
-  enabled: false
-  external:
-    host: "postgres.example.com"
-    port: 5432
-    database: "edc"
-    existingSecret: "postgres-credentials"
-    existingSecretPasswordKey: "password"
-    existingSecretUsernameKey: "username"
-```
-
-### Option 2: Deploy PostgreSQL Subchart
-
-```yaml
-postgresql:
+httpRoute:
   enabled: true
-  auth:
-    database: "edc"
-    username: "edc"
-    password: "your-password"
+  parentRefs:
+    - name: gateway
+      namespace: gateway-system
+  hostnames:
+    - edc.example.com
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /protocol
+      port: 8183
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /public
+      port: 8184
+```
+
+### Using Ingress
+
+```yaml
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: edc.example.com
+      paths:
+        - path: /protocol
+          pathType: Prefix
+          port: protocol
+        - path: /public
+          pathType: Prefix
+          port: public
+```
+
+### Using Cloudflare Tunnel
+
+For Cloudflare Tunnel access, set the hostname and configure your tunnel to point to the service:
+
+```yaml
+connector:
+  config:
+    hostname: edc.example.com
 ```
 
 ## Secrets Management
 
 For Vault/OpenBao integration, we recommend using [External Secrets Operator (ESO)](https://external-secrets.io/) to sync secrets from your vault to Kubernetes secrets. This chart does not include Vault integration directly.
-
-Example ESO SecretStore configuration:
-
-```yaml
-apiVersion: external-secrets.io/v1beta1
-kind: SecretStore
-metadata:
-  name: vault-backend
-spec:
-  provider:
-    vault:
-      server: "https://vault.example.com"
-      path: "secret"
-      auth:
-        kubernetes:
-          mountPath: "kubernetes"
-          role: "edc"
-```
 
 {{ template "chart.valuesSection" . }}
 
@@ -99,9 +119,14 @@ This chart follows security best practices:
 - Uses seccomp RuntimeDefault profile
 - ServiceAccount tokens not auto-mounted
 
+## Multi-Architecture Support
+
+The container images support both `linux/amd64` and `linux/arm64` architectures, making this chart suitable for Raspberry Pi and ARM-based Kubernetes clusters.
+
 ## Links
 
 - [Eclipse EDC Repository](https://github.com/eclipse-edc/Connector)
+- [Eclipse EDC Samples](https://github.com/eclipse-edc/Samples)
 - [Eclipse EDC Documentation](https://eclipse-edc.github.io/)
 - [EU Data Spaces](https://dssc.eu/)
 
