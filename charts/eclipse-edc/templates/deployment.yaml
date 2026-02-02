@@ -1,0 +1,120 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "eclipse-edc.fullname" . }}
+  labels:
+    {{- include "eclipse-edc.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.connector.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "eclipse-edc.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.connector.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "eclipse-edc.labels" . | nindent 8 }}
+        {{- with .Values.connector.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "eclipse-edc.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: connector
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: {{ include "eclipse-edc.image" . }}
+          imagePullPolicy: {{ .Values.connector.image.pullPolicy }}
+          ports:
+            - name: default
+              containerPort: {{ .Values.connector.ports.default }}
+              protocol: TCP
+            - name: management
+              containerPort: {{ .Values.connector.ports.management }}
+              protocol: TCP
+            - name: protocol
+              containerPort: {{ .Values.connector.ports.protocol }}
+              protocol: TCP
+            - name: public
+              containerPort: {{ .Values.connector.ports.public }}
+              protocol: TCP
+            - name: control
+              containerPort: {{ .Values.connector.ports.control }}
+              protocol: TCP
+          env:
+            - name: EDC_PARTICIPANT_ID
+              value: {{ required "connector.config.participantId is required" .Values.connector.config.participantId | quote }}
+            - name: EDC_DSP_CALLBACK_ADDRESS
+              value: {{ include "eclipse-edc.dspCallbackAddress" . | quote }}
+            - name: EDC_DATAPLANE_API_PUBLIC_BASEURL
+              value: {{ include "eclipse-edc.publicBaseUrl" . | quote }}
+            - name: EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS
+              value: {{ .Values.connector.config.tokenSignerPrivateKeyAlias | quote }}
+            - name: EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS
+              value: {{ .Values.connector.config.tokenVerifierPublicKeyAlias | quote }}
+            - name: WEB_HTTP_PORT
+              value: {{ .Values.connector.ports.default | quote }}
+            - name: WEB_HTTP_PATH
+              value: "/api"
+            - name: WEB_HTTP_MANAGEMENT_PORT
+              value: {{ .Values.connector.ports.management | quote }}
+            - name: WEB_HTTP_MANAGEMENT_PATH
+              value: "/management"
+            - name: WEB_HTTP_PROTOCOL_PORT
+              value: {{ .Values.connector.ports.protocol | quote }}
+            - name: WEB_HTTP_PROTOCOL_PATH
+              value: "/protocol"
+            - name: WEB_HTTP_PUBLIC_PORT
+              value: {{ .Values.connector.ports.public | quote }}
+            - name: WEB_HTTP_PUBLIC_PATH
+              value: "/public"
+            - name: WEB_HTTP_CONTROL_PORT
+              value: {{ .Values.connector.ports.control | quote }}
+            - name: WEB_HTTP_CONTROL_PATH
+              value: "/control"
+            {{- with .Values.connector.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+          livenessProbe:
+            httpGet:
+              path: /api/check/liveness
+              port: default
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/check/readiness
+              port: default
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          {{- with .Values.connector.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: tmp
+          emptyDir: {}
+      {{- with .Values.connector.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.connector.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.connector.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

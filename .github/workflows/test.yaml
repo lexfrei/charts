@@ -28,6 +28,7 @@ jobs:
       matrix:
         chart:
           - charts/cloudflare-tunnel
+          - charts/eclipse-edc
           - charts/me-site
           - charts/system-upgrade-controller
           - charts/transmission
@@ -60,6 +61,7 @@ jobs:
       matrix:
         chart:
           - charts/cloudflare-tunnel
+          - charts/eclipse-edc
           - charts/me-site
           - charts/system-upgrade-controller
           - charts/transmission

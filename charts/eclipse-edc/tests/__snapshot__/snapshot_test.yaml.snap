@@ -1,0 +1,292 @@
+deployment should match snapshot:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: eclipse-edc
+        app.kubernetes.io/version: 0.12.0
+        helm.sh/chart: eclipse-edc-0.3.0
+      name: RELEASE-NAME-eclipse-edc
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app.kubernetes.io/instance: RELEASE-NAME
+          app.kubernetes.io/name: eclipse-edc
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: eclipse-edc
+            app.kubernetes.io/version: 0.12.0
+            helm.sh/chart: eclipse-edc-0.3.0
+        spec:
+          containers:
+            - env:
+                - name: EDC_PARTICIPANT_ID
+                  value: snapshot-test-participant
+                - name: EDC_DSP_CALLBACK_ADDRESS
+                  value: https://edc.snapshot.test/protocol
+                - name: EDC_DATAPLANE_API_PUBLIC_BASEURL
+                  value: https://edc.snapshot.test/public
+                - name: EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS
+                  value: private-key
+                - name: EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS
+                  value: public-key
+                - name: WEB_HTTP_PORT
+                  value: "8181"
+                - name: WEB_HTTP_PATH
+                  value: /api
+                - name: WEB_HTTP_MANAGEMENT_PORT
+                  value: "8182"
+                - name: WEB_HTTP_MANAGEMENT_PATH
+                  value: /management
+                - name: WEB_HTTP_PROTOCOL_PORT
+                  value: "8183"
+                - name: WEB_HTTP_PROTOCOL_PATH
+                  value: /protocol
+                - name: WEB_HTTP_PUBLIC_PORT
+                  value: "8184"
+                - name: WEB_HTTP_PUBLIC_PATH
+                  value: /public
+                - name: WEB_HTTP_CONTROL_PORT
+                  value: "8185"
+                - name: WEB_HTTP_CONTROL_PATH
+                  value: /control
+              image: ghcr.io/lexfrei/edc-connector:0.12.0
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                httpGet:
+                  path: /api/check/liveness
+                  port: default
+                initialDelaySeconds: 30
+                periodSeconds: 10
+              name: connector
+              ports:
+                - containerPort: 8181
+                  name: default
+                  protocol: TCP
+                - containerPort: 8182
+                  name: management
+                  protocol: TCP
+                - containerPort: 8183
+                  name: protocol
+                  protocol: TCP
+                - containerPort: 8184
+                  name: public
+                  protocol: TCP
+                - containerPort: 8185
+                  name: control
+                  protocol: TCP
+              readinessProbe:
+                httpGet:
+                  path: /api/check/readiness
+                  port: default
+                initialDelaySeconds: 30
+                periodSeconds: 10
+              resources:
+                limits:
+                  cpu: 1000m
+                  memory: 1Gi
+                requests:
+                  cpu: 250m
+                  memory: 512Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+              volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65532
+            seccompProfile:
+              type: RuntimeDefault
+          serviceAccountName: RELEASE-NAME-eclipse-edc
+          volumes:
+            - emptyDir: {}
+              name: tmp
+full deployment with all options should match snapshot:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: eclipse-edc
+        app.kubernetes.io/version: 0.12.0
+        helm.sh/chart: eclipse-edc-0.3.0
+      name: RELEASE-NAME-eclipse-edc
+    spec:
+      replicas: 2
+      selector:
+        matchLabels:
+          app.kubernetes.io/instance: RELEASE-NAME
+          app.kubernetes.io/name: eclipse-edc
+      template:
+        metadata:
+          annotations:
+            prometheus.io/scrape: "true"
+          labels:
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: eclipse-edc
+            app.kubernetes.io/version: 0.12.0
+            environment: test
+            helm.sh/chart: eclipse-edc-0.3.0
+        spec:
+          containers:
+            - env:
+                - name: EDC_PARTICIPANT_ID
+                  value: snapshot-test-participant
+                - name: EDC_DSP_CALLBACK_ADDRESS
+                  value: https://edc.snapshot.test/protocol
+                - name: EDC_DATAPLANE_API_PUBLIC_BASEURL
+                  value: https://edc.snapshot.test/public
+                - name: EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS
+                  value: private-key
+                - name: EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS
+                  value: public-key
+                - name: WEB_HTTP_PORT
+                  value: "8181"
+                - name: WEB_HTTP_PATH
+                  value: /api
+                - name: WEB_HTTP_MANAGEMENT_PORT
+                  value: "8182"
+                - name: WEB_HTTP_MANAGEMENT_PATH
+                  value: /management
+                - name: WEB_HTTP_PROTOCOL_PORT
+                  value: "8183"
+                - name: WEB_HTTP_PROTOCOL_PATH
+                  value: /protocol
+                - name: WEB_HTTP_PUBLIC_PORT
+                  value: "8184"
+                - name: WEB_HTTP_PUBLIC_PATH
+                  value: /public
+                - name: WEB_HTTP_CONTROL_PORT
+                  value: "8185"
+                - name: WEB_HTTP_CONTROL_PATH
+                  value: /control
+              image: ghcr.io/lexfrei/edc-connector:1.0.0
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                httpGet:
+                  path: /api/check/liveness
+                  port: default
+                initialDelaySeconds: 30
+                periodSeconds: 10
+              name: connector
+              ports:
+                - containerPort: 8181
+                  name: default
+                  protocol: TCP
+                - containerPort: 8182
+                  name: management
+                  protocol: TCP
+                - containerPort: 8183
+                  name: protocol
+                  protocol: TCP
+                - containerPort: 8184
+                  name: public
+                  protocol: TCP
+                - containerPort: 8185
+                  name: control
+                  protocol: TCP
+              readinessProbe:
+                httpGet:
+                  path: /api/check/readiness
+                  port: default
+                initialDelaySeconds: 30
+                periodSeconds: 10
+              resources:
+                limits:
+                  cpu: 1000m
+                  memory: 1Gi
+                requests:
+                  cpu: 250m
+                  memory: 512Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+              volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
+          imagePullSecrets:
+            - name: ghcr-secret
+          nodeSelector:
+            kubernetes.io/arch: arm64
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65532
+            seccompProfile:
+              type: RuntimeDefault
+          serviceAccountName: RELEASE-NAME-eclipse-edc
+          tolerations:
+            - effect: NoSchedule
+              key: arm
+              operator: Exists
+          volumes:
+            - emptyDir: {}
+              name: tmp
+service should match snapshot:
+  1: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: eclipse-edc
+        app.kubernetes.io/version: 0.12.0
+        helm.sh/chart: eclipse-edc-0.3.0
+      name: RELEASE-NAME-eclipse-edc
+    spec:
+      ports:
+        - name: default
+          port: 8181
+          protocol: TCP
+          targetPort: default
+        - name: management
+          port: 8182
+          protocol: TCP
+          targetPort: management
+        - name: protocol
+          port: 8183
+          protocol: TCP
+          targetPort: protocol
+        - name: public
+          port: 8184
+          protocol: TCP
+          targetPort: public
+        - name: control
+          port: 8185
+          protocol: TCP
+          targetPort: control
+      selector:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/name: eclipse-edc
+      type: ClusterIP
+serviceaccount should match snapshot:
+  1: |
+    apiVersion: v1
+    automountServiceAccountToken: false
+    kind: ServiceAccount
+    metadata:
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: eclipse-edc
+        app.kubernetes.io/version: 0.12.0
+        helm.sh/chart: eclipse-edc-0.3.0
+      name: RELEASE-NAME-eclipse-edc

@@ -1,0 +1,272 @@
+suite: deployment tests
+templates:
+  - templates/deployment.yaml
+set:
+  connector.config.participantId: "test-participant"
+tests:
+  - it: should create a Deployment
+    asserts:
+      - isKind:
+          of: Deployment
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-eclipse-edc
+
+  - it: should use correct image
+    set:
+      connector.image.repository: ghcr.io/lexfrei/edc-connector
+      connector.image.tag: "1.0.0"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: ghcr.io/lexfrei/edc-connector:1.0.0
+
+  - it: should use appVersion when tag is empty
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: "ghcr.io/lexfrei/edc-connector:0\\.12\\.0"
+
+  - it: should set correct replica count
+    set:
+      connector.replicaCount: 3
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 3
+
+  - it: should expose all 5 ports
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.containers[0].ports
+          count: 5
+      - contains:
+          path: spec.template.spec.containers[0].ports
+          content:
+            name: default
+            containerPort: 8181
+            protocol: TCP
+      - contains:
+          path: spec.template.spec.containers[0].ports
+          content:
+            name: management
+            containerPort: 8182
+            protocol: TCP
+      - contains:
+          path: spec.template.spec.containers[0].ports
+          content:
+            name: protocol
+            containerPort: 8183
+            protocol: TCP
+      - contains:
+          path: spec.template.spec.containers[0].ports
+          content:
+            name: public
+            containerPort: 8184
+            protocol: TCP
+      - contains:
+          path: spec.template.spec.containers[0].ports
+          content:
+            name: control
+            containerPort: 8185
+            protocol: TCP
+
+  - it: should set participant ID environment variable
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: EDC_PARTICIPANT_ID
+            value: "test-participant"
+
+  - it: should set DSP callback address from hostname
+    set:
+      connector.config.hostname: "edc.example.com"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: EDC_DSP_CALLBACK_ADDRESS
+            value: "https://edc.example.com/protocol"
+
+  - it: should set public base URL from hostname
+    set:
+      connector.config.hostname: "edc.example.com"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: EDC_DATAPLANE_API_PUBLIC_BASEURL
+            value: "https://edc.example.com/public"
+
+  - it: should configure all WEB_HTTP ports
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: WEB_HTTP_PORT
+            value: "8181"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: WEB_HTTP_MANAGEMENT_PORT
+            value: "8182"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: WEB_HTTP_PROTOCOL_PORT
+            value: "8183"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: WEB_HTTP_PUBLIC_PORT
+            value: "8184"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: WEB_HTTP_CONTROL_PORT
+            value: "8185"
+
+  - it: should allow custom ports
+    set:
+      connector.ports.default: 9181
+      connector.ports.management: 9182
+      connector.ports.protocol: 9183
+      connector.ports.public: 9184
+      connector.ports.control: 9185
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: WEB_HTTP_PORT
+            value: "9181"
+      - contains:
+          path: spec.template.spec.containers[0].ports
+          content:
+            name: default
+            containerPort: 9181
+            protocol: TCP
+
+  - it: should add custom environment variables
+    set:
+      connector.env:
+        - name: CUSTOM_VAR
+          value: "custom-value"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: CUSTOM_VAR
+            value: "custom-value"
+
+  - it: should set resource limits when specified
+    set:
+      connector.resources:
+        limits:
+          cpu: 2000m
+          memory: 2Gi
+        requests:
+          cpu: 500m
+          memory: 1Gi
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits.cpu
+          value: 2000m
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits.memory
+          value: 2Gi
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests.cpu
+          value: 500m
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests.memory
+          value: 1Gi
+
+  - it: should configure liveness probe
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.path
+          value: /api/check/liveness
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.port
+          value: default
+
+  - it: should configure readiness probe
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.path
+          value: /api/check/readiness
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.port
+          value: default
+
+  - it: should mount tmp volume for read-only filesystem
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: tmp
+            mountPath: /tmp
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: tmp
+            emptyDir: {}
+
+  - it: should set node selector when specified
+    set:
+      connector.nodeSelector:
+        kubernetes.io/arch: arm64
+    asserts:
+      - equal:
+          path: spec.template.spec.nodeSelector
+          value:
+            kubernetes.io/arch: arm64
+
+  - it: should set tolerations when specified
+    set:
+      connector.tolerations:
+        - key: "arm"
+          operator: "Exists"
+          effect: "NoSchedule"
+    asserts:
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: "arm"
+            operator: "Exists"
+            effect: "NoSchedule"
+
+  - it: should set affinity when specified
+    set:
+      connector.affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/arch
+                    operator: In
+                    values:
+                      - arm64
+    asserts:
+      - isNotNull:
+          path: spec.template.spec.affinity.nodeAffinity
+
+  - it: should add pod annotations when specified
+    set:
+      connector.podAnnotations:
+        prometheus.io/scrape: "true"
+    asserts:
+      - equal:
+          path: spec.template.metadata.annotations
+          value:
+            prometheus.io/scrape: "true"
+
+  - it: should add pod labels when specified
+    set:
+      connector.podLabels:
+        custom-label: custom-value
+    asserts:
+      - equal:
+          path: spec.template.metadata.labels.custom-label
+          value: custom-value

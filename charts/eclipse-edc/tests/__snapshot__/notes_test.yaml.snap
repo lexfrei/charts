@@ -1,0 +1,72 @@
+should match snapshot for basic deployment:
+  1: |
+    raw: |
+      Eclipse EDC Connector has been deployed!
+
+      Participant ID: test-participant
+
+      Service endpoints:
+        - Default API:    http://RELEASE-NAME-eclipse-edc:8181/api
+        - Management API: http://RELEASE-NAME-eclipse-edc:8182/management
+        - Protocol (DSP): http://RELEASE-NAME-eclipse-edc:8183/protocol
+        - Public API:     http://RELEASE-NAME-eclipse-edc:8184/public
+        - Control API:    http://RELEASE-NAME-eclipse-edc:8185/control
+
+      To check the connector status:
+        kubectl get pods -l "app.kubernetes.io/name=eclipse-edc,app.kubernetes.io/instance=RELEASE-NAME"
+
+      To view logs:
+        kubectl logs -l "app.kubernetes.io/name=eclipse-edc,app.kubernetes.io/instance=RELEASE-NAME"
+
+      NOTE: This connector uses InMemoryVault which is NOT suitable for production.
+      For production, configure HashiCorp Vault or another secure vault solution.
+should match snapshot with hostname configured:
+  1: |
+    raw: |
+      Eclipse EDC Connector has been deployed!
+
+      Participant ID: test-participant
+
+      Service endpoints:
+        - Default API:    http://RELEASE-NAME-eclipse-edc:8181/api
+        - Management API: http://RELEASE-NAME-eclipse-edc:8182/management
+        - Protocol (DSP): http://RELEASE-NAME-eclipse-edc:8183/protocol
+        - Public API:     http://RELEASE-NAME-eclipse-edc:8184/public
+        - Control API:    http://RELEASE-NAME-eclipse-edc:8185/control
+
+      External access (via hostname edc.example.com):
+        - DSP Callback:   https://edc.example.com/protocol
+        - Public API:     https://edc.example.com/public
+
+      To check the connector status:
+        kubectl get pods -l "app.kubernetes.io/name=eclipse-edc,app.kubernetes.io/instance=RELEASE-NAME"
+
+      To view logs:
+        kubectl logs -l "app.kubernetes.io/name=eclipse-edc,app.kubernetes.io/instance=RELEASE-NAME"
+
+      NOTE: This connector uses InMemoryVault which is NOT suitable for production.
+      For production, configure HashiCorp Vault or another secure vault solution.
+should match snapshot with ingress enabled:
+  1: |
+    raw: |
+      Eclipse EDC Connector has been deployed!
+
+      Participant ID: test-participant
+
+      Service endpoints:
+        - Default API:    http://RELEASE-NAME-eclipse-edc:8181/api
+        - Management API: http://RELEASE-NAME-eclipse-edc:8182/management
+        - Protocol (DSP): http://RELEASE-NAME-eclipse-edc:8183/protocol
+        - Public API:     http://RELEASE-NAME-eclipse-edc:8184/public
+        - Control API:    http://RELEASE-NAME-eclipse-edc:8185/control
+
+      Ingress is enabled. Make sure your ingress controller is configured.
+
+      To check the connector status:
+        kubectl get pods -l "app.kubernetes.io/name=eclipse-edc,app.kubernetes.io/instance=RELEASE-NAME"
+
+      To view logs:
+        kubectl logs -l "app.kubernetes.io/name=eclipse-edc,app.kubernetes.io/instance=RELEASE-NAME"
+
+      NOTE: This connector uses InMemoryVault which is NOT suitable for production.
+      For production, configure HashiCorp Vault or another secure vault solution.

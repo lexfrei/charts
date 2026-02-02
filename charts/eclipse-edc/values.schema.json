@@ -19,44 +19,48 @@
           "name": {
             "type": "string"
           }
-        }
+        },
+        "required": ["name"]
       },
       "description": "Image pull secrets for private registries"
     },
-    "controlPlane": {
+    "connector": {
       "type": "object",
-      "description": "Control Plane configuration",
+      "description": "Unified connector configuration",
       "properties": {
-        "enabled": {
-          "type": "boolean",
-          "description": "Enable Control Plane deployment"
+        "replicaCount": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of connector replicas"
         },
         "image": {
           "type": "object",
           "properties": {
             "repository": {
               "type": "string",
-              "description": "Control Plane image repository"
+              "description": "Connector image repository"
             },
             "tag": {
               "type": "string",
-              "description": "Control Plane image tag (defaults to appVersion)"
+              "description": "Connector image tag (defaults to appVersion)"
             },
             "pullPolicy": {
               "type": "string",
               "enum": ["Always", "IfNotPresent", "Never"],
+              "default": "IfNotPresent",
               "description": "Image pull policy"
             }
           }
         },
-        "replicaCount": {
-          "type": "integer",
-          "minimum": 1,
-          "description": "Number of Control Plane replicas"
-        },
         "ports": {
           "type": "object",
           "properties": {
+            "default": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535,
+              "description": "Default API port"
+            },
             "management": {
               "type": "integer",
               "minimum": 1,
@@ -67,122 +71,13 @@
               "type": "integer",
               "minimum": 1,
               "maximum": 65535,
-              "description": "Protocol (DSP) port"
+              "description": "Protocol (DSP) port for connector-to-connector communication"
             },
-            "default": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 65535,
-              "description": "Default API port"
-            }
-          }
-        },
-        "resources": {
-          "type": "object",
-          "description": "Resource requests and limits"
-        },
-        "nodeSelector": {
-          "type": "object",
-          "description": "Node selector for pod assignment"
-        },
-        "tolerations": {
-          "type": "array",
-          "description": "Tolerations for pod assignment"
-        },
-        "affinity": {
-          "type": "object",
-          "description": "Affinity rules for pod assignment"
-        },
-        "podAnnotations": {
-          "type": "object",
-          "description": "Annotations to add to pods"
-        },
-        "podLabels": {
-          "type": "object",
-          "description": "Labels to add to pods"
-        },
-        "serviceAccount": {
-          "type": "object",
-          "properties": {
-            "create": {
-              "type": "boolean",
-              "description": "Create a service account"
-            },
-            "annotations": {
-              "type": "object",
-              "description": "Service account annotations"
-            },
-            "name": {
-              "type": "string",
-              "description": "Service account name"
-            }
-          }
-        },
-        "service": {
-          "type": "object",
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": ["ClusterIP", "NodePort", "LoadBalancer"],
-              "description": "Service type"
-            },
-            "annotations": {
-              "type": "object",
-              "description": "Service annotations"
-            }
-          }
-        },
-        "config": {
-          "type": "object",
-          "description": "EDC Control Plane configuration properties",
-          "properties": {
-            "participantId": {
-              "type": "string",
-              "description": "Participant ID for this connector"
-            }
-          }
-        }
-      }
-    },
-    "dataPlane": {
-      "type": "object",
-      "description": "Data Plane configuration",
-      "properties": {
-        "enabled": {
-          "type": "boolean",
-          "description": "Enable Data Plane deployment"
-        },
-        "image": {
-          "type": "object",
-          "properties": {
-            "repository": {
-              "type": "string",
-              "description": "Data Plane image repository"
-            },
-            "tag": {
-              "type": "string",
-              "description": "Data Plane image tag (defaults to appVersion)"
-            },
-            "pullPolicy": {
-              "type": "string",
-              "enum": ["Always", "IfNotPresent", "Never"],
-              "description": "Image pull policy"
-            }
-          }
-        },
-        "replicaCount": {
-          "type": "integer",
-          "minimum": 1,
-          "description": "Number of Data Plane replicas"
-        },
-        "ports": {
-          "type": "object",
-          "properties": {
             "public": {
               "type": "integer",
               "minimum": 1,
               "maximum": 65535,
-              "description": "Public API port"
+              "description": "Public API port for data transfer"
             },
             "control": {
               "type": "integer",
@@ -192,17 +87,86 @@
             }
           }
         },
+        "config": {
+          "type": "object",
+          "description": "EDC configuration",
+          "properties": {
+            "participantId": {
+              "type": "string",
+              "description": "Participant ID for this connector (REQUIRED - must be set at install time)"
+            },
+            "hostname": {
+              "type": "string",
+              "description": "Public hostname for DSP callback (REQUIRED for external access)"
+            },
+            "tokenSignerPrivateKeyAlias": {
+              "type": "string",
+              "description": "Token signer private key alias in vault"
+            },
+            "tokenVerifierPublicKeyAlias": {
+              "type": "string",
+              "description": "Token verifier public key alias in vault"
+            }
+          },
+          "required": ["participantId"]
+        },
+        "env": {
+          "type": "array",
+          "description": "Additional environment variables",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              },
+              "valueFrom": {
+                "type": "object"
+              }
+            },
+            "required": ["name"]
+          }
+        },
         "resources": {
           "type": "object",
-          "description": "Resource requests and limits"
+          "description": "Resource requests and limits",
+          "properties": {
+            "requests": {
+              "type": "object",
+              "properties": {
+                "cpu": { "type": "string" },
+                "memory": { "type": "string" }
+              }
+            },
+            "limits": {
+              "type": "object",
+              "properties": {
+                "cpu": { "type": "string" },
+                "memory": { "type": "string" }
+              }
+            }
+          }
         },
         "nodeSelector": {
           "type": "object",
+          "additionalProperties": { "type": "string" },
           "description": "Node selector for pod assignment"
         },
         "tolerations": {
           "type": "array",
-          "description": "Tolerations for pod assignment"
+          "description": "Tolerations for pod assignment",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": { "type": "string" },
+              "operator": { "type": "string" },
+              "value": { "type": "string" },
+              "effect": { "type": "string" },
+              "tolerationSeconds": { "type": "integer" }
+            }
+          }
         },
         "affinity": {
           "type": "object",
@@ -210,10 +174,12 @@
         },
         "podAnnotations": {
           "type": "object",
+          "additionalProperties": { "type": "string" },
           "description": "Annotations to add to pods"
         },
         "podLabels": {
           "type": "object",
+          "additionalProperties": { "type": "string" },
           "description": "Labels to add to pods"
         },
         "serviceAccount": {
@@ -225,11 +191,12 @@
             },
             "annotations": {
               "type": "object",
+              "additionalProperties": { "type": "string" },
               "description": "Service account annotations"
             },
             "name": {
               "type": "string",
-              "description": "Service account name"
+              "description": "Service account name (generated if not set)"
             }
           }
         },
@@ -238,78 +205,196 @@
           "properties": {
             "type": {
               "type": "string",
-              "enum": ["ClusterIP", "NodePort", "LoadBalancer"],
+              "enum": ["ClusterIP", "NodePort", "LoadBalancer", "ExternalName"],
+              "default": "ClusterIP",
               "description": "Service type"
             },
             "annotations": {
               "type": "object",
+              "additionalProperties": { "type": "string" },
               "description": "Service annotations"
             }
           }
-        },
-        "config": {
-          "type": "object",
-          "description": "EDC Data Plane configuration properties"
         }
-      }
+      },
+      "required": ["config"]
     },
     "podSecurityContext": {
       "type": "object",
-      "description": "Pod security context applied to all pods"
+      "description": "Pod security context",
+      "properties": {
+        "runAsNonRoot": { "type": "boolean" },
+        "runAsUser": { "type": "integer" },
+        "runAsGroup": { "type": "integer" },
+        "fsGroup": { "type": "integer" },
+        "seccompProfile": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["RuntimeDefault", "Unconfined", "Localhost"],
+              "description": "Seccomp profile type"
+            },
+            "localhostProfile": {
+              "type": "string",
+              "description": "Localhost profile path (required if type is Localhost)"
+            }
+          }
+        }
+      }
     },
     "securityContext": {
       "type": "object",
-      "description": "Container security context applied to all containers"
+      "description": "Container security context",
+      "properties": {
+        "allowPrivilegeEscalation": { "type": "boolean" },
+        "readOnlyRootFilesystem": { "type": "boolean" },
+        "runAsNonRoot": { "type": "boolean" },
+        "runAsUser": { "type": "integer" },
+        "capabilities": {
+          "type": "object",
+          "properties": {
+            "drop": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "add": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        }
+      }
     },
-    "postgresql": {
+    "ingress": {
       "type": "object",
-      "description": "PostgreSQL configuration",
+      "description": "Ingress configuration",
       "properties": {
         "enabled": {
           "type": "boolean",
-          "description": "Enable PostgreSQL subchart deployment"
+          "description": "Enable ingress"
         },
-        "external": {
+        "className": {
+          "type": "string",
+          "description": "Ingress class name"
+        },
+        "annotations": {
           "type": "object",
-          "description": "External PostgreSQL configuration",
-          "properties": {
-            "host": {
-              "type": "string",
-              "description": "External PostgreSQL host"
+          "additionalProperties": { "type": "string" },
+          "description": "Ingress annotations"
+        },
+        "hosts": {
+          "type": "array",
+          "description": "Ingress hosts configuration",
+          "items": {
+            "type": "object",
+            "properties": {
+              "host": { "type": "string" },
+              "paths": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "path": { "type": "string" },
+                    "pathType": {
+                      "type": "string",
+                      "enum": ["Prefix", "Exact", "ImplementationSpecific"]
+                    },
+                    "port": { "type": "string" }
+                  },
+                  "required": ["path", "pathType", "port"]
+                }
+              }
             },
-            "port": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 65535,
-              "description": "External PostgreSQL port"
-            },
-            "database": {
-              "type": "string",
-              "description": "Database name"
-            },
-            "existingSecret": {
-              "type": "string",
-              "description": "Existing secret name containing PostgreSQL credentials"
-            },
-            "existingSecretPasswordKey": {
-              "type": "string",
-              "description": "Key in existing secret for password"
-            },
-            "existingSecretUsernameKey": {
-              "type": "string",
-              "description": "Key in existing secret for username"
-            }
+            "required": ["host", "paths"]
           }
         },
-        "auth": {
-          "type": "object",
-          "description": "PostgreSQL subchart auth configuration"
+        "tls": {
+          "type": "array",
+          "description": "Ingress TLS configuration",
+          "items": {
+            "type": "object",
+            "properties": {
+              "secretName": { "type": "string" },
+              "hosts": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "httpRoute": {
+      "type": "object",
+      "description": "HTTPRoute configuration (Gateway API)",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable HTTPRoute"
         },
-        "primary": {
+        "annotations": {
           "type": "object",
-          "description": "PostgreSQL subchart primary configuration"
+          "additionalProperties": { "type": "string" },
+          "description": "HTTPRoute annotations"
+        },
+        "parentRefs": {
+          "type": "array",
+          "description": "Parent gateway references",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "namespace": { "type": "string" },
+              "sectionName": { "type": "string" }
+            },
+            "required": ["name"]
+          }
+        },
+        "hostnames": {
+          "type": "array",
+          "description": "Hostnames for the route",
+          "items": { "type": "string" }
+        },
+        "rules": {
+          "type": "array",
+          "description": "Routing rules",
+          "items": {
+            "type": "object",
+            "properties": {
+              "matches": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "object",
+                      "properties": {
+                        "type": { "type": "string" },
+                        "value": { "type": "string" }
+                      }
+                    },
+                    "headers": { "type": "array" },
+                    "queryParams": { "type": "array" },
+                    "method": { "type": "string" }
+                  }
+                }
+              },
+              "filters": { "type": "array" },
+              "port": {
+                "type": "integer",
+                "description": "Service port to route to"
+              },
+              "weight": {
+                "type": "integer",
+                "description": "Traffic weight"
+              }
+            },
+            "required": ["matches", "port"]
+          }
         }
       }
     }
-  }
+  },
+  "required": ["connector"]
 }

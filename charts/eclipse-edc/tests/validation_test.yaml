@@ -1,0 +1,134 @@
+suite: validation tests
+templates:
+  - templates/deployment.yaml
+  - templates/service.yaml
+  - templates/serviceaccount.yaml
+tests:
+  # Label truncation - names should be max 63 characters
+  - it: should truncate very long fullnameOverride
+    template: templates/deployment.yaml
+    set:
+      connector.config.participantId: "test-participant"
+      fullnameOverride: "this-is-a-very-long-fullname-override-that-exceeds-sixty-three-characters-limit-and-should-be-truncated"
+    asserts:
+      - matchRegex:
+          path: metadata.name
+          pattern: "^.{1,63}$"
+
+  - it: should handle special characters in release name
+    template: templates/deployment.yaml
+    release:
+      name: test-release
+    set:
+      connector.config.participantId: "test-participant"
+    asserts:
+      - equal:
+          path: metadata.name
+          value: test-release-eclipse-edc
+
+  # Port validation - ports should render correctly
+  - it: should render custom ports correctly
+    template: templates/deployment.yaml
+    set:
+      connector.config.participantId: "test-participant"
+      connector.ports.default: 9181
+      connector.ports.management: 9182
+      connector.ports.protocol: 9183
+      connector.ports.public: 9184
+      connector.ports.control: 9185
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].ports
+          content:
+            name: default
+            containerPort: 9181
+            protocol: TCP
+
+  - it: should render custom ports in service
+    template: templates/service.yaml
+    set:
+      connector.config.participantId: "test-participant"
+      connector.ports.default: 9181
+    asserts:
+      - contains:
+          path: spec.ports
+          content:
+            port: 9181
+            targetPort: default
+            protocol: TCP
+            name: default
+
+  # Chart version in labels
+  - it: should include chart version in labels
+    template: templates/deployment.yaml
+    set:
+      connector.config.participantId: "test-participant"
+    asserts:
+      - matchRegex:
+          path: metadata.labels["helm.sh/chart"]
+          pattern: "^eclipse-edc-[0-9]+\\.[0-9]+\\.[0-9]+$"
+
+  - it: should include app version in labels
+    template: templates/deployment.yaml
+    set:
+      connector.config.participantId: "test-participant"
+    asserts:
+      - isNotNull:
+          path: metadata.labels["app.kubernetes.io/version"]
+
+  # Selector labels consistency
+  - it: should have matching selector labels between deployment and service
+    template: templates/deployment.yaml
+    set:
+      connector.config.participantId: "test-participant"
+    asserts:
+      - equal:
+          path: spec.selector.matchLabels["app.kubernetes.io/name"]
+          value: eclipse-edc
+      - equal:
+          path: spec.selector.matchLabels["app.kubernetes.io/instance"]
+          value: RELEASE-NAME
+
+  - it: service selector should match deployment labels
+    template: templates/service.yaml
+    set:
+      connector.config.participantId: "test-participant"
+    asserts:
+      - equal:
+          path: spec.selector["app.kubernetes.io/name"]
+          value: eclipse-edc
+      - equal:
+          path: spec.selector["app.kubernetes.io/instance"]
+          value: RELEASE-NAME
+
+  # Image tag handling
+  - it: should use appVersion when image tag is empty
+    template: templates/deployment.yaml
+    set:
+      connector.config.participantId: "test-participant"
+      connector.image.tag: ""
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: ":0\\.12\\.0$"
+
+  - it: should use custom tag when specified
+    template: templates/deployment.yaml
+    set:
+      connector.config.participantId: "test-participant"
+      connector.image.tag: "custom-tag"
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: ":custom-tag$"
+
+  - it: should use custom repository when specified
+    template: templates/deployment.yaml
+    set:
+      connector.config.participantId: "test-participant"
+      connector.image.repository: "my-registry.io/my-image"
+      connector.image.tag: "v1"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "my-registry.io/my-image:v1"
