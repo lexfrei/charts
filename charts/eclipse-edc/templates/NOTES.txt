@@ -1,62 +1,32 @@
-Eclipse EDC has been installed.
+Eclipse EDC Connector has been deployed!
 
-{{- if .Values.controlPlane.enabled }}
+Participant ID: {{ .Values.connector.config.participantId }}
 
-Control Plane:
-  Service: {{ include "eclipse-edc.controlplane.fullname" . }}
-  Ports:
-    - Management API: {{ .Values.controlPlane.ports.management }}
-    - Protocol (DSP): {{ .Values.controlPlane.ports.protocol }}
-    - Default API: {{ .Values.controlPlane.ports.default }}
+Service endpoints:
+{{- $fullName := include "eclipse-edc.fullname" . }}
+  - Default API:    http://{{ $fullName }}:{{ .Values.connector.ports.default }}/api
+  - Management API: http://{{ $fullName }}:{{ .Values.connector.ports.management }}/management
+  - Protocol (DSP): http://{{ $fullName }}:{{ .Values.connector.ports.protocol }}/protocol
+  - Public API:     http://{{ $fullName }}:{{ .Values.connector.ports.public }}/public
+  - Control API:    http://{{ $fullName }}:{{ .Values.connector.ports.control }}/control
 
-  Access Management API:
-    kubectl port-forward svc/{{ include "eclipse-edc.controlplane.fullname" . }} {{ .Values.controlPlane.ports.management }}:{{ .Values.controlPlane.ports.management }}
+{{- if .Values.connector.config.hostname }}
 
+External access (via hostname {{ .Values.connector.config.hostname }}):
+  - DSP Callback:   {{ include "eclipse-edc.dspCallbackAddress" . }}
+  - Public API:     {{ include "eclipse-edc.publicBaseUrl" . }}
 {{- end }}
 
-{{- if .Values.dataPlane.enabled }}
+{{- if .Values.ingress.enabled }}
 
-Data Plane:
-  Service: {{ include "eclipse-edc.dataplane.fullname" . }}
-  Ports:
-    - Public API: {{ .Values.dataPlane.ports.public }}
-    - Control API: {{ .Values.dataPlane.ports.control }}
-
-  Access Public API:
-    kubectl port-forward svc/{{ include "eclipse-edc.dataplane.fullname" . }} {{ .Values.dataPlane.ports.public }}:{{ .Values.dataPlane.ports.public }}
-
+Ingress is enabled. Make sure your ingress controller is configured.
 {{- end }}
 
-{{- if not (or .Values.controlPlane.enabled .Values.dataPlane.enabled) }}
+To check the connector status:
+  kubectl get pods -l "app.kubernetes.io/name={{ include "eclipse-edc.name" . }},app.kubernetes.io/instance={{ .Release.Name }}"
 
-WARNING: Both Control Plane and Data Plane are disabled.
-No EDC components were deployed.
+To view logs:
+  kubectl logs -l "app.kubernetes.io/name={{ include "eclipse-edc.name" . }},app.kubernetes.io/instance={{ .Release.Name }}"
 
-{{- end }}
-
-{{- if .Values.postgresql.enabled }}
-
-PostgreSQL:
-  Host: {{ include "eclipse-edc.postgresql.host" . }}
-  Port: {{ include "eclipse-edc.postgresql.port" . }}
-  Database: {{ include "eclipse-edc.postgresql.database" . }}
-
-{{- else if .Values.postgresql.external.host }}
-
-External PostgreSQL:
-  Host: {{ .Values.postgresql.external.host }}
-  Port: {{ .Values.postgresql.external.port }}
-  Database: {{ .Values.postgresql.external.database }}
-
-{{- else }}
-
-WARNING: No PostgreSQL configured.
-EDC requires PostgreSQL for persistence. Configure either:
-  - postgresql.enabled=true (deploy PostgreSQL subchart)
-  - postgresql.external.host (use external PostgreSQL)
-
-{{- end }}
-
-For more information, visit:
-  - Eclipse EDC: https://github.com/eclipse-edc/Connector
-  - Documentation: https://eclipse-edc.github.io/
+NOTE: This connector uses InMemoryVault which is NOT suitable for production.
+For production, configure HashiCorp Vault or another secure vault solution.

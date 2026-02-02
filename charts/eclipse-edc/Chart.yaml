@@ -4,15 +4,21 @@ annotations:
   # See: https://artifacthub.io/docs/topics/annotations/helm/
   artifacthub.io/changes: |-
     - kind: changed
-      description: Switch to custom multi-arch images (ghcr.io/lexfrei/edc-*)
+      description: Unified connector architecture (Control Plane + Data Plane in one)
     - kind: changed
-      description: Update appVersion to 0.15.0 (MinimumViableDataspace)
+      description: Switch to eclipse-edc/Samples with mock IAM (no Identity Trust required)
+    - kind: removed
+      description: Remove PostgreSQL dependency (in-memory storage for dev/test)
+    - kind: changed
+      description: Multi-arch support (ARM64 + AMD64) for Raspberry Pi clusters
   artifacthub.io/license: Apache-2.0
   artifacthub.io/links: |
     - name: Chart Repository
       url: https://github.com/lexfrei/charts/
     - name: Eclipse EDC
       url: https://github.com/eclipse-edc/Connector
+    - name: Eclipse EDC Samples
+      url: https://github.com/eclipse-edc/Samples
     - name: Eclipse EDC Documentation
       url: https://eclipse-edc.github.io/
   artifacthub.io/signKey: |
@@ -22,10 +28,10 @@ apiVersion: v2
 name: eclipse-edc
 description: Eclipse EDC (Eclipse Dataspace Connector) for secure data exchange in EU Data Spaces
 type: application
-version: "0.2.0"
+version: "0.3.0"
 kubeVersion: ">=1.21.0-0"
-# renovate: datasource=docker depName=ghcr.io/lexfrei/edc-controlplane
-appVersion: "0.15.0"
+# renovate: datasource=docker depName=ghcr.io/lexfrei/edc-connector
+appVersion: "0.12.0"
 icon: https://eclipse.dev/edc/assets/images/logo.png
 home: https://github.com/lexfrei/charts/
 keywords:
@@ -39,6 +45,8 @@ keywords:
   - catena-x
   - kubernetes
   - helm-chart
+  - arm64
+  - raspberry-pi
 maintainers:
   - name: lexfrei
     email: f@lex.la
@@ -46,8 +54,4 @@ maintainers:
 sources:
   - https://github.com/lexfrei/charts/
   - https://github.com/eclipse-edc/Connector
-dependencies:
-  - name: postgresql
-    version: "18.2.3"
-    repository: oci://registry-1.docker.io/bitnamicharts
-    condition: postgresql.enabled
+  - https://github.com/eclipse-edc/Samples

@@ -1,4 +1,5 @@
 # Default values for eclipse-edc.
+# Unified connector (Control Plane + Data Plane in one)
 
 # -- Override the chart name
 nameOverride: ""
@@ -8,105 +9,57 @@ fullnameOverride: ""
 # -- Image pull secrets for private registries
 imagePullSecrets: []
 
-# -- Control Plane configuration
-controlPlane:
-  # -- Enable Control Plane deployment
-  enabled: true
-
-  image:
-    # -- Control Plane image repository
-    repository: ghcr.io/lexfrei/edc-controlplane
-    # -- Image pull policy
-    pullPolicy: IfNotPresent
-    # -- Control Plane image tag (defaults to appVersion)
-    tag: "latest"
-
-  # -- Number of Control Plane replicas
+# -- Connector configuration
+connector:
+  # -- Number of connector replicas
   replicaCount: 1
 
-  # -- Control Plane ports
+  image:
+    # -- Connector image repository
+    repository: ghcr.io/lexfrei/edc-connector
+    # -- Image pull policy
+    pullPolicy: IfNotPresent
+    # -- Connector image tag (defaults to appVersion)
+    tag: ""
+
+  # -- Connector ports
   ports:
-    # -- Management API port
-    management: 8181
-    # -- Protocol (DSP) port
-    protocol: 8182
     # -- Default API port
-    default: 8282
-
-  # -- Resource requests and limits
-  resources: {}
-    # limits:
-    #   cpu: 500m
-    #   memory: 512Mi
-    # requests:
-    #   cpu: 250m
-    #   memory: 256Mi
-
-  # -- Node selector for pod assignment
-  nodeSelector: {}
-
-  # -- Tolerations for pod assignment
-  tolerations: []
-
-  # -- Affinity rules for pod assignment
-  affinity: {}
-
-  # -- Annotations to add to pods
-  podAnnotations: {}
-
-  # -- Labels to add to pods
-  podLabels: {}
-
-  serviceAccount:
-    # -- Create a service account
-    create: true
-    # -- Service account annotations
-    annotations: {}
-    # -- Service account name (generated if not set)
-    name: ""
-
-  service:
-    # -- Service type
-    type: ClusterIP
-    # -- Service annotations
-    annotations: {}
-
-  # -- EDC Control Plane configuration properties
-  config:
-    # -- Participant ID for this connector
-    participantId: ""
-
-# -- Data Plane configuration
-dataPlane:
-  # -- Enable Data Plane deployment
-  enabled: true
-
-  image:
-    # -- Data Plane image repository
-    repository: ghcr.io/lexfrei/edc-dataplane
-    # -- Image pull policy
-    pullPolicy: IfNotPresent
-    # -- Data Plane image tag (defaults to appVersion)
-    tag: "latest"
-
-  # -- Number of Data Plane replicas
-  replicaCount: 1
-
-  # -- Data Plane ports
-  ports:
-    # -- Public API port
-    public: 8185
+    default: 8181
+    # -- Management API port
+    management: 8182
+    # -- Protocol (DSP) port for connector-to-connector communication
+    protocol: 8183
+    # -- Public API port for data transfer
+    public: 8184
     # -- Control API port
-    control: 8186
+    control: 8185
+
+  # -- EDC configuration
+  config:
+    # -- Participant ID for this connector (REQUIRED)
+    participantId: ""
+    # -- Public hostname for DSP callback (REQUIRED for external access)
+    # Example: edc.example.com
+    hostname: ""
+    # -- Token signer private key alias in vault
+    tokenSignerPrivateKeyAlias: "private-key"
+    # -- Token verifier public key alias in vault
+    tokenVerifierPublicKeyAlias: "public-key"
+
+  # -- Additional environment variables
+  env: []
+  # - name: CUSTOM_VAR
+  #   value: "value"
 
   # -- Resource requests and limits
-  resources: {}
-    # limits:
-    #   cpu: 500m
-    #   memory: 512Mi
-    # requests:
-    #   cpu: 250m
-    #   memory: 256Mi
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
 
   # -- Node selector for pod assignment
   nodeSelector: {}
@@ -137,17 +90,14 @@ dataPlane:
     # -- Service annotations
     annotations: {}
 
-  # -- EDC Data Plane configuration properties
-  config: {}
-
-# -- Pod security context applied to all pods
+# -- Pod security context
 podSecurityContext:
   runAsNonRoot: true
   runAsUser: 65532
   seccompProfile:
     type: RuntimeDefault
 
-# -- Container security context applied to all containers
+# -- Container security context
 securityContext:
   allowPrivilegeEscalation: false
   capabilities:
@@ -155,40 +105,29 @@ securityContext:
       - ALL
   readOnlyRootFilesystem: true
 
-# -- PostgreSQL configuration
-postgresql:
-  # -- Enable PostgreSQL subchart deployment
-  # If false, use external PostgreSQL configuration
+# -- Ingress configuration
+ingress:
+  # -- Enable ingress
   enabled: false
-
-  # -- External PostgreSQL configuration
-  # Used when postgresql.enabled is false
-  external:
-    # -- External PostgreSQL host
-    host: ""
-    # -- External PostgreSQL port
-    port: 5432
-    # -- Database name
-    database: "edc"
-    # -- Existing secret name containing PostgreSQL credentials
-    existingSecret: ""
-    # -- Key in existing secret for password
-    existingSecretPasswordKey: "password"
-    # -- Key in existing secret for username
-    existingSecretUsernameKey: "username"
-
-  # -- PostgreSQL subchart auth configuration
-  # Only used when postgresql.enabled is true
-  auth:
-    database: "edc"
-    username: "edc"
-    # -- Password for PostgreSQL (auto-generated if not set)
-    password: ""
-    # -- Use existing secret for PostgreSQL password
-    existingSecret: ""
-
-  # -- PostgreSQL subchart primary configuration
-  primary:
-    service:
-      ports:
-        postgresql: 5432
+  # -- Ingress class name
+  className: ""
+  # -- Ingress annotations
+  annotations: {}
+  # -- Ingress hosts configuration
+  hosts: []
+  # - host: edc.example.com
+  #   paths:
+  #     - path: /protocol
+  #       pathType: Prefix
+  #       port: protocol
+  #     - path: /public
+  #       pathType: Prefix
+  #       port: public
+  #     - path: /management
+  #       pathType: Prefix
+  #       port: management
+  # -- Ingress TLS configuration
+  tls: []
+  # - secretName: edc-tls
+  #   hosts:
+  #     - edc.example.com
