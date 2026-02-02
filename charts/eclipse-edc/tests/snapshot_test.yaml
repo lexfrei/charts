@@ -1,0 +1,43 @@
+suite: snapshot tests
+templates:
+  - templates/deployment.yaml
+  - templates/service.yaml
+  - templates/serviceaccount.yaml
+set:
+  connector.config.participantId: "snapshot-test-participant"
+  connector.config.hostname: "edc.snapshot.test"
+tests:
+  - it: deployment should match snapshot
+    template: templates/deployment.yaml
+    asserts:
+      - matchSnapshot: {}
+
+  - it: service should match snapshot
+    template: templates/service.yaml
+    asserts:
+      - matchSnapshot: {}
+
+  - it: serviceaccount should match snapshot
+    template: templates/serviceaccount.yaml
+    asserts:
+      - matchSnapshot: {}
+
+  - it: full deployment with all options should match snapshot
+    template: templates/deployment.yaml
+    set:
+      connector.replicaCount: 2
+      connector.image.tag: "1.0.0"
+      connector.podAnnotations:
+        prometheus.io/scrape: "true"
+      connector.podLabels:
+        environment: test
+      connector.nodeSelector:
+        kubernetes.io/arch: arm64
+      connector.tolerations:
+        - key: "arm"
+          operator: "Exists"
+          effect: "NoSchedule"
+      imagePullSecrets:
+        - name: ghcr-secret
+    asserts:
+      - matchSnapshot: {}

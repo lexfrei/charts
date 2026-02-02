@@ -1,0 +1,32 @@
+suite: NOTES.txt tests
+templates:
+  - templates/NOTES.txt
+set:
+  connector.config.participantId: "test-participant"
+tests:
+  - it: should render NOTES.txt
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should match snapshot for basic deployment
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should match snapshot with hostname configured
+    set:
+      connector.config.hostname: "edc.example.com"
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should match snapshot with ingress enabled
+    set:
+      ingress.enabled: true
+      ingress.hosts:
+        - host: edc.example.com
+          paths:
+            - path: /
+              pathType: Prefix
+              port: default
+    asserts:
+      - matchSnapshot: {}
