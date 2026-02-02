@@ -8,7 +8,7 @@ deployment should match snapshot:
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: eclipse-edc
         app.kubernetes.io/version: 0.12.0
-        helm.sh/chart: eclipse-edc-0.3.0
+        helm.sh/chart: eclipse-edc-0.3.1
       name: RELEASE-NAME-eclipse-edc
     spec:
       replicas: 1
@@ -23,7 +23,7 @@ deployment should match snapshot:
             app.kubernetes.io/managed-by: Helm
             app.kubernetes.io/name: eclipse-edc
             app.kubernetes.io/version: 0.12.0
-            helm.sh/chart: eclipse-edc-0.3.0
+            helm.sh/chart: eclipse-edc-0.3.1
         spec:
           containers:
             - env:
@@ -123,7 +123,7 @@ full deployment with all options should match snapshot:
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: eclipse-edc
         app.kubernetes.io/version: 0.12.0
-        helm.sh/chart: eclipse-edc-0.3.0
+        helm.sh/chart: eclipse-edc-0.3.1
       name: RELEASE-NAME-eclipse-edc
     spec:
       replicas: 2
@@ -141,7 +141,7 @@ full deployment with all options should match snapshot:
             app.kubernetes.io/name: eclipse-edc
             app.kubernetes.io/version: 0.12.0
             environment: test
-            helm.sh/chart: eclipse-edc-0.3.0
+            helm.sh/chart: eclipse-edc-0.3.1
         spec:
           containers:
             - env:
@@ -249,7 +249,7 @@ service should match snapshot:
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: eclipse-edc
         app.kubernetes.io/version: 0.12.0
-        helm.sh/chart: eclipse-edc-0.3.0
+        helm.sh/chart: eclipse-edc-0.3.1
       name: RELEASE-NAME-eclipse-edc
     spec:
       ports:
@@ -288,5 +288,5 @@ serviceaccount should match snapshot:
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: eclipse-edc
         app.kubernetes.io/version: 0.12.0
-        helm.sh/chart: eclipse-edc-0.3.0
+        helm.sh/chart: eclipse-edc-0.3.1
       name: RELEASE-NAME-eclipse-edc

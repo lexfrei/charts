@@ -3,14 +3,8 @@ annotations:
   # Valid kinds for changes: added, changed, deprecated, removed, fixed, security
   # See: https://artifacthub.io/docs/topics/annotations/helm/
   artifacthub.io/changes: |-
-    - kind: changed
-      description: Unified connector architecture (Control Plane + Data Plane in one)
-    - kind: changed
-      description: Switch to eclipse-edc/Samples with mock IAM (no Identity Trust required)
-    - kind: removed
-      description: Remove PostgreSQL dependency (in-memory storage for dev/test)
-    - kind: changed
-      description: Multi-arch support (ARM64 + AMD64) for Raspberry Pi clusters
+    - kind: added
+      description: Add ArtifactHub repository ID
   artifacthub.io/license: Apache-2.0
   artifacthub.io/links: |
     - name: Chart Repository
@@ -28,7 +22,7 @@ apiVersion: v2
 name: eclipse-edc
 description: Eclipse EDC (Eclipse Dataspace Connector) for secure data exchange in EU Data Spaces
 type: application
-version: "0.3.0"
+version: "0.3.1"
 kubeVersion: ">=1.21.0-0"
 # renovate: datasource=docker depName=ghcr.io/lexfrei/edc-connector
 appVersion: "0.12.0"
