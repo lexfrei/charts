@@ -23,7 +23,7 @@ Kubernetes: `>=1.21.0-0`
 
 | Repository | Name | Version |
 |------------|------|---------|
-| oci://registry-1.docker.io/bitnamicharts | postgresql | 16.7.27 |
+| oci://registry-1.docker.io/bitnamicharts | postgresql | 18.2.3 |
 
 ## Overview
 

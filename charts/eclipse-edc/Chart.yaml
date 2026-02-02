@@ -4,7 +4,7 @@ annotations:
   # See: https://artifacthub.io/docs/topics/annotations/helm/
   artifacthub.io/changes: |-
     - kind: changed
-      description: Update postgresql docker tag to v16.7.27
+      description: Update postgresql docker tag to v18
   artifacthub.io/license: Apache-2.0
   artifacthub.io/links: |
     - name: Chart Repository
@@ -46,6 +46,6 @@ sources:
   - https://github.com/eclipse-edc/Connector
 dependencies:
   - name: postgresql
-    version: "16.7.27"
+    version: "18.2.3"
     repository: oci://registry-1.docker.io/bitnamicharts
     condition: postgresql.enabled
