@@ -93,8 +93,7 @@
           "properties": {
             "participantId": {
               "type": "string",
-              "minLength": 1,
-              "description": "Participant ID for this connector (REQUIRED)"
+              "description": "Participant ID for this connector (REQUIRED - must be set at install time)"
             },
             "hostname": {
               "type": "string",
