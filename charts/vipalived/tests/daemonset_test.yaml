@@ -88,7 +88,7 @@ tests:
           path: spec.template.spec.nodeSelector["node-role.kubernetes.io/control-plane"]
           value: "true"
 
-  - it: should have default tolerations
+  - it: should have catch-all toleration by default
     asserts:
       - template: daemonset.yaml
         isNotNull:
@@ -97,7 +97,6 @@ tests:
         contains:
           path: spec.template.spec.tolerations
           content:
-            key: CriticalAddonsOnly
             operator: Exists
 
   - it: should configure container with correct image

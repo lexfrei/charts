@@ -91,31 +91,12 @@ priorityClassName: system-node-critical
 nodeSelector:
   node-role.kubernetes.io/control-plane: "true"
 
-# -- Tolerations for pod assignment
+# -- Tolerations for pod assignment.
+# Uses catch-all toleration by default because vipalived is critical infrastructure
+# that MUST run on every control-plane node regardless of any taints applied
+# (e.g., workload-specific taints like minecraft=true:NoExecute).
 tolerations:
-  - key: CriticalAddonsOnly
-    operator: Exists
-  - effect: NoExecute
-    key: node.kubernetes.io/not-ready
-    operator: Exists
-  - effect: NoExecute
-    key: node.kubernetes.io/unreachable
-    operator: Exists
-  - effect: NoSchedule
-    key: node.kubernetes.io/disk-pressure
-    operator: Exists
-  - effect: NoSchedule
-    key: node.kubernetes.io/memory-pressure
-    operator: Exists
-  - effect: NoSchedule
-    key: node.kubernetes.io/pid-pressure
-    operator: Exists
-  - effect: NoSchedule
-    key: node.kubernetes.io/unschedulable
-    operator: Exists
-  - effect: NoSchedule
-    key: node.kubernetes.io/network-unavailable
-    operator: Exists
+  - operator: Exists
 
 # -- Affinity rules for pod assignment
 affinity: {}

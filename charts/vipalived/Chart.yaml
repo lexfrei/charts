@@ -1,12 +1,8 @@
 annotations:
   artifacthub.io/category: networking
   artifacthub.io/changes: |-
-    - kind: added
-      description: Add configurable probes with customizable exec commands
-    - kind: added
-      description: Add startupProbe and readinessProbe support
-    - kind: added
-      description: Add trackInterface option for VRRP state management
+    - kind: fixed
+      description: Use catch-all toleration to ensure scheduling on nodes with arbitrary taints
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -20,7 +16,7 @@ apiVersion: v2
 name: vipalived
 description: Keepalived-based VIP management for Kubernetes control plane high availability
 type: application
-version: 0.6.0
+version: 0.6.1
 # renovate: datasource=docker depName=alpine
 appVersion: "3.23"
 keywords:
