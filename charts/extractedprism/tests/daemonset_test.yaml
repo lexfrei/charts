@@ -157,7 +157,7 @@ tests:
           path: spec.template.spec.containers[0].args
           content: "debug"
 
-  - it: should have readiness probe on /readyz
+  - it: should have readiness probe on /readyz with localhost host
     asserts:
       - equal:
           path: spec.template.spec.containers[0].readinessProbe.httpGet.path
@@ -165,8 +165,11 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].readinessProbe.httpGet.port
           value: 7446
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.host
+          value: "127.0.0.1"
 
-  - it: should have liveness probe on /healthz
+  - it: should have liveness probe on /healthz with localhost host
     asserts:
       - equal:
           path: spec.template.spec.containers[0].livenessProbe.httpGet.path
@@ -174,6 +177,9 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].livenessProbe.httpGet.port
           value: 7446
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.host
+          value: "127.0.0.1"
 
   - it: should set resource limits and requests
     asserts:

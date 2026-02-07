@@ -101,6 +101,7 @@ readinessProbe:
   httpGet:
     path: /readyz
     port: 7446
+    host: "127.0.0.1"
   initialDelaySeconds: 5
   periodSeconds: 10
   timeoutSeconds: 5
@@ -111,6 +112,7 @@ livenessProbe:
   httpGet:
     path: /healthz
     port: 7446
+    host: "127.0.0.1"
   initialDelaySeconds: 10
   periodSeconds: 10
   timeoutSeconds: 5

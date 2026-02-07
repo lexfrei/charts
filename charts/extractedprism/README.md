@@ -77,7 +77,7 @@ cosign verify \
 | image.repository | string | `"ghcr.io/lexfrei/extractedprism"` | Container image repository |
 | image.tag | string | `""` | Container image tag (defaults to chart appVersion if not set) |
 | imagePullSecrets | list | `[]` | Image pull secrets for private registries |
-| livenessProbe | object | `{"failureThreshold":3,"httpGet":{"path":"/healthz","port":7446},"initialDelaySeconds":10,"periodSeconds":10,"timeoutSeconds":5}` | Liveness probe configuration |
+| livenessProbe | object | `{"failureThreshold":3,"httpGet":{"host":"127.0.0.1","path":"/healthz","port":7446},"initialDelaySeconds":10,"periodSeconds":10,"timeoutSeconds":5}` | Liveness probe configuration |
 | logLevel | string | `"info"` | Log level (debug, info, warn, error) |
 | nameOverride | string | `""` | Override the name of the chart |
 | nodeSelector | object | `{}` | Node selector for pod assignment |
@@ -85,7 +85,7 @@ cosign verify \
 | podLabels | object | `{}` | Additional labels for pods |
 | podSecurityContext | object | `{"seccompProfile":{"type":"RuntimeDefault"}}` | Security context for the pod |
 | priorityClassName | string | `"system-node-critical"` | Priority class name for pod scheduling |
-| readinessProbe | object | `{"failureThreshold":3,"httpGet":{"path":"/readyz","port":7446},"initialDelaySeconds":5,"periodSeconds":10,"timeoutSeconds":5}` | Readiness probe configuration |
+| readinessProbe | object | `{"failureThreshold":3,"httpGet":{"host":"127.0.0.1","path":"/readyz","port":7446},"initialDelaySeconds":5,"periodSeconds":10,"timeoutSeconds":5}` | Readiness probe configuration |
 | resources | object | `{"limits":{"cpu":"100m","memory":"64Mi"},"requests":{"cpu":"10m","memory":"16Mi"}}` | Resource requests and limits |
 | securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true,"runAsNonRoot":true,"runAsUser":65534}` | Security context for the container |
 | serviceAccount.annotations | object | `{}` | Annotations to add to the ServiceAccount |
