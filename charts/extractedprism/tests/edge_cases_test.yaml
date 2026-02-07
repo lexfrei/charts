@@ -1,0 +1,75 @@
+suite: test edge cases
+templates:
+  - daemonset.yaml
+  - serviceaccount.yaml
+  - clusterrole.yaml
+  - clusterrolebinding.yaml
+tests:
+  - it: should render all resources together
+    asserts:
+      - template: daemonset.yaml
+        hasDocuments:
+          count: 1
+      - template: serviceaccount.yaml
+        hasDocuments:
+          count: 1
+      - template: clusterrole.yaml
+        hasDocuments:
+          count: 1
+      - template: clusterrolebinding.yaml
+        hasDocuments:
+          count: 1
+
+  - it: should not have nodeSelector by default
+    template: daemonset.yaml
+    asserts:
+      - isNull:
+          path: spec.template.spec.nodeSelector
+
+  - it: should disable hostNetwork when set to false
+    template: daemonset.yaml
+    set:
+      hostNetwork: false
+    asserts:
+      - equal:
+          path: spec.template.spec.hostNetwork
+          value: false
+
+  - it: should support empty tolerations
+    template: daemonset.yaml
+    set:
+      tolerations: []
+    asserts:
+      - isNull:
+          path: spec.template.spec.tolerations
+
+  - it: should propagate labels to all resources
+    template: daemonset.yaml
+    asserts:
+      - isNotNull:
+          path: metadata.labels["helm.sh/chart"]
+      - isNotNull:
+          path: metadata.labels["app.kubernetes.io/version"]
+      - equal:
+          path: metadata.labels["app.kubernetes.io/managed-by"]
+          value: Helm
+
+  - it: should use nameOverride correctly
+    template: daemonset.yaml
+    set:
+      nameOverride: short-name
+    asserts:
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-short-name
+
+  - it: should reference correct service account in ClusterRoleBinding with custom name
+    template: clusterrolebinding.yaml
+    set:
+      serviceAccount:
+        create: true
+        name: custom-sa
+    asserts:
+      - equal:
+          path: subjects[0].name
+          value: custom-sa

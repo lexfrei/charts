@@ -1,0 +1,303 @@
+suite: test daemonset
+templates:
+  - daemonset.yaml
+tests:
+  - it: should create a DaemonSet with default values
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: DaemonSet
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-extractedprism
+      - matchRegex:
+          path: metadata.labels["app.kubernetes.io/name"]
+          pattern: extractedprism
+      - matchRegex:
+          path: metadata.labels["app.kubernetes.io/instance"]
+          pattern: RELEASE-NAME
+
+  - it: should have correct selector labels
+    asserts:
+      - equal:
+          path: spec.selector.matchLabels["app.kubernetes.io/name"]
+          value: extractedprism
+      - equal:
+          path: spec.selector.matchLabels["app.kubernetes.io/instance"]
+          value: RELEASE-NAME
+
+  - it: should use RollingUpdate strategy by default
+    asserts:
+      - equal:
+          path: spec.updateStrategy.type
+          value: RollingUpdate
+      - equal:
+          path: spec.updateStrategy.rollingUpdate.maxUnavailable
+          value: 1
+
+  - it: should support OnDelete update strategy
+    set:
+      updateStrategy:
+        type: OnDelete
+    asserts:
+      - equal:
+          path: spec.updateStrategy.type
+          value: OnDelete
+      - isNull:
+          path: spec.updateStrategy.rollingUpdate
+
+  - it: should enable hostNetwork by default
+    asserts:
+      - equal:
+          path: spec.template.spec.hostNetwork
+          value: true
+
+  - it: should set dnsPolicy to ClusterFirstWithHostNet by default
+    asserts:
+      - equal:
+          path: spec.template.spec.dnsPolicy
+          value: ClusterFirstWithHostNet
+
+  - it: should set priorityClassName to system-node-critical
+    asserts:
+      - equal:
+          path: spec.template.spec.priorityClassName
+          value: system-node-critical
+
+  - it: should have catch-all toleration by default
+    asserts:
+      - isNotNull:
+          path: spec.template.spec.tolerations
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            operator: Exists
+
+  - it: should configure container with correct image
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].name
+          value: extractedprism
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: ^ghcr.io/lexfrei/extractedprism:.+$
+      - equal:
+          path: spec.template.spec.containers[0].imagePullPolicy
+          value: IfNotPresent
+
+  - it: should use custom image tag when provided
+    set:
+      image:
+        tag: "1.2.3"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "ghcr.io/lexfrei/extractedprism:1.2.3"
+
+  - it: should pass endpoints as args
+    set:
+      endpoints: "10.0.0.1:6443,10.0.0.2:6443"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "--endpoints"
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "10.0.0.1:6443,10.0.0.2:6443"
+
+  - it: should pass all configuration flags as args
+    set:
+      endpoints: "10.0.0.1:6443"
+      bindAddress: "0.0.0.0"
+      bindPort: 8445
+      healthPort: 8446
+      healthInterval: "30s"
+      healthTimeout: "10s"
+      enableDiscovery: false
+      logLevel: "debug"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "--bind-address"
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "0.0.0.0"
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "--bind-port"
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "8445"
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "--health-port"
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "8446"
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "--health-interval"
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "30s"
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "--health-timeout"
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "10s"
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "--enable-discovery=false"
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "--log-level"
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "debug"
+
+  - it: should have readiness probe on /readyz
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.path
+          value: /readyz
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.port
+          value: 7446
+
+  - it: should have liveness probe on /healthz
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.path
+          value: /healthz
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.port
+          value: 7446
+
+  - it: should set resource limits and requests
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits.cpu
+          value: 100m
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits.memory
+          value: 64Mi
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests.cpu
+          value: 10m
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests.memory
+          value: 16Mi
+
+  - it: should set security context for non-root read-only container
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.readOnlyRootFilesystem
+          value: true
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.runAsNonRoot
+          value: true
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.runAsUser
+          value: 65534
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.allowPrivilegeEscalation
+          value: false
+
+  - it: should set pod security context
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext.seccompProfile.type
+          value: RuntimeDefault
+
+  - it: should use service account
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: RELEASE-NAME-extractedprism
+
+  - it: should support custom podAnnotations
+    set:
+      podAnnotations:
+        custom/annotation: test-value
+    asserts:
+      - equal:
+          path: spec.template.metadata.annotations["custom/annotation"]
+          value: test-value
+
+  - it: should support custom podLabels
+    set:
+      podLabels:
+        custom-label: test-value
+    asserts:
+      - equal:
+          path: spec.template.metadata.labels["custom-label"]
+          value: test-value
+
+  - it: should support custom namespace via release
+    release:
+      namespace: custom-namespace
+    asserts:
+      - equal:
+          path: metadata.namespace
+          value: custom-namespace
+
+  - it: should support imagePullSecrets
+    set:
+      imagePullSecrets:
+        - name: my-secret
+    asserts:
+      - contains:
+          path: spec.template.spec.imagePullSecrets
+          content:
+            name: my-secret
+
+  - it: should support custom affinity
+    set:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: custom-key
+                    operator: In
+                    values:
+                      - custom-value
+    asserts:
+      - isNotNull:
+          path: spec.template.spec.affinity
+
+  - it: should support custom nodeSelector
+    set:
+      nodeSelector:
+        node-role.kubernetes.io/control-plane: "true"
+    asserts:
+      - equal:
+          path: spec.template.spec.nodeSelector["node-role.kubernetes.io/control-plane"]
+          value: "true"
+
+  - it: should use fullnameOverride when provided
+    set:
+      fullnameOverride: custom-name
+    asserts:
+      - equal:
+          path: metadata.name
+          value: custom-name
+
+  - it: should support custom resources
+    set:
+      resources:
+        limits:
+          cpu: 200m
+          memory: 128Mi
+        requests:
+          cpu: 50m
+          memory: 32Mi
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits.cpu
+          value: 200m
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits.memory
+          value: 128Mi
