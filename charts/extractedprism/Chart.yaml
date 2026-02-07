@@ -19,7 +19,7 @@ description: Per-node TCP load balancer for Kubernetes API server high availabil
 type: application
 version: 0.1.1
 # renovate: datasource=github-releases depName=lexfrei/extractedprism
-appVersion: "v0.1.0"
+appVersion: "v0.2.0"
 keywords:
   - load-balancer
   - control-plane
