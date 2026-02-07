@@ -13,6 +13,7 @@ annotations:
     fingerprint: keyless
     url: https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master
 apiVersion: v2
+home: https://github.com/lexfrei/charts/
 name: extractedprism
 description: Per-node TCP load balancer for Kubernetes API server high availability
 type: application
