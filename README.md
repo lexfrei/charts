@@ -26,6 +26,21 @@ Deploy Cloudflare Tunnel (cloudflared) for secure Zero Trust access to Kubernete
 
 [📖 Documentation](./charts/cloudflare-tunnel/README.md) | [🔧 Values](./charts/cloudflare-tunnel/values.yaml)
 
+### [extractedprism](./charts/extractedprism)
+
+![Kubernetes](https://img.shields.io/badge/Kubernetes-1.26%2B-blue?logo=kubernetes)
+
+Per-node TCP load balancer for Kubernetes API server high availability, inspired by [Talos KubePrism](https://www.talos.dev/latest/kubernetes-guides/configuration/kubeprism/).
+
+**Key Features:**
+
+- No VIP dependency — each node connects to localhost, eliminating VRRP/keepalived single points of failure
+- Two-level discovery: static bootstrap endpoints + dynamic Kubernetes EndpointSlice watch
+- CNI-independent bootstrap via hostNetwork and static endpoints
+- Health-checked upstreams with automatic failover
+
+[📖 Documentation](./charts/extractedprism/README.md) | [🔧 Values](./charts/extractedprism/values.yaml)
+
 ### [system-upgrade-controller](./charts/system-upgrade-controller)
 
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-1.16%2B-blue?logo=kubernetes)
@@ -78,6 +93,12 @@ helm install my-tunnel \
   oci://ghcr.io/lexfrei/charts/cloudflare-tunnel \
   --version <VERSION> \
   --values values.yaml
+
+# Install extractedprism
+helm install extractedprism \
+  oci://ghcr.io/lexfrei/charts/extractedprism \
+  --version <VERSION> \
+  --set endpoints="CP1_IP:6443,CP2_IP:6443,CP3_IP:6443"
 
 # Install system-upgrade-controller
 helm install system-upgrade-controller \
