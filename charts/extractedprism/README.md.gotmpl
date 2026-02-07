@@ -1,0 +1,88 @@
+{{ template "chart.header" . }}
+
+{{ template "chart.badgesSection" . }}
+
+## Status
+
+[![Lint and Test](https://github.com/lexfrei/charts/actions/workflows/test.yaml/badge.svg)](https://github.com/lexfrei/charts/actions/workflows/test.yaml)
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/extractedprism)](https://artifacthub.io/packages/helm/extractedprism/extractedprism)
+[![License](https://img.shields.io/badge/License-BSD--3--Clause-blue.svg)](https://github.com/lexfrei/charts/blob/master/LICENSE)
+
+{{ template "chart.description" . }}
+
+## Overview
+
+extractedprism is a per-node TCP load balancer for Kubernetes API server high availability, inspired by [Talos KubePrism](https://www.talos.dev/latest/kubernetes-guides/configuration/kubeprism/). It runs as a DaemonSet on every node, proxying `localhost:7445` to healthy API server endpoints.
+
+**Key features:**
+
+- **No VIP dependency**: Each node connects to localhost, eliminating VRRP/keepalived single points of failure
+- **Two-level discovery**: Static bootstrap endpoints + dynamic Kubernetes EndpointSlice Watch
+- **CNI-independent bootstrap**: Uses hostNetwork and static endpoints, works before CNI starts
+- **Health-checked upstream**: Only routes to healthy API servers
+
+## TL;DR
+
+```bash
+helm install extractedprism oci://ghcr.io/lexfrei/charts/extractedprism \
+  --version {{ template "chart.version" . }} \
+  --set endpoints="10.0.0.1:6443,10.0.0.2:6443,10.0.0.3:6443"
+```
+
+## Prerequisites
+
+- Kubernetes 1.26+
+- Helm 3.2.0+
+
+## Installing the Chart
+
+```bash
+helm install extractedprism oci://ghcr.io/lexfrei/charts/extractedprism \
+  --set endpoints="CP1_IP:6443,CP2_IP:6443,CP3_IP:6443"
+```
+
+The `endpoints` value is required and should list all control plane node IPs with the API server port.
+
+## Uninstalling the Chart
+
+```bash
+helm uninstall extractedprism
+```
+
+## Verifying Chart Signature
+
+```bash
+cosign verify \
+  ghcr.io/lexfrei/charts/extractedprism:{{ template "chart.version" . }} \
+  --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
+  --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
+```
+
+{{ template "chart.valuesSection" . }}
+
+## Architecture
+
+extractedprism runs as a DaemonSet with `hostNetwork: true` on every node. Each pod:
+
+1. Starts a TCP load balancer on `127.0.0.1:7445`
+2. Loads static endpoints from `--endpoints` flag (available immediately at boot)
+3. Optionally watches Kubernetes EndpointSlice API for dynamic API server discovery
+4. Health-checks all upstreams and routes only to healthy ones
+5. Exposes `/healthz` (liveness) and `/readyz` (readiness) on port 7446
+
+Configure kubelet on each node to use `https://127.0.0.1:7445` as the API server address.
+
+## Important Notes
+
+- **Host Network**: Required for localhost access from kubelet and other host-level processes
+- **Priority Class**: Uses `system-node-critical` to ensure scheduling under resource pressure
+- **Security**: Runs as non-root (UID 65534) with read-only filesystem and all capabilities dropped
+- **No NET_ADMIN**: Unlike keepalived/VIP solutions, extractedprism needs no special network capabilities
+
+## Links
+
+- [Source Code](https://github.com/lexfrei/extractedprism/)
+- [Chart Repository](https://github.com/lexfrei/charts/)
+- [Talos KubePrism (inspiration)](https://www.talos.dev/latest/kubernetes-guides/configuration/kubeprism/)
+
+{{ template "chart.maintainersSection" . }}
