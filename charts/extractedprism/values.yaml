@@ -1,0 +1,132 @@
+# Default values for extractedprism.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# -- Override the name of the chart
+nameOverride: ""
+
+# -- Override the full name of the chart
+fullnameOverride: ""
+
+image:
+  # -- Container image repository
+  repository: ghcr.io/lexfrei/extractedprism
+  # -- Image pull policy
+  pullPolicy: IfNotPresent
+  # -- Container image tag (defaults to chart appVersion if not set)
+  tag: ""
+
+# -- Image pull secrets for private registries
+imagePullSecrets: []
+
+# -- Comma-separated list of control plane endpoints (host:port).
+# Required. These are the static bootstrap endpoints used before Kubernetes
+# API discovery is available (e.g., before CNI starts).
+endpoints: ""
+
+# -- Address to bind the TCP load balancer listener
+bindAddress: "127.0.0.1"
+
+# -- Port for the TCP load balancer listener
+bindPort: 7445
+
+# -- Port for the HTTP health check server
+healthPort: 7446
+
+# -- Interval between upstream health checks
+healthInterval: "20s"
+
+# -- Timeout for each upstream health check
+healthTimeout: "15s"
+
+# -- Enable Kubernetes endpoint discovery (watches EndpointSlice API).
+# When true, dynamically discovers API server endpoints in addition to static ones.
+enableDiscovery: true
+
+# -- Log level (debug, info, warn, error)
+logLevel: "info"
+
+updateStrategy:
+  # -- Update strategy type
+  type: RollingUpdate
+  # -- Maximum number of unavailable pods during update
+  maxUnavailable: 1
+
+# -- Enable host network mode (required for localhost LB access from kubelet)
+hostNetwork: true
+
+# -- DNS policy (ClusterFirstWithHostNet required when hostNetwork is true)
+dnsPolicy: ClusterFirstWithHostNet
+
+# -- Priority class name for pod scheduling
+priorityClassName: system-node-critical
+
+# -- Node selector for pod assignment
+nodeSelector: {}
+
+# -- Tolerations for pod assignment.
+# Uses catch-all toleration by default because extractedprism is critical
+# infrastructure that MUST run on every node regardless of any taints.
+tolerations:
+  - operator: Exists
+
+# -- Affinity rules for pod assignment
+affinity: {}
+
+# -- Security context for the pod
+podSecurityContext:
+  seccompProfile:
+    type: RuntimeDefault
+
+# -- Security context for the container
+securityContext:
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 65534
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
+serviceAccount:
+  # -- Create a ServiceAccount for extractedprism
+  create: true
+  # -- Name of the ServiceAccount (defaults to chart fullname)
+  name: ""
+  # -- Annotations to add to the ServiceAccount
+  annotations: {}
+
+# -- Readiness probe configuration
+readinessProbe:
+  httpGet:
+    path: /readyz
+    port: 7446
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+# -- Liveness probe configuration
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: 7446
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+# -- Resource requests and limits
+resources:
+  limits:
+    cpu: 100m
+    memory: 64Mi
+  requests:
+    cpu: 10m
+    memory: 16Mi
+
+# -- Additional labels for pods
+podLabels: {}
+
+# -- Annotations for pods
+podAnnotations: {}

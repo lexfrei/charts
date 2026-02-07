@@ -1,0 +1,31 @@
+annotations:
+  artifacthub.io/category: networking
+  artifacthub.io/changes: |-
+    - kind: added
+      description: Initial chart release with DaemonSet, RBAC, and health probes
+  artifacthub.io/license: BSD-3-Clause
+  artifacthub.io/links: |
+    - name: Chart Repository
+      url: https://github.com/lexfrei/charts/
+    - name: Source Code
+      url: https://github.com/lexfrei/extractedprism/
+  artifacthub.io/signKey: |
+    fingerprint: keyless
+    url: https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master
+apiVersion: v2
+name: extractedprism
+description: Per-node TCP load balancer for Kubernetes API server high availability
+type: application
+version: 0.1.0
+# renovate: datasource=github-releases depName=lexfrei/extractedprism
+appVersion: "0.0.0"
+keywords:
+  - load-balancer
+  - control-plane
+  - high-availability
+  - tcp-proxy
+  - api-server
+maintainers:
+  - name: lexfrei
+    email: f@lex.la
+kubeVersion: '>=1.26.0-0'
