@@ -63,6 +63,23 @@ tests:
           path: metadata.name
           value: RELEASE-NAME-short-name
 
+  - it: should render only daemonset and serviceaccount when discovery disabled
+    set:
+      enableDiscovery: false
+    asserts:
+      - template: daemonset.yaml
+        hasDocuments:
+          count: 1
+      - template: serviceaccount.yaml
+        hasDocuments:
+          count: 1
+      - template: clusterrole.yaml
+        hasDocuments:
+          count: 0
+      - template: clusterrolebinding.yaml
+        hasDocuments:
+          count: 0
+
   - it: should reference correct service account in ClusterRoleBinding with custom name
     template: clusterrolebinding.yaml
     set:

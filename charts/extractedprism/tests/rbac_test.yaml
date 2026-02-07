@@ -82,3 +82,19 @@ tests:
       - equal:
           path: subjects[0].name
           value: RELEASE-NAME-extractedprism
+
+  - it: should not create ClusterRole when enableDiscovery is false
+    template: clusterrole.yaml
+    set:
+      enableDiscovery: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should not create ClusterRoleBinding when enableDiscovery is false
+    template: clusterrolebinding.yaml
+    set:
+      enableDiscovery: false
+    asserts:
+      - hasDocuments:
+          count: 0
