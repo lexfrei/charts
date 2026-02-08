@@ -8,6 +8,9 @@
   "automergeType": "pr",
   "automergeStrategy": "squash",
   "ignoreTests": false,
+  "ignoreDeps": [
+    "ghcr.io/lexfrei/edc-connector"
+  ],
   "customManagers": [
     {
       "customType": "regex",
