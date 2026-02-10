@@ -1,8 +1,8 @@
 annotations:
   artifacthub.io/category: networking
   artifacthub.io/changes: |-
-    - kind: changed
-      description: Make RBAC resources conditional on enableDiscovery
+    - kind: added
+      description: Add chart icon
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -12,12 +12,13 @@ annotations:
   artifacthub.io/signKey: |
     fingerprint: keyless
     url: https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master
+icon: https://raw.githubusercontent.com/lexfrei/extractedprism/master/logo.png
 apiVersion: v2
 home: https://github.com/lexfrei/charts/
 name: extractedprism
 description: Per-node TCP load balancer for Kubernetes API server high availability
 type: application
-version: 0.1.4
+version: 0.1.5
 # renovate: datasource=github-releases depName=lexfrei/extractedprism
 appVersion: "v0.2.0"
 keywords:
