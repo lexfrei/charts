@@ -1,6 +1,6 @@
 # system-upgrade-controller
 
-![Version: 0.2.2](https://img.shields.io/badge/Version-0.2.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.18.0](https://img.shields.io/badge/AppVersion-v0.18.0-informational?style=flat-square)
+![Version: 0.2.3](https://img.shields.io/badge/Version-0.2.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.18.0](https://img.shields.io/badge/AppVersion-v0.18.0-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -100,11 +100,11 @@ helm delete system-upgrade-controller
 | image | object | `{"pullPolicy":"IfNotPresent","repository":"rancher/system-upgrade-controller","tag":""}` | Image configuration |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion |
 | imagePullSecrets | list | `[]` |  |
-| job | object | `{"activeDeadlineSeconds":900,"backoffLimit":99,"imagePullPolicy":"Always","kubectlImage":"rancher/kubectl:v1.35.0","privileged":true,"ttlSecondsAfterFinish":900}` | Job configuration for upgrade plans |
+| job | object | `{"activeDeadlineSeconds":900,"backoffLimit":99,"imagePullPolicy":"Always","kubectlImage":"rancher/kubectl:v1.35.1","privileged":true,"ttlSecondsAfterFinish":900}` | Job configuration for upgrade plans |
 | job.activeDeadlineSeconds | int | `900` | Active deadline seconds for jobs |
 | job.backoffLimit | int | `99` | Backoff limit for job failures |
 | job.imagePullPolicy | string | `"Always"` | Image pull policy for upgrade jobs |
-| job.kubectlImage | string | `"rancher/kubectl:v1.35.0"` | kubectl image for upgrade jobs |
+| job.kubectlImage | string | `"rancher/kubectl:v1.35.1"` | kubectl image for upgrade jobs |
 | job.privileged | bool | `true` | Run upgrade jobs as privileged |
 | job.ttlSecondsAfterFinish | int | `900` | TTL seconds after job finish |
 | nameOverride | string | `""` |  |
