@@ -2,7 +2,7 @@ annotations:
   artifacthub.io/category: integration-delivery
   artifacthub.io/changes: |-
     - kind: changed
-      description: Update rancher/kubectl docker tag to v1.35.1
+      description: Update dependency rancher/system-upgrade-controller to v0.19.0
   artifacthub.io/crds: |
     - kind: Plan
       version: v1
@@ -22,7 +22,7 @@ apiVersion: v2
 name: system-upgrade-controller
 description: Kubernetes-native upgrade controller for nodes using declarative Plans
 type: application
-version: "0.2.3"
+version: "0.2.4"
 # renovate: datasource=github-releases depName=rancher/system-upgrade-controller
 appVersion: "v0.19.0"
 icon: https://avatars.githubusercontent.com/u/9343010
