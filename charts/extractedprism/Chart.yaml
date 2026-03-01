@@ -2,7 +2,13 @@ annotations:
   artifacthub.io/category: networking
   artifacthub.io/changes: |-
     - kind: changed
-      description: Update dependency lexfrei/extractedprism to v0.2.1
+      description: Update appVersion to v0.3.0
+    - kind: added
+      description: Add healthBindAddress value for separate health server bind address
+    - kind: added
+      description: Add livenessInterval and livenessThreshold values for liveness detection tuning
+    - kind: changed
+      description: Extend logLevel to support dpanic, panic, and fatal levels
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -18,9 +24,9 @@ home: https://github.com/lexfrei/charts/
 name: extractedprism
 description: Per-node TCP load balancer for Kubernetes API server high availability
 type: application
-version: 0.1.6
+version: 0.2.0
 # renovate: datasource=github-releases depName=lexfrei/extractedprism
-appVersion: "v0.2.1"
+appVersion: "v0.3.0"
 keywords:
   - load-balancer
   - control-plane

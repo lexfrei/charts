@@ -112,8 +112,11 @@ tests:
       bindAddress: "0.0.0.0"
       bindPort: 8445
       healthPort: 8446
+      healthBindAddress: "0.0.0.0"
       healthInterval: "30s"
       healthTimeout: "10s"
+      livenessInterval: "10s"
+      livenessThreshold: "30s"
       enableDiscovery: false
       logLevel: "debug"
     asserts:
@@ -137,6 +140,9 @@ tests:
           content: "8446"
       - contains:
           path: spec.template.spec.containers[0].args
+          content: "--health-bind-address"
+      - contains:
+          path: spec.template.spec.containers[0].args
           content: "--health-interval"
       - contains:
           path: spec.template.spec.containers[0].args
@@ -149,6 +155,12 @@ tests:
           content: "10s"
       - contains:
           path: spec.template.spec.containers[0].args
+          content: "--liveness-interval"
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "--liveness-threshold"
+      - contains:
+          path: spec.template.spec.containers[0].args
           content: "--enable-discovery=false"
       - contains:
           path: spec.template.spec.containers[0].args
@@ -156,6 +168,27 @@ tests:
       - contains:
           path: spec.template.spec.containers[0].args
           content: "debug"
+
+  - it: should not include health-bind-address when empty
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[0].args
+          content: "--health-bind-address"
+
+  - it: should pass default liveness flags
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "--liveness-interval"
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "5s"
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "--liveness-threshold"
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "15s"
 
   - it: should have readiness probe on /readyz with localhost host
     asserts:

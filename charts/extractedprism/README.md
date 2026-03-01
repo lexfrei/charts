@@ -1,6 +1,6 @@
 # extractedprism
 
-![Version: 0.1.6](https://img.shields.io/badge/Version-0.1.6-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.2.1](https://img.shields.io/badge/AppVersion-v0.2.1-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.3.0](https://img.shields.io/badge/AppVersion-v0.3.0-informational?style=flat-square)
 
 ## Status
 
@@ -25,7 +25,7 @@ extractedprism is a per-node TCP load balancer for Kubernetes API server high av
 
 ```bash
 helm install extractedprism oci://ghcr.io/lexfrei/charts/extractedprism \
-  --version 0.1.6 \
+  --version 0.2.0 \
   --set endpoints="10.0.0.1:6443,10.0.0.2:6443,10.0.0.3:6443"
 ```
 
@@ -53,7 +53,7 @@ helm uninstall extractedprism
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/extractedprism:0.1.6 \
+  ghcr.io/lexfrei/charts/extractedprism:0.2.0 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -69,6 +69,7 @@ cosign verify \
 | enableDiscovery | bool | `true` | Enable Kubernetes endpoint discovery (watches EndpointSlice API). When true, dynamically discovers API server endpoints in addition to static ones. |
 | endpoints | string | `""` | Comma-separated list of control plane endpoints (host:port). Required. These are the static bootstrap endpoints used before Kubernetes API discovery is available (e.g., before CNI starts). |
 | fullnameOverride | string | `""` | Override the full name of the chart |
+| healthBindAddress | string | `""` | Address to bind the health HTTP server (defaults to bindAddress if empty). Useful when the LB should stay on 127.0.0.1 but health probes need to be reachable from outside (e.g., "0.0.0.0"). |
 | healthInterval | string | `"20s"` | Interval between upstream health checks |
 | healthPort | int | `7446` | Port for the HTTP health check server |
 | healthTimeout | string | `"15s"` | Timeout for each upstream health check |
@@ -77,8 +78,10 @@ cosign verify \
 | image.repository | string | `"ghcr.io/lexfrei/extractedprism"` | Container image repository |
 | image.tag | string | `""` | Container image tag (defaults to chart appVersion if not set) |
 | imagePullSecrets | list | `[]` | Image pull secrets for private registries |
+| livenessInterval | string | `"5s"` | Heartbeat probe interval for liveness detection |
 | livenessProbe | object | `{"failureThreshold":3,"httpGet":{"host":"127.0.0.1","path":"/healthz","port":7446},"initialDelaySeconds":10,"periodSeconds":10,"timeoutSeconds":5}` | Liveness probe configuration |
-| logLevel | string | `"info"` | Log level (debug, info, warn, error) |
+| livenessThreshold | string | `"15s"` | Maximum time since last heartbeat before liveness fails |
+| logLevel | string | `"info"` | Log level (debug, info, warn, error, dpanic, panic, fatal) |
 | nameOverride | string | `""` | Override the name of the chart |
 | nodeSelector | object | `{}` | Node selector for pod assignment |
 | podAnnotations | object | `{}` | Annotations for pods |
