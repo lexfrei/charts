@@ -56,6 +56,10 @@
       "maximum": 65535,
       "description": "Port for the HTTP health check server"
     },
+    "healthBindAddress": {
+      "type": "string",
+      "description": "Address to bind the health HTTP server (defaults to bindAddress if empty)"
+    },
     "healthInterval": {
       "type": "string",
       "pattern": "^[0-9]+(s|m|h)$",
@@ -66,13 +70,23 @@
       "pattern": "^[0-9]+(s|m|h)$",
       "description": "Timeout for each upstream health check"
     },
+    "livenessInterval": {
+      "type": "string",
+      "pattern": "^[0-9]+(s|m|h)$",
+      "description": "Heartbeat probe interval for liveness detection"
+    },
+    "livenessThreshold": {
+      "type": "string",
+      "pattern": "^[0-9]+(s|m|h)$",
+      "description": "Maximum time since last heartbeat before liveness fails"
+    },
     "enableDiscovery": {
       "type": "boolean",
       "description": "Enable Kubernetes endpoint discovery"
     },
     "logLevel": {
       "type": "string",
-      "enum": ["debug", "info", "warn", "error"],
+      "enum": ["debug", "info", "warn", "error", "dpanic", "panic", "fatal"],
       "description": "Log level"
     },
     "updateStrategy": {

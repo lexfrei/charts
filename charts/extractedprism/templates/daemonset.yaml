@@ -66,10 +66,18 @@ spec:
             - {{ .Values.bindPort | quote }}
             - "--health-port"
             - {{ .Values.healthPort | quote }}
+            {{- if .Values.healthBindAddress }}
+            - "--health-bind-address"
+            - {{ .Values.healthBindAddress | quote }}
+            {{- end }}
             - "--health-interval"
             - {{ .Values.healthInterval | quote }}
             - "--health-timeout"
             - {{ .Values.healthTimeout | quote }}
+            - "--liveness-interval"
+            - {{ .Values.livenessInterval | quote }}
+            - "--liveness-threshold"
+            - {{ .Values.livenessThreshold | quote }}
             - "--enable-discovery={{ .Values.enableDiscovery }}"
             - "--log-level"
             - {{ .Values.logLevel | quote }}

@@ -33,17 +33,28 @@ bindPort: 7445
 # -- Port for the HTTP health check server
 healthPort: 7446
 
+# -- Address to bind the health HTTP server (defaults to bindAddress if empty).
+# Useful when the LB should stay on 127.0.0.1 but health probes need to be
+# reachable from outside (e.g., "0.0.0.0").
+healthBindAddress: ""
+
 # -- Interval between upstream health checks
 healthInterval: "20s"
 
 # -- Timeout for each upstream health check
 healthTimeout: "15s"
 
+# -- Heartbeat probe interval for liveness detection
+livenessInterval: "5s"
+
+# -- Maximum time since last heartbeat before liveness fails
+livenessThreshold: "15s"
+
 # -- Enable Kubernetes endpoint discovery (watches EndpointSlice API).
 # When true, dynamically discovers API server endpoints in addition to static ones.
 enableDiscovery: true
 
-# -- Log level (debug, info, warn, error)
+# -- Log level (debug, info, warn, error, dpanic, panic, fatal)
 logLevel: "info"
 
 updateStrategy:
