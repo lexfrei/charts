@@ -26,15 +26,24 @@ spec:
   securityContext:
     {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- with .Values.nodeSelector }}
+  {{- /*
+    Static pods consult dedicated scheduling values (staticNodeSelector /
+    staticAffinity / staticTolerations) so the DaemonSet defaults don't leak
+    into a static pod manifest. nodeSelector and nodeAffinity on a static pod
+    are evaluated by NodeRestriction admission against the mirror pod —
+    a non-matching selector causes "Predicate NodeAffinity failed" and the pod
+    never starts. Defaults are empty; operator sets them only as defense-in-depth
+    against placing the manifest on the wrong node.
+  */ -}}
+  {{- with .Values.staticNodeSelector }}
   nodeSelector:
     {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- with .Values.affinity }}
+  {{- with .Values.staticAffinity }}
   affinity:
     {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- with .Values.tolerations }}
+  {{- with .Values.staticTolerations }}
   tolerations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
