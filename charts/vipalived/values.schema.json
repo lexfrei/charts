@@ -182,18 +182,36 @@
     },
     "nodeSelector": {
       "type": "object",
-      "description": "Node selector for pod assignment"
+      "description": "Node selector for pod assignment (DaemonSet mode only; ignored when static is true)"
     },
     "tolerations": {
       "type": "array",
       "items": {
         "type": "object"
       },
-      "description": "Tolerations for pod assignment"
+      "description": "Tolerations for pod assignment (DaemonSet mode only; ignored when static is true)"
     },
     "affinity": {
       "type": "object",
-      "description": "Affinity rules for pod assignment"
+      "description": "Affinity rules for pod assignment (DaemonSet mode only; ignored when static is true)"
+    },
+    "staticNodeSelector": {
+      "type": "object",
+      "description": "Node selector for the static Pod manifest (used only when static is true). Default empty; set as defense-in-depth.",
+      "default": {}
+    },
+    "staticAffinity": {
+      "type": "object",
+      "description": "Affinity rules for the static Pod manifest (used only when static is true). Default empty.",
+      "default": {}
+    },
+    "staticTolerations": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Tolerations for the static Pod manifest (used only when static is true). Default empty; kubelet does not enforce taint tolerance on static pods.",
+      "default": []
     },
     "podSecurityContext": {
       "type": "object",

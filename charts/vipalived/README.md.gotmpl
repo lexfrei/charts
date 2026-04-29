@@ -109,6 +109,20 @@ For **Day 1 cluster bootstrapping**, when you need the VIP available BEFORE the 
 - Each control plane node runs its own instance of the static pod
 - After cluster bootstrap, you can transition to the Helm-managed DaemonSet for easier management
 
+**Scheduling hints in static mode:**
+
+The DaemonSet-mode values (`nodeSelector`, `affinity`, `tolerations`) are **ignored** when `static: true`. Static pods are placed by kubelet directly — the manifest only runs on the node where it sits in `/etc/kubernetes/manifests/`. A non-matching `nodeSelector`/`nodeAffinity` on a static pod causes the API server to reject the mirror pod with `Predicate NodeAffinity failed`, and the pod never starts.
+
+If you still want defense-in-depth (so an accidentally-placed manifest fails loudly on the wrong node), use the dedicated keys:
+
+```yaml
+static: true
+staticNodeSelector:
+  node-role.kubernetes.io/control-plane: "true"
+staticAffinity: {}      # default empty
+staticTolerations: []   # default empty (kubelet doesn't enforce taint tolerance for static pods)
+```
+
 ## Installing the Chart
 
 To install the chart with the release name `my-vipalived`:

@@ -2,7 +2,9 @@ annotations:
   artifacthub.io/category: networking
   artifacthub.io/changes: |-
     - kind: fixed
-      description: Use catch-all toleration to ensure scheduling on nodes with arbitrary taints
+      description: Static pod no longer inherits DaemonSet nodeSelector/affinity/tolerations; use new staticNodeSelector/staticAffinity/staticTolerations values for static-mode scheduling hints
+    - kind: added
+      description: New values staticNodeSelector, staticAffinity, staticTolerations for the static Pod manifest (defaults empty)
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -16,7 +18,7 @@ apiVersion: v2
 name: vipalived
 description: Keepalived-based VIP management for Kubernetes control plane high availability
 type: application
-version: 0.6.1
+version: 0.7.0
 # renovate: datasource=docker depName=alpine
 appVersion: "3.23"
 keywords:

@@ -1,6 +1,6 @@
 # vipalived
 
-![Version: 0.6.1](https://img.shields.io/badge/Version-0.6.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.23](https://img.shields.io/badge/AppVersion-3.23-informational?style=flat-square)
+![Version: 0.7.0](https://img.shields.io/badge/Version-0.7.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.23](https://img.shields.io/badge/AppVersion-3.23-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -16,16 +16,16 @@ Keepalived-based VIP management for Kubernetes control plane high availability
 
 ```bash
 # Day 2: Install with default VIP (172.16.101.101/32) on existing cluster
-helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived --version 0.6.1
+helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived --version 0.7.0
 
 # Day 2: Install with custom VIP address
 helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived \
-  --version 0.6.1 \
+  --version 0.7.0 \
   --set keepalived.vrrpInstance.virtualIpAddress=192.168.1.100/24
 
 # Day 1: Generate static pod manifest for cluster bootstrap
 helm template vipalived oci://ghcr.io/lexfrei/charts/vipalived \
-  --version 0.6.1 \
+  --version 0.7.0 \
   --set static=true \
   --set keepalived.vrrpInstance.virtualIpAddress=192.168.1.100/24 > /etc/kubernetes/manifests/vipalived.yaml
 ```
@@ -75,7 +75,7 @@ For **Day 1 cluster bootstrapping**, when you need the VIP available BEFORE the 
 
    ```bash
    helm template vipalived oci://ghcr.io/lexfrei/charts/vipalived \
-     --version 0.6.1 \
+     --version 0.7.0 \
      --set static=true \
      --set keepalived.vrrpInstance.virtualIpAddress=YOUR_VIP_ADDRESS/CIDR \
      --namespace kube-system > vipalived-static-pod.yaml
@@ -109,6 +109,20 @@ For **Day 1 cluster bootstrapping**, when you need the VIP available BEFORE the 
 - Each control plane node runs its own instance of the static pod
 - After cluster bootstrap, you can transition to the Helm-managed DaemonSet for easier management
 
+**Scheduling hints in static mode:**
+
+The DaemonSet-mode values (`nodeSelector`, `affinity`, `tolerations`) are **ignored** when `static: true`. Static pods are placed by kubelet directly — the manifest only runs on the node where it sits in `/etc/kubernetes/manifests/`. A non-matching `nodeSelector`/`nodeAffinity` on a static pod causes the API server to reject the mirror pod with `Predicate NodeAffinity failed`, and the pod never starts.
+
+If you still want defense-in-depth (so an accidentally-placed manifest fails loudly on the wrong node), use the dedicated keys:
+
+```yaml
+static: true
+staticNodeSelector:
+  node-role.kubernetes.io/control-plane: "true"
+staticAffinity: {}      # default empty
+staticTolerations: []   # default empty (kubelet doesn't enforce taint tolerance for static pods)
+```
+
 ## Installing the Chart
 
 To install the chart with the release name `my-vipalived`:
@@ -138,7 +152,7 @@ All charts published to GHCR are signed using cosign. To verify the chart signat
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/vipalived:0.6.1 \
+  ghcr.io/lexfrei/charts/vipalived:0.7.0 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -147,7 +161,7 @@ cosign verify \
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| affinity | object | `{}` | Affinity rules for pod assignment |
+| affinity | object | `{}` | Affinity rules for pod assignment (DaemonSet mode only). Ignored when `static: true` — static pods use `staticAffinity` instead. |
 | fullnameOverride | string | `""` | Override the full name of the chart |
 | hostNetwork | bool | `true` | Enable host network mode (required for VIP functionality) |
 | image.pullPolicy | string | `"IfNotPresent"` | Image pull policy |
@@ -181,7 +195,7 @@ cosign verify \
 | livenessProbe.timeoutSeconds | int | `5` | Timeout for liveness probe |
 | nameOverride | string | `""` | Override the name of the chart |
 | namespace | string | `"kube-system"` | Namespace to deploy vipalived into |
-| nodeSelector | object | `{"node-role.kubernetes.io/control-plane":"true"}` | Node selector for pod assignment |
+| nodeSelector | object | `{"node-role.kubernetes.io/control-plane":"true"}` | Node selector for pod assignment (DaemonSet mode only). Ignored when `static: true` — static pods use `staticNodeSelector` instead. |
 | podAnnotations | object | `{}` | Annotations for pods |
 | podLabels | object | `{}` | Additional labels for pods |
 | podSecurityContext | object | `{"seccompProfile":{"type":"RuntimeDefault"}}` | Security context for the pod |
@@ -204,7 +218,10 @@ cosign verify \
 | startupProbe.periodSeconds | int | `5` | Period between startup probe checks |
 | startupProbe.timeoutSeconds | int | `5` | Timeout for startup probe |
 | static | bool | `false` | Enable static pod mode for Day 1 cluster bootstrap. When true, renders a Pod manifest instead of DaemonSet with embedded configuration. Use this for pre-CNI VIP availability during initial cluster setup. For Day 2 operations (existing cluster), keep this false (default). |
-| tolerations | list | `[{"operator":"Exists"}]` | Tolerations for pod assignment. Uses catch-all toleration by default because vipalived is critical infrastructure that MUST run on every control-plane node regardless of any taints applied (e.g., workload-specific taints like minecraft=true:NoExecute). |
+| staticAffinity | object | `{}` | Affinity rules for the static Pod manifest (used only when `static: true`). Default is empty for the same reason as `staticNodeSelector`: nodeAffinity is enforced against the mirror pod and breaks placement if it doesn't match the node where the manifest sits. |
+| staticNodeSelector | object | `{}` | Node selector for the static Pod manifest (used only when `static: true`). Default is empty: kubelet places the static pod by virtue of the manifest living in `/etc/kubernetes/manifests/` on a given node, so a selector is normally redundant. Set explicitly only as defense-in-depth — a non-matching selector on a static pod causes the API server to reject the mirror pod with "Predicate NodeAffinity failed" and the pod never starts. |
+| staticTolerations | list | `[]` | Tolerations for the static Pod manifest (used only when `static: true`). Default is empty: kubelet does not enforce taint tolerance for static pods, so this is a no-op in practice. Provided for API parity with DaemonSet mode. |
+| tolerations | list | `[{"operator":"Exists"}]` | Tolerations for pod assignment (DaemonSet mode only). Ignored when `static: true` — static pods use `staticTolerations` instead. Uses catch-all toleration by default because vipalived is critical infrastructure that MUST run on every control-plane node regardless of any taints applied (e.g., workload-specific taints like minecraft=true:NoExecute). |
 | updateStrategy.maxUnavailable | int | `1` | Maximum number of unavailable pods during update |
 | updateStrategy.type | string | `"RollingUpdate"` | Update strategy type |
 

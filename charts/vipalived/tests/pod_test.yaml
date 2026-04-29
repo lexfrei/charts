@@ -130,31 +130,27 @@ tests:
           path: spec.containers[0].resources.requests.memory
           value: "64Mi"
 
-  - it: should apply nodeSelector
+  - it: should not render scheduling hints by default in static mode
+    set:
+      static: true
+    asserts:
+      - isNull:
+          path: spec.nodeSelector
+      - isNull:
+          path: spec.affinity
+      - isNull:
+          path: spec.tolerations
+
+  - it: should not leak DaemonSet nodeSelector into static pod
     set:
       static: true
       nodeSelector:
         node-role.kubernetes.io/control-plane: "true"
     asserts:
-      - equal:
+      - isNull:
           path: spec.nodeSelector
-          value:
-            node-role.kubernetes.io/control-plane: "true"
 
-  - it: should apply tolerations
-    set:
-      static: true
-      tolerations:
-        - key: node-role.kubernetes.io/control-plane
-          effect: NoSchedule
-    asserts:
-      - contains:
-          path: spec.tolerations
-          content:
-            key: node-role.kubernetes.io/control-plane
-            effect: NoSchedule
-
-  - it: should apply affinity
+  - it: should not leak DaemonSet affinity into static pod
     set:
       static: true
       affinity:
@@ -165,8 +161,55 @@ tests:
                   - key: node-role.kubernetes.io/control-plane
                     operator: Exists
     asserts:
+      - isNull:
+          path: spec.affinity
+
+  - it: should not leak DaemonSet tolerations into static pod
+    set:
+      static: true
+      tolerations:
+        - operator: Exists
+    asserts:
+      - isNull:
+          path: spec.tolerations
+
+  - it: should apply staticNodeSelector when set
+    set:
+      static: true
+      staticNodeSelector:
+        node-role.kubernetes.io/control-plane: "true"
+    asserts:
+      - equal:
+          path: spec.nodeSelector
+          value:
+            node-role.kubernetes.io/control-plane: "true"
+
+  - it: should apply staticAffinity when set
+    set:
+      static: true
+      staticAffinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-role.kubernetes.io/control-plane
+                    operator: Exists
+    asserts:
       - isNotNull:
           path: spec.affinity.nodeAffinity
+
+  - it: should apply staticTolerations when set
+    set:
+      static: true
+      staticTolerations:
+        - key: node-role.kubernetes.io/control-plane
+          effect: NoSchedule
+    asserts:
+      - contains:
+          path: spec.tolerations
+          content:
+            key: node-role.kubernetes.io/control-plane
+            effect: NoSchedule
 
   - it: should apply priorityClassName
     set:

@@ -87,19 +87,41 @@ hostNetwork: true
 # -- Priority class name for pod scheduling
 priorityClassName: system-node-critical
 
-# -- Node selector for pod assignment
+# -- Node selector for pod assignment (DaemonSet mode only).
+# Ignored when `static: true` — static pods use `staticNodeSelector` instead.
 nodeSelector:
   node-role.kubernetes.io/control-plane: "true"
 
-# -- Tolerations for pod assignment.
+# -- Tolerations for pod assignment (DaemonSet mode only).
+# Ignored when `static: true` — static pods use `staticTolerations` instead.
 # Uses catch-all toleration by default because vipalived is critical infrastructure
 # that MUST run on every control-plane node regardless of any taints applied
 # (e.g., workload-specific taints like minecraft=true:NoExecute).
 tolerations:
   - operator: Exists
 
-# -- Affinity rules for pod assignment
+# -- Affinity rules for pod assignment (DaemonSet mode only).
+# Ignored when `static: true` — static pods use `staticAffinity` instead.
 affinity: {}
+
+# -- Node selector for the static Pod manifest (used only when `static: true`).
+# Default is empty: kubelet places the static pod by virtue of the manifest
+# living in `/etc/kubernetes/manifests/` on a given node, so a selector is
+# normally redundant. Set explicitly only as defense-in-depth — a non-matching
+# selector on a static pod causes the API server to reject the mirror pod with
+# "Predicate NodeAffinity failed" and the pod never starts.
+staticNodeSelector: {}
+
+# -- Affinity rules for the static Pod manifest (used only when `static: true`).
+# Default is empty for the same reason as `staticNodeSelector`: nodeAffinity
+# is enforced against the mirror pod and breaks placement if it doesn't match
+# the node where the manifest sits.
+staticAffinity: {}
+
+# -- Tolerations for the static Pod manifest (used only when `static: true`).
+# Default is empty: kubelet does not enforce taint tolerance for static pods,
+# so this is a no-op in practice. Provided for API parity with DaemonSet mode.
+staticTolerations: []
 
 # -- Security context for the pod
 podSecurityContext:
