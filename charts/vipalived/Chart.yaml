@@ -20,7 +20,7 @@ description: Keepalived-based VIP management for Kubernetes control plane high a
 type: application
 version: 0.7.0
 # renovate: datasource=docker depName=alpine
-appVersion: "3.23"
+appVersion: "3.24"
 keywords:
   - keepalived
   - vrrp
