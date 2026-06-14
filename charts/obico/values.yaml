@@ -145,7 +145,7 @@ redis:
   image:
     repository: redis
     # renovate: datasource=docker depName=redis
-    tag: "7.2-alpine"
+    tag: "7.4-alpine"
     pullPolicy: IfNotPresent
   # -- External Redis URL, used when redis.enabled is false
   externalUrl: ""
