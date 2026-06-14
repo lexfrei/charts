@@ -1,6 +1,6 @@
 # obico
 
-![Version: 0.1.1](https://img.shields.io/badge/Version-0.1.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2026.1.20](https://img.shields.io/badge/AppVersion-2026.1.20-informational?style=flat-square)
+![Version: 0.1.2](https://img.shields.io/badge/Version-0.1.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2026.1.20](https://img.shields.io/badge/AppVersion-2026.1.20-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -26,8 +26,6 @@ This chart deploys the full stack:
 * **redis** — bundled Celery broker / Django Channels layer / cache
 
 The container images are built from obico-server source and published to GHCR ([lexfrei/images](https://github.com/lexfrei/images)); the chart tracks new builds automatically.
-
-The ML inference API is heavy (a CUDA-based image). Set `mlApi.enabled: false` to skip it — this disables AI print-failure detection (Obico's headline feature) but keeps remote access, webcam streaming and notifications working.
 
 ## Images and auto-update
 
@@ -57,12 +55,12 @@ This chart is published to GitHub Container Registry (GHCR) as an OCI artifact.
 # Install from GHCR
 helm install obico \
   oci://ghcr.io/lexfrei/charts/obico \
-  --version 0.1.1
+  --version 0.1.2
 
 # Install with custom values
 helm install obico \
   oci://ghcr.io/lexfrei/charts/obico \
-  --version 0.1.1 \
+  --version 0.1.2 \
   --values values.yaml
 ```
 
@@ -72,7 +70,7 @@ This chart is signed with [cosign](https://github.com/sigstore/cosign) using key
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/obico:0.1.1 \
+  ghcr.io/lexfrei/charts/obico:0.1.2 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -163,6 +161,16 @@ The web pod runs a single replica because the default SQLite database lives on a
 ## Bundled Redis
 
 The bundled Redis (`redis.enabled: true`) is a minimal, **unauthenticated** single instance intended for in-cluster use only. Do not expose it outside the cluster. For a hardened or shared Redis, set `redis.enabled: false` and point `redis.externalUrl` at your own instance.
+
+## ML inference image (GPU / CPU)
+
+The `ml-api` service currently uses a single image with GPU support baked in — it is built on the upstream CUDA base, so the CUDA / cuDNN runtime libraries ship inside it.
+
+On a node without a GPU it transparently falls back to CPU inference: Obico tries the GPU model first, the CUDA load fails (the NVIDIA driver libraries are not present in the image), and it drops to the CPU path automatically. No configuration is required — it just works, only slower than on a GPU.
+
+On a node with an NVIDIA GPU (device plugin and container runtime configured), schedule `ml-api` there via `nodeSelector` / `tolerations` and an `nvidia.com/gpu` resource limit, and it uses the GPU.
+
+The trade-off is size: the CUDA layers make the `ml-api` image large (~3 GB compressed), and on a CPU-only deployment that weight is never exercised. If image size matters for you, open an issue and a slimmer CPU-only image variant will be added. To skip AI failure detection entirely, set `mlApi.enabled: false`.
 
 ## Values
 
