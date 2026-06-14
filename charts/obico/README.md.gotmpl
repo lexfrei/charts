@@ -1,0 +1,161 @@
+{{ template "chart.header" . }}
+
+{{ template "chart.deprecationWarning" . }}
+
+{{ template "chart.badgesSection" . }}
+
+## 📊 Status & Metrics
+
+[![Lint and Test](https://github.com/lexfrei/charts/actions/workflows/test.yaml/badge.svg)](https://github.com/lexfrei/charts/actions/workflows/test.yaml)
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/obico)](https://artifacthub.io/packages/helm/obico/obico)
+[![License](https://img.shields.io/badge/License-BSD--3--Clause-blue.svg)](https://github.com/lexfrei/charts/blob/master/LICENSE)
+[![Helm Version](https://img.shields.io/badge/Helm-v3-informational?logo=helm)](https://helm.sh/)
+[![Kubernetes Version](https://img.shields.io/badge/Kubernetes-1.21%2B-blue?logo=kubernetes)](https://kubernetes.io/)
+
+{{ template "chart.description" . }}
+
+{{ template "chart.homepageLine" . }}
+
+## About
+
+[Obico](https://www.obico.io/) (formerly The Spaghetti Detective) is a self-hosted server that adds remote access, webcam streaming and AI-powered failure detection to OctoPrint and Klipper 3D printers.
+
+This chart deploys the full stack:
+
+- **web** — Django application served by Daphne (API, frontend, websockets)
+- **tasks** — Celery worker + beat scheduler (runs in the same pod as web)
+- **ml-api** — Flask/Gunicorn AI inference service for print-failure detection
+- **redis** — bundled Celery broker / Django Channels layer / cache
+
+The container images are built from obico-server source and published to GHCR ([lexfrei/images](https://github.com/lexfrei/images)); the chart tracks new builds automatically.
+
+The ML inference API is heavy (a CUDA-based image). Set `mlApi.enabled: false` to skip it — this disables AI print-failure detection (Obico's headline feature) but keeps remote access, webcam streaming and notifications working.
+
+## Images and auto-update
+
+Obico upstream does not publish ready-to-run images, so they are built from source in a separate repository. Both `obico-web` and `obico-ml-api` are built from one obico commit and share a single calendar-version tag (the chart `appVersion`). Renovate watches the image tag and bumps the chart automatically.
+
+{{ template "chart.maintainersSection" . }}
+
+{{ template "chart.sourcesSection" . }}
+
+{{ template "chart.requirementsSection" . }}
+
+## Installing the Chart
+
+This chart is published to GitHub Container Registry (GHCR) as an OCI artifact.
+
+```bash
+# Install from GHCR
+helm install obico \
+  oci://ghcr.io/lexfrei/charts/obico \
+  --version {{ template "chart.version" . }}
+
+# Install with custom values
+helm install obico \
+  oci://ghcr.io/lexfrei/charts/obico \
+  --version {{ template "chart.version" . }} \
+  --values values.yaml
+```
+
+### Chart Verification
+
+This chart is signed with [cosign](https://github.com/sigstore/cosign) using keyless signing:
+
+```bash
+cosign verify \
+  ghcr.io/lexfrei/charts/obico:{{ template "chart.version" . }} \
+  --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
+  --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
+```
+
+## Uninstalling the Chart
+
+```bash
+helm uninstall obico
+```
+
+The data and media PVCs are annotated with `helm.sh/resource-policy: keep` and survive uninstall. Delete them manually if you no longer need the data.
+
+## Secret key (read before using GitOps)
+
+Obico needs a stable Django `SECRET_KEY`. Rotating it logs every user out and breaks signed tokens. Leaving `obico.secretKey` empty is only safe for a throwaway `helm install`: the empty-value fallback reuses the live Secret on upgrades, but **regenerates the key on every render-only path** — `helm template`, `--dry-run`, `helm diff` and ArgoCD (which renders with `helm template` and never reads the cluster). Under ArgoCD this rotates the key on every sync.
+
+For GitOps, do one of the following:
+
+```yaml
+# Set a stable key directly (e.g. openssl rand -base64 48)
+obico:
+  secretKey: "your-long-random-string"
+```
+
+```yaml
+# Or reference a Secret you manage (sealed-secrets, external-secrets, ...)
+# It must contain DJANGO_SECRET_KEY and any other sensitive env vars.
+obico:
+  existingSecret: obico-secrets
+```
+
+## Database
+
+The default configuration uses SQLite on the data volume so the chart installs with no external dependencies. **SQLite is for evaluation only:** the web server and the Celery worker are separate processes writing the same database file, so under real load they hit `database is locked` errors. Upstream Obico ships PostgreSQL only. For anything beyond a quick try-out, point `database.url` at an external PostgreSQL, or reference a Secret:
+
+```yaml
+# Plain connection string
+database:
+  url: "postgresql://obico:password@postgres:5432/obico"
+```
+
+```yaml
+# Connection string from an existing Secret
+database:
+  existingSecret: obico-db
+  existingSecretKey: DATABASE_URL
+```
+
+## Exposing the Web UI
+
+Either classic Ingress or Gateway API (HTTPRoute) can be used. Remember to set `obico.siteUsesHttps=true` when serving over HTTPS — Django 4 rejects HTTPS form posts (login, signup, admin) from untrusted origins. The chart derives `CSRF_TRUSTED_ORIGINS` automatically from the enabled ingress hosts / HTTPRoute hostnames using that scheme; override with `obico.csrfTrustedOrigins` if you front the app with a different hostname.
+
+```yaml
+# Ingress
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: obico.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: obico-tls
+      hosts:
+        - obico.example.com
+obico:
+  siteUsesHttps: true
+```
+
+```yaml
+# Gateway API
+httpRoute:
+  enabled: true
+  parentRefs:
+    - name: my-gateway
+      namespace: gateway-system
+  hostnames:
+    - obico.example.com
+obico:
+  siteUsesHttps: true
+```
+
+## Scaling notes
+
+The web pod runs a single replica because the default SQLite database lives on a ReadWriteOnce volume. It uses the `Recreate` update strategy, so every upgrade or config change tears the pod down before starting the new one — expect a brief outage on each rollout. To run multiple replicas, use an external PostgreSQL and a ReadWriteMany media volume.
+
+## Bundled Redis
+
+The bundled Redis (`redis.enabled: true`) is a minimal, **unauthenticated** single instance intended for in-cluster use only. Do not expose it outside the cluster. For a hardened or shared Redis, set `redis.enabled: false` and point `redis.externalUrl` at your own instance.
+
+{{ template "chart.valuesSection" . }}
+
+{{ template "helm-docs.versionFooter" . }}

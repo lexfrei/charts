@@ -1,0 +1,51 @@
+suite: test obico chart
+templates:
+  - deployment-web.yaml
+  - deployment-ml-api.yaml
+  - service.yaml
+  - serviceaccount.yaml
+  - configmap.yaml
+  - secret.yaml
+  - pvc-data.yaml
+  - pvc-media.yaml
+tests:
+  - it: should render all default resources
+    asserts:
+      - isKind:
+          of: Deployment
+        template: deployment-web.yaml
+      - isKind:
+          of: Deployment
+        template: deployment-ml-api.yaml
+      - isKind:
+          of: ServiceAccount
+        template: serviceaccount.yaml
+      - isKind:
+          of: ConfigMap
+        template: configmap.yaml
+      - isKind:
+          of: Secret
+        template: secret.yaml
+      - isKind:
+          of: PersistentVolumeClaim
+        template: pvc-data.yaml
+      - isKind:
+          of: PersistentVolumeClaim
+        template: pvc-media.yaml
+
+  - it: should set a web image tag matching the appVersion CalVer
+    template: deployment-web.yaml
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: '^ghcr\.io/lexfrei/obico-web:[0-9]{4}\.[0-9]+\.[0-9]+$'
+
+  - it: should include standard labels on the web deployment
+    template: deployment-web.yaml
+    asserts:
+      - equal:
+          path: metadata.labels["app.kubernetes.io/name"]
+          value: obico
+      - equal:
+          path: metadata.labels["app.kubernetes.io/managed-by"]
+          value: Helm

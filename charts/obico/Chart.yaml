@@ -1,0 +1,47 @@
+annotations:
+  artifacthub.io/category: ai-machine-learning
+  # Valid kinds for changes: added, changed, deprecated, removed, fixed, security
+  # See: https://artifacthub.io/docs/topics/annotations/helm/
+  artifacthub.io/changes: |-
+    - kind: added
+      description: Initial release of the obico-server chart
+  artifacthub.io/license: BSD-3-Clause
+  artifacthub.io/links: |
+    - name: Chart Repository
+      url: https://github.com/lexfrei/charts/
+    - name: Obico Server
+      url: https://github.com/TheSpaghettiDetective/obico-server/
+    - name: Container Images
+      url: https://github.com/lexfrei/images/
+  artifacthub.io/signKey: |
+    fingerprint: keyless
+    url: https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master
+apiVersion: v2
+name: obico
+description: Self-hosted Obico server for AI-powered 3D printer monitoring (OctoPrint/Klipper)
+type: application
+version: "0.1.0"
+# renovate: datasource=docker depName=ghcr.io/lexfrei/obico-web
+# CalVer derived from the obico-server release commit date (see lexfrei/images).
+appVersion: "2026.1.20"
+icon: https://www.obico.io/img/logo.svg
+home: https://github.com/lexfrei/charts/
+keywords:
+  - obico
+  - 3d-printing
+  - octoprint
+  - klipper
+  - monitoring
+  - ai
+  - spaghetti-detective
+  - helm-chart
+  - kubernetes
+maintainers:
+  - name: lexfrei
+    email: f@lex.la
+    url: https://github.com/lexfrei
+sources:
+  - https://github.com/lexfrei/charts/
+  - https://github.com/lexfrei/images/
+  - https://github.com/TheSpaghettiDetective/obico-server/
+kubeVersion: ">=1.21.0-0"
