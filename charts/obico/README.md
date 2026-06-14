@@ -20,10 +20,10 @@ Self-hosted Obico server for AI-powered 3D printer monitoring (OctoPrint/Klipper
 
 This chart deploys the full stack:
 
-- **web** — Django application served by Daphne (API, frontend, websockets)
-- **tasks** — Celery worker + beat scheduler (runs in the same pod as web)
-- **ml-api** — Flask/Gunicorn AI inference service for print-failure detection
-- **redis** — bundled Celery broker / Django Channels layer / cache
+* **web** — Django application served by Daphne (API, frontend, websockets)
+* **tasks** — Celery worker + beat scheduler (runs in the same pod as web)
+* **ml-api** — Flask/Gunicorn AI inference service for print-failure detection
+* **redis** — bundled Celery broker / Django Channels layer / cache
 
 The container images are built from obico-server source and published to GHCR ([lexfrei/images](https://github.com/lexfrei/images)); the chart tracks new builds automatically.
 
