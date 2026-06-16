@@ -4,7 +4,7 @@ annotations:
   # See: https://artifacthub.io/docs/topics/annotations/helm/
   artifacthub.io/changes: |-
     - kind: changed
-      description: Document the ml-api GPU/CPU image behaviour and size trade-off
+      description: Update bundled Redis image to 8.8-alpine
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -20,7 +20,7 @@ apiVersion: v2
 name: obico
 description: Self-hosted Obico server for AI-powered 3D printer monitoring (OctoPrint/Klipper)
 type: application
-version: "0.1.2"
+version: "0.1.3"
 # renovate: datasource=docker depName=ghcr.io/lexfrei/obico-web
 # CalVer derived from the obico-server release commit date (see lexfrei/images).
 appVersion: "2026.1.20"
