@@ -72,6 +72,9 @@ database:
   # lands in the ConfigMap or in git). Mutually exclusive with existingSecret.
   # Point this at a connection pooler service (e.g. a CloudNativePG Pooler /
   # PgBouncer) to multiplex many app connections onto few server connections.
+  # Run the pooler in TRANSACTION mode: Obico keeps connections open
+  # (CONN_MAX_AGE=600), so session mode pins idle connections and exhausts the
+  # pool (see the Database section of the README).
   # The password must be URL-safe; the chart does not URL-encode it.
   host: ""
   # -- PostgreSQL port (compose mode)

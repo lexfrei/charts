@@ -125,6 +125,8 @@ database:
   passwordSecretKey: password
 ```
 
+When `host` points at a connection pooler, run the pooler in **transaction** pooling mode, not session. Obico keeps connections open (Django `CONN_MAX_AGE=600`), so in session mode every idle connection pins one server connection and the pool is exhausted at zero query load — the app then stalls waiting for a connection that never frees. Transaction mode holds a server connection only for the duration of a transaction, so idle clients cost nothing. Obico is safe in transaction mode for the workloads this chart runs: its Channels layer runs on Redis (no PostgreSQL `LISTEN`/`NOTIFY`), and the web server and Celery worker issue no server-side cursors. (The only `QuerySet.iterator()` caller in the codebase is the `extract_prints_from_hist` management command, which this chart never runs; if you run it by hand against the pooler, expect cursor errors.) For a CloudNativePG `Pooler` this is `spec.pgbouncer.poolMode: transaction`.
+
 ## Exposing the Web UI
 
 Either classic Ingress or Gateway API (HTTPRoute) can be used. Remember to set `obico.siteUsesHttps=true` when serving over HTTPS — Django 4 rejects HTTPS form posts (login, signup, admin) from untrusted origins. The chart derives `CSRF_TRUSTED_ORIGINS` automatically from the enabled ingress hosts / HTTPRoute hostnames using that scheme; override with `obico.csrfTrustedOrigins` if you front the app with a different hostname.
