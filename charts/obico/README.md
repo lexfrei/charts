@@ -1,6 +1,6 @@
 # obico
 
-![Version: 0.1.3](https://img.shields.io/badge/Version-0.1.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2026.1.20](https://img.shields.io/badge/AppVersion-2026.1.20-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2026.1.20](https://img.shields.io/badge/AppVersion-2026.1.20-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -55,12 +55,12 @@ This chart is published to GitHub Container Registry (GHCR) as an OCI artifact.
 # Install from GHCR
 helm install obico \
   oci://ghcr.io/lexfrei/charts/obico \
-  --version 0.1.3
+  --version 0.2.0
 
 # Install with custom values
 helm install obico \
   oci://ghcr.io/lexfrei/charts/obico \
-  --version 0.1.3 \
+  --version 0.2.0 \
   --values values.yaml
 ```
 
@@ -70,7 +70,7 @@ This chart is signed with [cosign](https://github.com/sigstore/cosign) using key
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/obico:0.1.3 \
+  ghcr.io/lexfrei/charts/obico:0.2.0 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -104,7 +104,7 @@ obico:
 
 ## Database
 
-The default configuration uses SQLite on the data volume so the chart installs with no external dependencies. **SQLite is for evaluation only:** the web server and the Celery worker are separate processes writing the same database file, so under real load they hit `database is locked` errors. Upstream Obico ships PostgreSQL only. For anything beyond a quick try-out, point `database.url` at an external PostgreSQL, or reference a Secret:
+The default configuration uses SQLite on the data volume so the chart installs with no external dependencies. **SQLite is for evaluation only:** the web server and the Celery worker are separate processes writing the same database file, so under real load they hit `database is locked` errors. Upstream Obico ships PostgreSQL only. For anything beyond a quick try-out, point `database.url` at an external PostgreSQL, reference a Secret holding the full DSN, or compose the DSN from parts with the password kept in a Secret:
 
 ```yaml
 # Plain connection string
@@ -117,6 +117,20 @@ database:
 database:
   existingSecret: obico-db
   existingSecretKey: DATABASE_URL
+```
+
+```yaml
+# Compose the DSN from parts, with the password kept in a Secret. Point host at a
+# connection pooler (e.g. a CloudNativePG Pooler / PgBouncer) to multiplex many
+# app connections onto a few server connections. Mutually exclusive with
+# existingSecret; the password is used verbatim and must be URL-safe.
+database:
+  host: obico-db-pooler
+  port: 5432
+  name: obico
+  user: obico
+  passwordSecret: obico-db-app
+  passwordSecretKey: password
 ```
 
 ## Exposing the Web UI
@@ -177,10 +191,16 @@ The trade-off is size: the CUDA layers make the `ml-api` image large (~3 GB comp
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` |  |
-| database | object | `{"existingSecret":"","existingSecretKey":"DATABASE_URL","url":"sqlite:////data/db.sqlite3"}` | Database configuration. Defaults to SQLite on the data volume. WARNING: SQLite is for evaluation only. The server and the Celery worker run as separate processes writing the same file, so under load they will hit "database is locked" errors. Upstream ships PostgreSQL only. For any real use set url to an external postgresql:// DSN, or reference a Secret via existingSecret/existingSecretKey. |
-| database.existingSecret | string | `""` | Use a key from an existing Secret for DATABASE_URL instead of url |
+| database | object | `{"existingSecret":"","existingSecretKey":"DATABASE_URL","host":"","name":"","passwordSecret":"","passwordSecretKey":"password","port":5432,"url":"sqlite:////data/db.sqlite3","user":""}` | Database configuration. Defaults to SQLite on the data volume. WARNING: SQLite is for evaluation only. The server and the Celery worker run as separate processes writing the same file, so under load they will hit "database is locked" errors. Upstream ships PostgreSQL only. For any real use set url to an external postgresql:// DSN, or reference a Secret via existingSecret/existingSecretKey. |
+| database.existingSecret | string | `""` | Use a key from an existing Secret for the full DATABASE_URL instead of url |
 | database.existingSecretKey | string | `"DATABASE_URL"` | Key inside existingSecret holding the DATABASE_URL value |
-| database.url | string | `"sqlite:////data/db.sqlite3"` | Database connection string (Django DATABASE_URL) |
+| database.host | string | `""` | PostgreSQL host. When set, DATABASE_URL is composed from the fields below and the password is injected from passwordSecret at runtime (so it never lands in the ConfigMap or in git). Mutually exclusive with existingSecret. Point this at a connection pooler service (e.g. a CloudNativePG Pooler / PgBouncer) to multiplex many app connections onto few server connections. The password must be URL-safe; the chart does not URL-encode it. |
+| database.name | string | `""` | PostgreSQL database name (compose mode; required when host is set) |
+| database.passwordSecret | string | `""` | Name of an existing Secret holding the PostgreSQL password (compose mode; required when host is set) |
+| database.passwordSecretKey | string | `"password"` | Key inside passwordSecret holding the password |
+| database.port | int | `5432` | PostgreSQL port (compose mode) |
+| database.url | string | `"sqlite:////data/db.sqlite3"` | Database connection string (Django DATABASE_URL). Used only when neither existingSecret nor host is set. |
+| database.user | string | `""` | PostgreSQL user (compose mode; required when host is set) |
 | fullnameOverride | string | `""` |  |
 | httpRoute | object | `{"annotations":{},"enabled":false,"hostnames":["obico.example.com"],"parentRefs":[{"name":"gateway","namespace":"gateway-system"}],"rules":[{"matches":[{"path":{"type":"PathPrefix","value":"/"}}]}]}` | HTTPRoute configuration (Gateway API) |
 | httpRoute.hostnames | list | `["obico.example.com"]` | Hostnames for the route |

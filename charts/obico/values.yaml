@@ -60,12 +60,31 @@ obico:
 # set url to an external postgresql:// DSN, or reference a Secret via
 # existingSecret/existingSecretKey.
 database:
-  # -- Database connection string (Django DATABASE_URL)
+  # -- Database connection string (Django DATABASE_URL). Used only when neither
+  # existingSecret nor host is set.
   url: "sqlite:////data/db.sqlite3"
-  # -- Use a key from an existing Secret for DATABASE_URL instead of url
+  # -- Use a key from an existing Secret for the full DATABASE_URL instead of url
   existingSecret: ""
   # -- Key inside existingSecret holding the DATABASE_URL value
   existingSecretKey: "DATABASE_URL"
+  # -- PostgreSQL host. When set, DATABASE_URL is composed from the fields below
+  # and the password is injected from passwordSecret at runtime (so it never
+  # lands in the ConfigMap or in git). Mutually exclusive with existingSecret.
+  # Point this at a connection pooler service (e.g. a CloudNativePG Pooler /
+  # PgBouncer) to multiplex many app connections onto few server connections.
+  # The password must be URL-safe; the chart does not URL-encode it.
+  host: ""
+  # -- PostgreSQL port (compose mode)
+  port: 5432
+  # -- PostgreSQL database name (compose mode; required when host is set)
+  name: ""
+  # -- PostgreSQL user (compose mode; required when host is set)
+  user: ""
+  # -- Name of an existing Secret holding the PostgreSQL password (compose mode;
+  # required when host is set)
+  passwordSecret: ""
+  # -- Key inside passwordSecret holding the password
+  passwordSecretKey: "password"
 
 # -- Web pod configuration (server + tasks containers, plus init containers)
 web:

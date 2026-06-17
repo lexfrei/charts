@@ -96,7 +96,7 @@ obico:
 
 ## Database
 
-The default configuration uses SQLite on the data volume so the chart installs with no external dependencies. **SQLite is for evaluation only:** the web server and the Celery worker are separate processes writing the same database file, so under real load they hit `database is locked` errors. Upstream Obico ships PostgreSQL only. For anything beyond a quick try-out, point `database.url` at an external PostgreSQL, or reference a Secret:
+The default configuration uses SQLite on the data volume so the chart installs with no external dependencies. **SQLite is for evaluation only:** the web server and the Celery worker are separate processes writing the same database file, so under real load they hit `database is locked` errors. Upstream Obico ships PostgreSQL only. For anything beyond a quick try-out, point `database.url` at an external PostgreSQL, reference a Secret holding the full DSN, or compose the DSN from parts with the password kept in a Secret:
 
 ```yaml
 # Plain connection string
@@ -109,6 +109,20 @@ database:
 database:
   existingSecret: obico-db
   existingSecretKey: DATABASE_URL
+```
+
+```yaml
+# Compose the DSN from parts, with the password kept in a Secret. Point host at a
+# connection pooler (e.g. a CloudNativePG Pooler / PgBouncer) to multiplex many
+# app connections onto a few server connections. Mutually exclusive with
+# existingSecret; the password is used verbatim and must be URL-safe.
+database:
+  host: obico-db-pooler
+  port: 5432
+  name: obico
+  user: obico
+  passwordSecret: obico-db-app
+  passwordSecretKey: password
 ```
 
 ## Exposing the Web UI

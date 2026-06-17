@@ -156,7 +156,42 @@ env:
       secretKeyRef:
         name: {{ .Values.database.existingSecret }}
         key: {{ .Values.database.existingSecretKey }}
+{{- else if .Values.database.host }}
+env:
+  # OBICO_DB_PASSWORD is read from the Secret, then referenced via the $(VAR)
+  # dependent-env syntax so the password is assembled into DATABASE_URL at
+  # runtime instead of being baked into the ConfigMap. Kubernetes only expands
+  # $(VAR) for vars declared earlier in the same container's env list.
+  - name: OBICO_DB_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: {{ .Values.database.passwordSecret }}
+        key: {{ .Values.database.passwordSecretKey }}
+  - name: DATABASE_URL
+    value: {{ printf "postgresql://%s:$(OBICO_DB_PASSWORD)@%s:%v/%s" .Values.database.user .Values.database.host .Values.database.port .Values.database.name | quote }}
 {{- end }}
+{{- end }}
+
+{{/*
+Validate the database configuration. existingSecret (full DSN from a Secret) and
+host (DATABASE_URL composed from parts) are mutually exclusive; compose mode
+requires user, name and passwordSecret. Rendered once from configmap.yaml.
+*/}}
+{{- define "obico.validateDatabase" -}}
+{{- if and .Values.database.existingSecret .Values.database.host -}}
+{{- fail "database.existingSecret and database.host are mutually exclusive: set one or the other" -}}
+{{- end -}}
+{{- if .Values.database.host -}}
+{{- if not .Values.database.user -}}
+{{- fail "database.host is set: database.user is required to compose DATABASE_URL" -}}
+{{- end -}}
+{{- if not .Values.database.name -}}
+{{- fail "database.host is set: database.name is required to compose DATABASE_URL" -}}
+{{- end -}}
+{{- if not .Values.database.passwordSecret -}}
+{{- fail "database.host is set: database.passwordSecret is required to source the password" -}}
+{{- end -}}
+{{- end -}}
 {{- end }}
 
 {{/*
@@ -165,7 +200,7 @@ free-form extraEnv / extraSecretEnv maps, which would silently win via
 later-key YAML semantics in the ConfigMap / Secret.
 */}}
 {{- define "obico.checkReservedEnv" -}}
-{{- $reserved := list "DEBUG" "WEBPACK_LOADER_ENABLED" "SITE_USES_HTTPS" "REDIS_URL" "ML_API_HOST" "INTERNAL_MEDIA_HOST" "DATABASE_URL" "DJANGO_SECRET_KEY" "CSRF_TRUSTED_ORIGINS" -}}
+{{- $reserved := list "DEBUG" "WEBPACK_LOADER_ENABLED" "SITE_USES_HTTPS" "REDIS_URL" "ML_API_HOST" "INTERNAL_MEDIA_HOST" "DATABASE_URL" "OBICO_DB_PASSWORD" "DJANGO_SECRET_KEY" "CSRF_TRUSTED_ORIGINS" -}}
 {{- range $key, $_ := .Values.obico.extraEnv -}}
 {{- if has $key $reserved -}}
 {{- fail (printf "obico.extraEnv must not set the chart-managed key %q; configure it via its dedicated value instead" $key) -}}

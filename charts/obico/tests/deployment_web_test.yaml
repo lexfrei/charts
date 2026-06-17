@@ -222,6 +222,54 @@ tests:
                 name: my-db-secret
                 key: DATABASE_URL
 
+  - it: should compose DATABASE_URL and inject the password env in compose mode
+    template: deployment-web.yaml
+    set:
+      database.host: obico-db-pooler
+      database.port: 5432
+      database.user: obico
+      database.name: obico
+      database.passwordSecret: obico-db-app
+      database.passwordSecretKey: password
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: OBICO_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: obico-db-app
+                key: password
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: DATABASE_URL
+            value: "postgresql://obico:$(OBICO_DB_PASSWORD)@obico-db-pooler:5432/obico"
+
+  - it: should inject the composed DATABASE_URL into collectstatic, migrate and tasks
+    template: deployment-web.yaml
+    set:
+      database.host: obico-db-pooler
+      database.user: obico
+      database.name: obico
+      database.passwordSecret: obico-db-app
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[0].env
+          content:
+            name: DATABASE_URL
+            value: "postgresql://obico:$(OBICO_DB_PASSWORD)@obico-db-pooler:5432/obico"
+      - contains:
+          path: spec.template.spec.initContainers[1].env
+          content:
+            name: DATABASE_URL
+            value: "postgresql://obico:$(OBICO_DB_PASSWORD)@obico-db-pooler:5432/obico"
+      - contains:
+          path: spec.template.spec.containers[1].env
+          content:
+            name: DATABASE_URL
+            value: "postgresql://obico:$(OBICO_DB_PASSWORD)@obico-db-pooler:5432/obico"
+
   - it: should reference the existing secret in envFrom when obico.existingSecret is set
     template: deployment-web.yaml
     set:

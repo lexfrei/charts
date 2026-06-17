@@ -118,6 +118,30 @@
         "existingSecretKey": {
           "type": "string",
           "description": "Key in existingSecret holding DATABASE_URL"
+        },
+        "host": {
+          "type": "string",
+          "description": "PostgreSQL host; when set, DATABASE_URL is composed from the fields below (mutually exclusive with existingSecret)"
+        },
+        "port": {
+          "type": "integer",
+          "description": "PostgreSQL port (compose mode)"
+        },
+        "name": {
+          "type": "string",
+          "description": "PostgreSQL database name (compose mode)"
+        },
+        "user": {
+          "type": "string",
+          "description": "PostgreSQL user (compose mode)"
+        },
+        "passwordSecret": {
+          "type": "string",
+          "description": "Existing Secret holding the PostgreSQL password (compose mode)"
+        },
+        "passwordSecretKey": {
+          "type": "string",
+          "description": "Key in passwordSecret holding the password"
         }
       }
     },

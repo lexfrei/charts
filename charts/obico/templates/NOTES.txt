@@ -14,7 +14,7 @@ Components:
   - redis (bundled)
   {{- end }}
 
-Database: {{ if .Values.database.existingSecret }}external (from secret {{ .Values.database.existingSecret }}){{ else }}{{ .Values.database.url }}{{ end }}
+Database: {{ if .Values.database.existingSecret }}external (full DSN from secret {{ .Values.database.existingSecret }}){{ else if .Values.database.host }}postgresql://{{ .Values.database.user }}@{{ .Values.database.host }}:{{ .Values.database.port }}/{{ .Values.database.name }} (password from secret {{ .Values.database.passwordSecret }}){{ else }}{{ .Values.database.url }}{{ end }}
 
 To check the status of your deployment:
 
