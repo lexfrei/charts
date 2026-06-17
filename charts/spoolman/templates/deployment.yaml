@@ -1,0 +1,189 @@
+{{- if and (gt (int .Values.replicaCount) 1) .Values.persistence.enabled (eq .Values.persistence.accessMode "ReadWriteOnce") }}
+{{- fail "replicaCount > 1 is not supported with a ReadWriteOnce persistence volume; use a ReadWriteMany access mode, or an external database with persistence.enabled=false" }}
+{{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "spoolman.fullname" . }}
+  labels:
+    {{- include "spoolman.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    {{- toYaml .Values.updateStrategy | nindent 4 }}
+  selector:
+    matchLabels:
+      {{- include "spoolman.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "spoolman.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "spoolman.serviceAccountName" . }}
+      securityContext:
+        {{- if not (hasKey .Values.podSecurityContext "fsGroup") }}
+        fsGroup: {{ .Values.pgid }}
+        {{- end }}
+        {{- with .Values.podSecurityContext }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.initContainers }}
+      initContainers:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: TZ
+              value: {{ .Values.timezone | quote }}
+            - name: PUID
+              value: {{ .Values.puid | quote }}
+            - name: PGID
+              value: {{ .Values.pgid | quote }}
+            # Pin the listen port to the container port. The entrypoint defaults
+            # to 8000 and the image EXPOSEs 8000, but the shipped .env.example
+            # sets SPOOLMAN_PORT=7912, so pin it explicitly.
+            - name: SPOOLMAN_PORT
+              value: "8000"
+            # Bind to all interfaces. The entrypoint already defaults this to
+            # 0.0.0.0; pinned for parity with SPOOLMAN_PORT and independence from
+            # a mounted .env.
+            - name: SPOOLMAN_HOST
+              value: "0.0.0.0"
+            - name: SPOOLMAN_AUTOMATIC_BACKUP
+              value: {{ ternary "TRUE" "FALSE" .Values.spoolman.automaticBackup | quote }}
+            {{- with (include "spoolman.basePath" .) }}
+            - name: SPOOLMAN_BASE_PATH
+              value: {{ . | quote }}
+            {{- end }}
+            {{- if .Values.spoolman.corsOrigin }}
+            - name: SPOOLMAN_CORS_ORIGIN
+              value: {{ .Values.spoolman.corsOrigin | quote }}
+            {{- end }}
+            {{- if .Values.spoolman.loggingLevel }}
+            - name: SPOOLMAN_LOGGING_LEVEL
+              value: {{ .Values.spoolman.loggingLevel | quote }}
+            {{- end }}
+            {{- if .Values.metrics.enabled }}
+            - name: SPOOLMAN_METRICS_ENABLED
+              value: "TRUE"
+            {{- end }}
+            {{- if ne .Values.database.type "sqlite" }}
+            - name: SPOOLMAN_DB_TYPE
+              value: {{ .Values.database.type | quote }}
+            {{- if .Values.database.host }}
+            - name: SPOOLMAN_DB_HOST
+              value: {{ .Values.database.host | quote }}
+            {{- end }}
+            {{- if .Values.database.port }}
+            - name: SPOOLMAN_DB_PORT
+              value: {{ printf "%v" .Values.database.port | quote }}
+            {{- end }}
+            {{- if .Values.database.name }}
+            - name: SPOOLMAN_DB_NAME
+              value: {{ .Values.database.name | quote }}
+            {{- end }}
+            {{- if .Values.database.username }}
+            - name: SPOOLMAN_DB_USERNAME
+              value: {{ .Values.database.username | quote }}
+            {{- end }}
+            {{- if .Values.database.query }}
+            - name: SPOOLMAN_DB_QUERY
+              value: {{ .Values.database.query | quote }}
+            {{- end }}
+            {{- if .Values.database.existingSecret }}
+            - name: SPOOLMAN_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.existingSecret }}
+                  key: {{ .Values.database.existingSecretKey }}
+            {{- else if .Values.database.password }}
+            - name: SPOOLMAN_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "spoolman.fullname" . }}
+                  key: password
+            {{- end }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          startupProbe:
+            httpGet:
+              path: {{ include "spoolman.basePath" . }}/api/v1/health
+              port: http
+            initialDelaySeconds: {{ .Values.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.startupProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.startupProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.startupProbe.failureThreshold }}
+          livenessProbe:
+            httpGet:
+              path: {{ include "spoolman.basePath" . }}/api/v1/health
+              port: http
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+          readinessProbe:
+            httpGet:
+              path: {{ include "spoolman.basePath" . }}/api/v1/health
+              port: http
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+          volumeMounts:
+            {{- if .Values.persistence.enabled }}
+            - name: data
+              mountPath: {{ .Values.persistence.mountPath }}
+            {{- end }}
+            {{- with .Values.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+        {{- with .Values.extraContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- if or .Values.persistence.enabled .Values.extraVolumes }}
+      volumes:
+        {{- if .Values.persistence.enabled }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim | default (include "spoolman.fullname" .) }}
+        {{- end }}
+        {{- with .Values.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
