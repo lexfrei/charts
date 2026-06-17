@@ -1,0 +1,92 @@
+suite: test networkpolicy
+templates:
+  - networkpolicy.yaml
+tests:
+  - it: should not render a NetworkPolicy by default
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should render a NetworkPolicy when enabled
+    set:
+      networkPolicy.enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: NetworkPolicy
+      - contains:
+          path: spec.policyTypes
+          content: Ingress
+      - contains:
+          path: spec.policyTypes
+          content: Egress
+      - equal:
+          path: spec.ingress[0].ports[0].port
+          value: http
+
+  - it: should append extra egress rules
+    set:
+      networkPolicy.enabled: true
+      networkPolicy.egress:
+        - to:
+            - ipBlock:
+                cidr: 198.51.100.0/24
+          ports:
+            - protocol: TCP
+              port: 5432
+    asserts:
+      - lengthEqual:
+          path: spec.egress
+          count: 2
+
+  - it: should not open database egress with the default SQLite database
+    set:
+      networkPolicy.enabled: true
+    asserts:
+      - lengthEqual:
+          path: spec.egress
+          count: 1
+
+  - it: should open egress to an explicit external database port
+    set:
+      networkPolicy.enabled: true
+      database.type: postgres
+      database.port: 6432
+    asserts:
+      - lengthEqual:
+          path: spec.egress
+          count: 2
+      - equal:
+          path: spec.egress[1].ports[0].port
+          value: 6432
+
+  - it: should default the database egress port from the database type
+    set:
+      networkPolicy.enabled: true
+      database.type: mysql
+    asserts:
+      - equal:
+          path: spec.egress[1].ports[0].port
+          value: 3306
+
+  - it: should allow database egress to any in-cluster pod on the DB port
+    set:
+      networkPolicy.enabled: true
+      database.type: postgres
+    asserts:
+      - isNotEmpty:
+          path: spec.egress[1].to
+      - equal:
+          path: spec.egress[1].to[0].namespaceSelector
+          value: {}
+
+  - it: should handle a database port given as a string
+    set:
+      networkPolicy.enabled: true
+      database.type: postgres
+      database.port: "6432"
+    asserts:
+      - equal:
+          path: spec.egress[1].ports[0].port
+          value: 6432

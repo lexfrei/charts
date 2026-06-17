@@ -1,0 +1,288 @@
+suite: test deployment
+templates:
+  - deployment.yaml
+tests:
+  - it: should create a Deployment with default values
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Deployment
+      - equal:
+          path: apiVersion
+          value: apps/v1
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-spoolman
+
+  - it: should use the appVersion as the default image tag
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "ghcr.io/donkie/spoolman:0.23.1"
+
+  - it: should allow overriding the image tag
+    set:
+      image.tag: "0.99.0"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "ghcr.io/donkie/spoolman:0.99.0"
+
+  - it: should use the Recreate strategy
+    asserts:
+      - equal:
+          path: spec.strategy.type
+          value: Recreate
+
+  - it: should expose the http port on 8000
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].ports[0].name
+          value: http
+      - equal:
+          path: spec.template.spec.containers[0].ports[0].containerPort
+          value: 8000
+
+  - it: should set fsGroup on the pod and not force a non-root container
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext.fsGroup
+          value: 1000
+      - notExists:
+          path: spec.template.spec.containers[0].securityContext.runAsNonRoot
+
+  - it: should default fsGroup to pgid
+    set:
+      pgid: 2000
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext.fsGroup
+          value: 2000
+
+  - it: should let podSecurityContext.fsGroup override pgid
+    set:
+      pgid: 2000
+      podSecurityContext:
+        fsGroup: 3000
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext.fsGroup
+          value: 3000
+
+  - it: should set SPOOLMAN_METRICS_ENABLED only when metrics are enabled
+    set:
+      metrics.enabled: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SPOOLMAN_METRICS_ENABLED
+            value: "TRUE"
+
+  - it: should set base environment variables
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TZ
+            value: "UTC"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: PUID
+            value: "1000"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SPOOLMAN_AUTOMATIC_BACKUP
+            value: "TRUE"
+
+  - it: should pin the listen host and port to match the container port
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SPOOLMAN_PORT
+            value: "8000"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SPOOLMAN_HOST
+            value: "0.0.0.0"
+
+  - it: should not set database env vars with the default SQLite database
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.containers[0].env
+          count: 6
+
+  - it: should emit application env vars when configured
+    set:
+      spoolman.corsOrigin: "https://ui.example.com"
+      spoolman.loggingLevel: DEBUG
+      spoolman.automaticBackup: false
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SPOOLMAN_CORS_ORIGIN
+            value: "https://ui.example.com"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SPOOLMAN_LOGGING_LEVEL
+            value: DEBUG
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SPOOLMAN_AUTOMATIC_BACKUP
+            value: "FALSE"
+
+  - it: should inject extra env, volumes, mounts and containers
+    set:
+      extraEnv:
+        - name: EXTRA_FLAG
+          value: "1"
+      extraVolumes:
+        - name: extra
+          emptyDir: {}
+      extraVolumeMounts:
+        - name: extra
+          mountPath: /extra
+      initContainers:
+        - name: init-extra
+          image: busybox:latest
+      extraContainers:
+        - name: sidecar
+          image: busybox:latest
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: EXTRA_FLAG
+            value: "1"
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: extra
+            mountPath: /extra
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: extra
+            emptyDir: {}
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: init-extra
+      - lengthEqual:
+          path: spec.template.spec.containers
+          count: 2
+
+  - it: should probe the health endpoint
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe.httpGet.path
+          value: /api/v1/health
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.path
+          value: /api/v1/health
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.path
+          value: /api/v1/health
+
+  - it: should prefix the probe path with basePath when set
+    set:
+      spoolman.basePath: /spoolman
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.path
+          value: /spoolman/api/v1/health
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SPOOLMAN_BASE_PATH
+            value: /spoolman
+
+  - it: should strip a trailing slash from basePath
+    set:
+      spoolman.basePath: /spoolman/
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.path
+          value: /spoolman/api/v1/health
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SPOOLMAN_BASE_PATH
+            value: /spoolman
+
+  - it: should add a leading slash to a basePath given without one
+    set:
+      spoolman.basePath: spoolman
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.path
+          value: /spoolman/api/v1/health
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SPOOLMAN_BASE_PATH
+            value: /spoolman
+
+  - it: should mount the data volume by default
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: data
+            mountPath: /home/app/.local/share/spoolman
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: data
+            persistentVolumeClaim:
+              claimName: RELEASE-NAME-spoolman
+
+  - it: should reference an existing claim when set
+    set:
+      persistence.existingClaim: my-claim
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: data
+            persistentVolumeClaim:
+              claimName: my-claim
+
+  - it: should not mount a data volume when persistence is disabled
+    set:
+      persistence.enabled: false
+    asserts:
+      - notExists:
+          path: spec.template.spec.volumes
+
+  - it: should reject replicaCount > 1 with a ReadWriteOnce volume
+    set:
+      replicaCount: 2
+    asserts:
+      - failedTemplate:
+          errorMessage: "replicaCount > 1 is not supported with a ReadWriteOnce persistence volume; use a ReadWriteMany access mode, or an external database with persistence.enabled=false"
+
+  - it: should allow replicaCount > 1 with a ReadWriteMany volume
+    set:
+      replicaCount: 2
+      persistence.accessMode: ReadWriteMany
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 2
+
+  - it: should allow replicaCount > 1 when persistence is disabled
+    set:
+      replicaCount: 2
+      persistence.enabled: false
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 2

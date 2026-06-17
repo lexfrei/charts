@@ -1,0 +1,93 @@
+suite: test database
+templates:
+  - deployment.yaml
+  - secret.yaml
+tests:
+  - it: should not create a Secret with the default SQLite database
+    template: secret.yaml
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should set database env vars for an external database
+    template: deployment.yaml
+    set:
+      database.type: postgres
+      database.host: db.example.com
+      database.port: 5432
+      database.name: spoolman
+      database.username: spooluser
+      database.query: "sslmode=require"
+      database.password: s3cret
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SPOOLMAN_DB_TYPE
+            value: postgres
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SPOOLMAN_DB_HOST
+            value: db.example.com
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SPOOLMAN_DB_PORT
+            value: "5432"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SPOOLMAN_DB_NAME
+            value: spoolman
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SPOOLMAN_DB_USERNAME
+            value: spooluser
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SPOOLMAN_DB_QUERY
+            value: "sslmode=require"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SPOOLMAN_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: RELEASE-NAME-spoolman
+                key: password
+
+  - it: should create a Secret for an inline database password
+    template: secret.yaml
+    set:
+      database.type: postgres
+      database.password: s3cret
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Secret
+      - equal:
+          path: data.password
+          value: czNjcmV0
+
+  - it: should reference an existing secret without creating one
+    set:
+      database.type: mysql
+      database.existingSecret: my-db-secret
+      database.existingSecretKey: db-pass
+    asserts:
+      - template: secret.yaml
+        hasDocuments:
+          count: 0
+      - template: deployment.yaml
+        contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SPOOLMAN_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: my-db-secret
+                key: db-pass
