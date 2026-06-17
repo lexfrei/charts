@@ -92,6 +92,51 @@ tests:
       - notExists:
           path: data.DATABASE_URL
 
+  - it: should not set DATABASE_URL in the ConfigMap when composing from host
+    set:
+      database.host: obico-db-pooler
+      database.user: obico
+      database.name: obico
+      database.passwordSecret: obico-db-app
+    asserts:
+      - notExists:
+          path: data.DATABASE_URL
+
+  - it: should reject setting both existingSecret and host
+    set:
+      database.existingSecret: my-db-secret
+      database.host: obico-db-pooler
+    asserts:
+      - failedTemplate:
+          errorMessage: "database.existingSecret and database.host are mutually exclusive: set one or the other"
+
+  - it: should require user when composing from host
+    set:
+      database.host: obico-db-pooler
+      database.name: obico
+      database.passwordSecret: obico-db-app
+    asserts:
+      - failedTemplate:
+          errorMessage: "database.host is set: database.user is required to compose DATABASE_URL"
+
+  - it: should require name when composing from host
+    set:
+      database.host: obico-db-pooler
+      database.user: obico
+      database.passwordSecret: obico-db-app
+    asserts:
+      - failedTemplate:
+          errorMessage: "database.host is set: database.name is required to compose DATABASE_URL"
+
+  - it: should require passwordSecret when composing from host
+    set:
+      database.host: obico-db-pooler
+      database.user: obico
+      database.name: obico
+    asserts:
+      - failedTemplate:
+          errorMessage: "database.host is set: database.passwordSecret is required to source the password"
+
   - it: should default CSRF_TRUSTED_ORIGINS to an empty list
     asserts:
       - equal:
@@ -155,3 +200,11 @@ tests:
     asserts:
       - failedTemplate:
           errorMessage: 'obico.extraSecretEnv must not set the chart-managed key "DJANGO_SECRET_KEY"; configure it via its dedicated value instead'
+
+  - it: should reject the compose-mode password key in extraEnv
+    set:
+      obico.extraEnv:
+        OBICO_DB_PASSWORD: hunter2
+    asserts:
+      - failedTemplate:
+          errorMessage: 'obico.extraEnv must not set the chart-managed key "OBICO_DB_PASSWORD"; configure it via its dedicated value instead'
