@@ -32,6 +32,7 @@ jobs:
           - charts/extractedprism
           - charts/me-site
           - charts/obico
+          - charts/spoolman
           - charts/system-upgrade-controller
           - charts/transmission
           - charts/vipalived
@@ -67,6 +68,7 @@ jobs:
           - charts/extractedprism
           - charts/me-site
           - charts/obico
+          - charts/spoolman
           - charts/system-upgrade-controller
           - charts/transmission
           - charts/vipalived
