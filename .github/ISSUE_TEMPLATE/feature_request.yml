@@ -9,6 +9,11 @@ body:
       description: Which chart should this feature be added to?
       options:
         - cloudflare-tunnel
+        - eclipse-edc
+        - extractedprism
+        - me-site
+        - obico
+        - spoolman
         - system-upgrade-controller
         - transmission
         - vipalived

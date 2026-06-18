@@ -226,3 +226,30 @@ jobs:
             --field target_url="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  validate-issue-templates:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Chart dropdown in issue templates must list every chart
+        run: |
+          charts=$(for dir in charts/*/; do
+            [ -f "${dir}Chart.yaml" ] && basename "$dir"
+          done | sort)
+
+          rc=0
+          for form in .github/ISSUE_TEMPLATE/bug_report.yml \
+                      .github/ISSUE_TEMPLATE/feature_request.yml \
+                      .github/ISSUE_TEMPLATE/question.yml; do
+            options=$(yq '.body[] | select(.id == "chart") | .attributes.options[]' "$form" | sort)
+            if [ "$charts" != "$options" ]; then
+              echo "::error file=$form::chart dropdown is out of sync with charts/*/"
+              diff <(echo "$charts") <(echo "$options") || true
+              rc=1
+            fi
+          done
+          exit $rc
