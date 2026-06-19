@@ -3,8 +3,8 @@ annotations:
   # Valid kinds for changes: added, changed, deprecated, removed, fixed, security
   # See: https://artifacthub.io/docs/topics/annotations/helm/
   artifacthub.io/changes: |-
-    - kind: added
-      description: Compose DATABASE_URL from host/port/name/user with the password sourced from a Secret, for pointing Obico at a connection pooler (e.g. CloudNativePG Pooler / PgBouncer)
+    - kind: changed
+      description: Document that a connection pooler must run in transaction pooling mode (Obico's CONN_MAX_AGE pins idle connections, exhausting a session-mode pool)
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -20,7 +20,7 @@ apiVersion: v2
 name: obico
 description: Self-hosted Obico server for AI-powered 3D printer monitoring (OctoPrint/Klipper)
 type: application
-version: "0.2.0"
+version: "0.2.1"
 # renovate: datasource=docker depName=ghcr.io/lexfrei/obico-web
 # CalVer derived from the obico-server release commit date (see lexfrei/images).
 appVersion: "2026.1.20"

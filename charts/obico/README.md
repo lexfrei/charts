@@ -1,6 +1,6 @@
 # obico
 
-![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2026.1.20](https://img.shields.io/badge/AppVersion-2026.1.20-informational?style=flat-square)
+![Version: 0.2.1](https://img.shields.io/badge/Version-0.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2026.1.20](https://img.shields.io/badge/AppVersion-2026.1.20-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -55,12 +55,12 @@ This chart is published to GitHub Container Registry (GHCR) as an OCI artifact.
 # Install from GHCR
 helm install obico \
   oci://ghcr.io/lexfrei/charts/obico \
-  --version 0.2.0
+  --version 0.2.1
 
 # Install with custom values
 helm install obico \
   oci://ghcr.io/lexfrei/charts/obico \
-  --version 0.2.0 \
+  --version 0.2.1 \
   --values values.yaml
 ```
 
@@ -70,7 +70,7 @@ This chart is signed with [cosign](https://github.com/sigstore/cosign) using key
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/obico:0.2.0 \
+  ghcr.io/lexfrei/charts/obico:0.2.1 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -133,6 +133,8 @@ database:
   passwordSecretKey: password
 ```
 
+When `host` points at a connection pooler, run the pooler in **transaction** pooling mode, not session. Obico keeps connections open (Django `CONN_MAX_AGE=600`), so in session mode every idle connection pins one server connection and the pool is exhausted at zero query load — the app then stalls waiting for a connection that never frees. Transaction mode holds a server connection only for the duration of a transaction, so idle clients cost nothing. Obico is safe in transaction mode for the workloads this chart runs: its Channels layer runs on Redis (no PostgreSQL `LISTEN`/`NOTIFY`), and the web server and Celery worker issue no server-side cursors. (The only `QuerySet.iterator()` caller in the codebase is the `extract_prints_from_hist` management command, which this chart never runs; if you run it by hand against the pooler, expect cursor errors.) For a CloudNativePG `Pooler` this is `spec.pgbouncer.poolMode: transaction`.
+
 ## Exposing the Web UI
 
 Either classic Ingress or Gateway API (HTTPRoute) can be used. Remember to set `obico.siteUsesHttps=true` when serving over HTTPS — Django 4 rejects HTTPS form posts (login, signup, admin) from untrusted origins. The chart derives `CSRF_TRUSTED_ORIGINS` automatically from the enabled ingress hosts / HTTPRoute hostnames using that scheme; override with `obico.csrfTrustedOrigins` if you front the app with a different hostname.
@@ -194,7 +196,7 @@ The trade-off is size: the CUDA layers make the `ml-api` image large (~3 GB comp
 | database | object | `{"existingSecret":"","existingSecretKey":"DATABASE_URL","host":"","name":"","passwordSecret":"","passwordSecretKey":"password","port":5432,"url":"sqlite:////data/db.sqlite3","user":""}` | Database configuration. Defaults to SQLite on the data volume. WARNING: SQLite is for evaluation only. The server and the Celery worker run as separate processes writing the same file, so under load they will hit "database is locked" errors. Upstream ships PostgreSQL only. For any real use set url to an external postgresql:// DSN, or reference a Secret via existingSecret/existingSecretKey. |
 | database.existingSecret | string | `""` | Use a key from an existing Secret for the full DATABASE_URL instead of url |
 | database.existingSecretKey | string | `"DATABASE_URL"` | Key inside existingSecret holding the DATABASE_URL value |
-| database.host | string | `""` | PostgreSQL host. When set, DATABASE_URL is composed from the fields below and the password is injected from passwordSecret at runtime (so it never lands in the ConfigMap or in git). Mutually exclusive with existingSecret. Point this at a connection pooler service (e.g. a CloudNativePG Pooler / PgBouncer) to multiplex many app connections onto few server connections. The password must be URL-safe; the chart does not URL-encode it. |
+| database.host | string | `""` | PostgreSQL host. When set, DATABASE_URL is composed from the fields below and the password is injected from passwordSecret at runtime (so it never lands in the ConfigMap or in git). Mutually exclusive with existingSecret. Point this at a connection pooler service (e.g. a CloudNativePG Pooler / PgBouncer) to multiplex many app connections onto few server connections. Run the pooler in TRANSACTION mode: Obico keeps connections open (CONN_MAX_AGE=600), so session mode pins idle connections and exhausts the pool (see the Database section of the README). The password must be URL-safe; the chart does not URL-encode it. |
 | database.name | string | `""` | PostgreSQL database name (compose mode; required when host is set) |
 | database.passwordSecret | string | `""` | Name of an existing Secret holding the PostgreSQL password (compose mode; required when host is set) |
 | database.passwordSecretKey | string | `"password"` | Key inside passwordSecret holding the password |
