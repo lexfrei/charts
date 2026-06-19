@@ -1,0 +1,72 @@
+suite: test servicemonitor
+templates:
+  - servicemonitor.yaml
+tests:
+  - it: should not render a ServiceMonitor by default
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should not render a ServiceMonitor when metrics are enabled but the monitor is not
+    set:
+      metrics.enabled: true
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should render a ServiceMonitor when both metrics and the monitor are enabled
+    set:
+      metrics.enabled: true
+      metrics.serviceMonitor.enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: ServiceMonitor
+      - equal:
+          path: spec.endpoints[0].port
+          value: http
+      - equal:
+          path: spec.endpoints[0].path
+          value: /metrics
+      - equal:
+          path: spec.endpoints[0].interval
+          value: 30s
+      - equal:
+          path: spec.endpoints[0].scrapeTimeout
+          value: 10s
+
+  - it: should pass through serviceMonitor labels and scrapeTimeout overrides
+    set:
+      metrics.enabled: true
+      metrics.serviceMonitor.enabled: true
+      metrics.serviceMonitor.scrapeTimeout: 15s
+      metrics.serviceMonitor.labels:
+        release: kube-prometheus-stack
+    asserts:
+      - equal:
+          path: spec.endpoints[0].scrapeTimeout
+          value: 15s
+      - equal:
+          path: metadata.labels.release
+          value: kube-prometheus-stack
+
+  - it: should prepend basePath to the metrics path
+    set:
+      metrics.enabled: true
+      metrics.serviceMonitor.enabled: true
+      spoolman.basePath: /spoolman
+    asserts:
+      - equal:
+          path: spec.endpoints[0].path
+          value: /spoolman/metrics
+
+  - it: should strip a trailing slash from basePath in the metrics path
+    set:
+      metrics.enabled: true
+      metrics.serviceMonitor.enabled: true
+      spoolman.basePath: /spoolman/
+    asserts:
+      - equal:
+          path: spec.endpoints[0].path
+          value: /spoolman/metrics

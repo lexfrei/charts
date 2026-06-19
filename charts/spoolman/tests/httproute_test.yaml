@@ -1,0 +1,31 @@
+suite: test httproute
+templates:
+  - httproute.yaml
+tests:
+  - it: should not render an HTTPRoute by default
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should render an HTTPRoute when enabled
+    set:
+      httpRoute.enabled: true
+      httpRoute.hostnames:
+        - spoolman.example.com
+      httpRoute.parentRefs:
+        - name: gateway
+          namespace: gateway-system
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: HTTPRoute
+      - equal:
+          path: spec.hostnames[0]
+          value: spoolman.example.com
+      - equal:
+          path: spec.rules[0].backendRefs[0].name
+          value: RELEASE-NAME-spoolman
+      - equal:
+          path: spec.rules[0].backendRefs[0].port
+          value: 80

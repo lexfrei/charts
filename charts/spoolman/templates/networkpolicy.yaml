@@ -1,0 +1,47 @@
+{{- if .Values.networkPolicy.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "spoolman.fullname" . }}
+  labels:
+    {{- include "spoolman.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "spoolman.selectorLabels" . | nindent 6 }}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow web UI / API access from any namespace (scope via networkPolicy.ingress)
+    - from:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: http
+    {{- with .Values.networkPolicy.ingress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  egress:
+    # Allow DNS resolution
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    {{- if ne .Values.database.type "sqlite" }}
+    # Allow the database port to any in-cluster pod (broad: not scoped to the DB
+    # pod). Add a networkPolicy.egress ipBlock rule for a database outside the
+    # cluster, or tighten this with podSelector via networkPolicy.egress.
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: {{ include "spoolman.dbPort" . | int }}
+    {{- end }}
+    {{- with .Values.networkPolicy.egress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- end }}

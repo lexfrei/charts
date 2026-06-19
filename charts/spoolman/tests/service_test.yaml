@@ -1,0 +1,39 @@
+suite: test service
+templates:
+  - service.yaml
+tests:
+  - it: should create a ClusterIP service on port 80 targeting http
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Service
+      - equal:
+          path: spec.type
+          value: ClusterIP
+      - equal:
+          path: spec.ports[0].port
+          value: 80
+      - equal:
+          path: spec.ports[0].targetPort
+          value: http
+      - equal:
+          path: spec.ports[0].name
+          value: http
+
+  - it: should honor service overrides
+    set:
+      service.type: LoadBalancer
+      service.port: 8000
+      service.annotations:
+        foo: bar
+    asserts:
+      - equal:
+          path: spec.type
+          value: LoadBalancer
+      - equal:
+          path: spec.ports[0].port
+          value: 8000
+      - equal:
+          path: metadata.annotations.foo
+          value: bar

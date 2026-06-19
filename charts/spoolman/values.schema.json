@@ -1,0 +1,618 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Spoolman Values",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "repository": {
+          "type": "string",
+          "description": "Image repository"
+        },
+        "pullPolicy": {
+          "type": "string",
+          "enum": ["Always", "IfNotPresent", "Never"],
+          "description": "Image pull policy"
+        },
+        "tag": {
+          "type": "string",
+          "description": "Overrides the image tag whose default is the chart appVersion"
+        }
+      },
+      "required": ["repository", "pullPolicy"]
+    },
+    "imagePullSecrets": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Image pull secrets"
+    },
+    "nameOverride": {
+      "type": "string",
+      "description": "Override the name of the chart"
+    },
+    "fullnameOverride": {
+      "type": "string",
+      "description": "Override the fullname of the chart"
+    },
+    "replicaCount": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of replicas (keep at 1 with SQLite or ReadWriteOnce storage)"
+    },
+    "timezone": {
+      "type": "string",
+      "description": "Timezone for the container (sets TZ)"
+    },
+    "puid": {
+      "type": "integer",
+      "description": "User ID the application runs as (sets PUID)"
+    },
+    "pgid": {
+      "type": "integer",
+      "description": "Group ID the application runs as (sets PGID)"
+    },
+    "spoolman": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "basePath": {
+          "type": "string",
+          "description": "Sub-path to host Spoolman under (sets SPOOLMAN_BASE_PATH)"
+        },
+        "corsOrigin": {
+          "type": "string",
+          "description": "Allowed CORS origin(s) (sets SPOOLMAN_CORS_ORIGIN)"
+        },
+        "loggingLevel": {
+          "type": "string",
+          "enum": ["", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+          "description": "Logging level (sets SPOOLMAN_LOGGING_LEVEL)"
+        },
+        "automaticBackup": {
+          "type": "boolean",
+          "description": "Enable nightly automatic SQLite backups (sets SPOOLMAN_AUTOMATIC_BACKUP)"
+        }
+      }
+    },
+    "database": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["sqlite", "postgres", "mysql", "cockroachdb"],
+          "description": "Database type"
+        },
+        "host": {
+          "type": "string",
+          "description": "Database host (external databases only)"
+        },
+        "port": {
+          "description": "Database port (external databases only)",
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535
+            },
+            {
+              "type": "string",
+              "pattern": "^([1-9][0-9]{0,4})?$"
+            }
+          ]
+        },
+        "name": {
+          "type": "string",
+          "description": "Database name (external databases only)"
+        },
+        "username": {
+          "type": "string",
+          "description": "Database username (external databases only)"
+        },
+        "query": {
+          "type": "string",
+          "description": "Extra connection query parameters (sets SPOOLMAN_DB_QUERY)"
+        },
+        "password": {
+          "type": "string",
+          "description": "Database password (external databases only)"
+        },
+        "existingSecret": {
+          "type": "string",
+          "description": "Use an existing Secret for the database password"
+        },
+        "existingSecretKey": {
+          "type": "string",
+          "description": "Key within existingSecret that holds the database password"
+        }
+      },
+      "required": ["type"]
+    },
+    "persistence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable persistence (required for the default SQLite database)"
+        },
+        "mountPath": {
+          "type": "string",
+          "description": "Path inside the container where data is stored"
+        },
+        "storageClassName": {
+          "type": "string",
+          "description": "Storage class name"
+        },
+        "accessMode": {
+          "type": "string",
+          "enum": ["ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany"],
+          "description": "Access mode"
+        },
+        "size": {
+          "type": "string",
+          "pattern": "^[0-9]+(Mi|Gi|Ti|M|G|T)$",
+          "description": "Size of the volume"
+        },
+        "existingClaim": {
+          "type": "string",
+          "description": "Use an existing PVC instead of creating one"
+        }
+      },
+      "required": ["enabled"]
+    },
+    "service": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ClusterIP", "NodePort", "LoadBalancer"],
+          "description": "Service type"
+        },
+        "port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535,
+          "description": "Service port"
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Service annotations (must be string key-value pairs)"
+        }
+      },
+      "required": ["type", "port"]
+    },
+    "ingress": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable ingress"
+        },
+        "className": {
+          "type": "string",
+          "description": "Ingress class name"
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Ingress annotations (must be string key-value pairs)"
+        },
+        "hosts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "host": {
+                "type": "string",
+                "description": "Hostname"
+              },
+              "paths": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "pathType": {
+                      "type": "string",
+                      "enum": ["Prefix", "Exact", "ImplementationSpecific"]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tls": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "secretName": {
+                "type": "string"
+              },
+              "hosts": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": ["enabled"]
+    },
+    "httpRoute": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable HTTPRoute (Gateway API)"
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "HTTPRoute annotations (must be string key-value pairs)"
+        },
+        "parentRefs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Gateway name"
+              },
+              "namespace": {
+                "type": "string",
+                "description": "Gateway namespace"
+              },
+              "sectionName": {
+                "type": "string",
+                "description": "Optional: specific listener on the Gateway"
+              }
+            }
+          },
+          "description": "Parent Gateway references"
+        },
+        "hostnames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Hostnames for the route"
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "matches": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "filters": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "weight": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 1000000
+              }
+            }
+          },
+          "description": "Routing rules"
+        }
+      },
+      "required": ["enabled"]
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable periodic collection of spool/filament Prometheus gauges (sets SPOOLMAN_METRICS_ENABLED); the /metrics endpoint is always served regardless"
+        },
+        "serviceMonitor": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Create a ServiceMonitor (requires the Prometheus Operator CRDs)"
+            },
+            "interval": {
+              "type": "string",
+              "description": "Scrape interval"
+            },
+            "scrapeTimeout": {
+              "type": "string",
+              "description": "Scrape timeout"
+            },
+            "path": {
+              "type": "string",
+              "description": "Metrics path"
+            },
+            "labels": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "Extra labels for the ServiceMonitor (must be string key-value pairs)"
+            }
+          },
+          "required": ["enabled"]
+        }
+      },
+      "required": ["enabled"]
+    },
+    "resources": {
+      "type": "object",
+      "properties": {
+        "requests": {
+          "type": "object",
+          "properties": {
+            "memory": {
+              "type": "string",
+              "description": "Memory request"
+            },
+            "cpu": {
+              "type": "string",
+              "description": "CPU request"
+            }
+          }
+        },
+        "limits": {
+          "type": "object",
+          "properties": {
+            "memory": {
+              "type": "string",
+              "description": "Memory limit"
+            },
+            "cpu": {
+              "type": "string",
+              "description": "CPU limit"
+            }
+          }
+        }
+      }
+    },
+    "podSecurityContext": {
+      "type": "object",
+      "description": "Security context for the pod"
+    },
+    "securityContext": {
+      "type": "object",
+      "description": "Security context for the container"
+    },
+    "startupProbe": {
+      "type": "object",
+      "description": "Startup probe configuration",
+      "properties": {
+        "initialDelaySeconds": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "periodSeconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "failureThreshold": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "livenessProbe": {
+      "type": "object",
+      "description": "Liveness probe configuration",
+      "properties": {
+        "initialDelaySeconds": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "periodSeconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "failureThreshold": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "readinessProbe": {
+      "type": "object",
+      "description": "Readiness probe configuration",
+      "properties": {
+        "initialDelaySeconds": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "periodSeconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "failureThreshold": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "serviceAccount": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "create": {
+          "type": "boolean",
+          "description": "Specifies whether a service account should be created"
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Annotations to add to the service account (must be string key-value pairs)"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the service account to use"
+        }
+      },
+      "required": ["create"]
+    },
+    "updateStrategy": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["RollingUpdate", "Recreate"],
+          "description": "Update strategy type"
+        }
+      }
+    },
+    "networkPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable NetworkPolicy"
+        },
+        "ingress": {
+          "type": "array",
+          "description": "Additional ingress rules"
+        },
+        "egress": {
+          "type": "array",
+          "description": "Additional egress rules"
+        }
+      },
+      "required": ["enabled"]
+    },
+    "nodeSelector": {
+      "type": "object",
+      "description": "Node selector"
+    },
+    "tolerations": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Tolerations"
+    },
+    "affinity": {
+      "type": "object",
+      "description": "Affinity rules"
+    },
+    "podAnnotations": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Pod annotations (must be string key-value pairs)"
+    },
+    "podLabels": {
+      "type": "object",
+      "description": "Pod labels"
+    },
+    "extraEnv": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Extra environment variables for the container"
+    },
+    "initContainers": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Init containers to run before the main container"
+    },
+    "extraContainers": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Extra containers to run alongside Spoolman (sidecars)"
+    },
+    "extraVolumes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Volume name"
+          }
+        },
+        "required": ["name"]
+      },
+      "description": "Extra volumes to add to the pod (raw Kubernetes volume specs)"
+    },
+    "extraVolumeMounts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Volume name to mount"
+          },
+          "mountPath": {
+            "type": "string",
+            "description": "Path to mount the volume"
+          },
+          "subPath": {
+            "type": "string",
+            "description": "SubPath within the volume"
+          },
+          "readOnly": {
+            "type": "boolean",
+            "description": "Mount as read-only"
+          }
+        },
+        "required": ["name", "mountPath"]
+      },
+      "description": "Extra volume mounts for the container"
+    }
+  },
+  "required": ["image", "service", "persistence", "database"]
+}

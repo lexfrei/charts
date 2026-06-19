@@ -1,0 +1,35 @@
+suite: test ingress
+templates:
+  - ingress.yaml
+tests:
+  - it: should not render an Ingress by default
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should render an Ingress when enabled
+    set:
+      ingress.enabled: true
+      ingress.className: nginx
+      ingress.hosts:
+        - host: spoolman.example.com
+          paths:
+            - path: /
+              pathType: Prefix
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Ingress
+      - equal:
+          path: spec.ingressClassName
+          value: nginx
+      - equal:
+          path: spec.rules[0].host
+          value: spoolman.example.com
+      - equal:
+          path: spec.rules[0].http.paths[0].backend.service.name
+          value: RELEASE-NAME-spoolman
+      - equal:
+          path: spec.rules[0].http.paths[0].backend.service.port.name
+          value: http

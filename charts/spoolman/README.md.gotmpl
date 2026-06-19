@@ -1,0 +1,127 @@
+{{ template "chart.header" . }}
+
+{{ template "chart.deprecationWarning" . }}
+
+{{ template "chart.badgesSection" . }}
+
+## 📊 Status & Metrics
+
+[![Lint and Test](https://github.com/lexfrei/charts/actions/workflows/test.yaml/badge.svg)](https://github.com/lexfrei/charts/actions/workflows/test.yaml)
+[![License](https://img.shields.io/badge/License-BSD--3--Clause-blue.svg)](https://github.com/lexfrei/charts/blob/master/LICENSE)
+[![Helm Version](https://img.shields.io/badge/Helm-v3-informational?logo=helm)](https://helm.sh/)
+[![Kubernetes Version](https://img.shields.io/badge/Kubernetes-1.19%2B-blue?logo=kubernetes)](https://kubernetes.io/)
+
+{{ template "chart.description" . }}
+
+{{ template "chart.homepageLine" . }}
+
+{{ template "chart.maintainersSection" . }}
+
+{{ template "chart.sourcesSection" . }}
+
+{{ template "chart.requirementsSection" . }}
+
+## Installing the Chart
+
+This chart is published to GitHub Container Registry (GHCR) as an OCI artifact.
+
+```bash
+# Install from GHCR
+helm install spoolman \
+  oci://ghcr.io/lexfrei/charts/spoolman \
+  --version {{ template "chart.version" . }}
+
+# Install with custom values
+helm install spoolman \
+  oci://ghcr.io/lexfrei/charts/spoolman \
+  --version {{ template "chart.version" . }} \
+  --values values.yaml
+```
+
+### Chart Verification
+
+This chart is signed with [cosign](https://github.com/sigstore/cosign) using keyless signing:
+
+```bash
+cosign verify \
+  ghcr.io/lexfrei/charts/spoolman:{{ template "chart.version" . }} \
+  --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
+  --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
+```
+
+## Uninstalling the Chart
+
+```bash
+helm delete spoolman
+```
+
+## Security Context Note
+
+The Spoolman image entrypoint starts as `root`, remaps `PUID`/`PGID` and then drops privileges to UID 1000 via `gosu`. Because of this, you must **not** set `securityContext.runAsNonRoot: true` or `securityContext.runAsUser` on the container — doing so prevents the entrypoint from starting. The chart instead sets `fsGroup: 1000` at the pod level so the persistent volume is writable by the application user.
+
+{{ template "chart.valuesSection" . }}
+
+## Example Configurations
+
+### Basic deployment with Ingress
+
+```yaml
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: spoolman.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: spoolman-tls
+      hosts:
+        - spoolman.example.com
+```
+
+### Using Gateway API (HTTPRoute)
+
+```yaml
+httpRoute:
+  enabled: true
+  hostnames:
+    - spoolman.example.com
+  parentRefs:
+    - name: my-gateway
+      namespace: gateway-system
+```
+
+### External PostgreSQL database
+
+```yaml
+database:
+  type: postgres
+  host: postgres.databases.svc.cluster.local
+  port: 5432
+  name: spoolman
+  username: spoolman
+  # Reference the DB password from an existing Secret (recommended):
+  existingSecret: spoolman-db
+  existingSecretKey: password
+  # ...or set it inline and the chart creates the Secret for you:
+  # password: "change-me"
+
+# SQLite persistence is not needed with an external database
+persistence:
+  enabled: false
+```
+
+### Prometheus metrics with a ServiceMonitor
+
+```yaml
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+    labels:
+      release: kube-prometheus-stack
+```
+
+{{ template "helm-docs.versionFooter" . }}

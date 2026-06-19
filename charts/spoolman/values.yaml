@@ -1,0 +1,250 @@
+# Default values for spoolman
+
+# -- Image configuration
+image:
+  repository: ghcr.io/donkie/spoolman
+  pullPolicy: IfNotPresent
+  # -- Overrides the image tag whose default is the chart appVersion
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# -- Number of replicas. Spoolman is a singleton; keep at 1 when using the
+# default SQLite database or any ReadWriteOnce volume.
+replicaCount: 1
+
+# -- Container timezone, set via the TZ environment variable. Honored by the
+# glibc base image for log timestamps; Spoolman itself does not read TZ.
+timezone: "UTC"
+
+# -- User ID the application runs as (sets PUID). The image entrypoint starts as
+# root and drops to this UID via gosu.
+puid: 1000
+# -- Group ID the application runs as (sets PGID). Also used as the pod fsGroup
+# (unless podSecurityContext.fsGroup is set) so the data volume is writable.
+pgid: 1000
+
+# -- Application-level settings, mapped to SPOOLMAN_* environment variables
+spoolman:
+  # -- Sub-path to host Spoolman under (sets SPOOLMAN_BASE_PATH), e.g. "/spoolman"
+  basePath: ""
+  # -- Allowed CORS origin(s), comma-separated or "*" (sets SPOOLMAN_CORS_ORIGIN)
+  corsOrigin: ""
+  # -- Logging level: DEBUG, INFO, WARNING, ERROR or CRITICAL (sets SPOOLMAN_LOGGING_LEVEL)
+  loggingLevel: ""
+  # -- Enable nightly automatic SQLite backups (sets SPOOLMAN_AUTOMATIC_BACKUP)
+  automaticBackup: true
+
+# -- Database configuration. By default Spoolman uses an embedded SQLite database
+# stored on the persistent volume. Set type to postgres, mysql or cockroachdb to
+# use an external database instead.
+database:
+  # -- Database type: sqlite, postgres, mysql or cockroachdb
+  type: sqlite
+  # -- Database host (external databases only)
+  host: ""
+  # -- Database port (external databases only)
+  port: ""
+  # -- Database name (external databases only)
+  name: ""
+  # -- Database username (external databases only)
+  username: ""
+  # -- Extra connection query parameters (sets SPOOLMAN_DB_QUERY)
+  query: ""
+  # -- Database password (external databases only). When set and existingSecret
+  # is empty, this chart creates a Secret to hold it. An inline password is
+  # stored in the Helm release history; prefer existingSecret for production.
+  password: ""
+  # -- Use an existing Secret for the database password instead of `password`
+  existingSecret: ""
+  # -- Key within existingSecret that holds the database password
+  existingSecretKey: "password"
+
+# -- Persistence for the SQLite database, backups and logs
+persistence:
+  # -- Enable persistence (required for the default SQLite database)
+  enabled: true
+  # -- Path inside the container where data is stored. Do not change unless you
+  # also override SPOOLMAN_DIR_DATA via extraEnv.
+  mountPath: /home/app/.local/share/spoolman
+  # -- Storage class name
+  storageClassName: ""
+  # -- Access mode
+  accessMode: ReadWriteOnce
+  # -- Size of the volume
+  size: 1Gi
+  # -- Use an existing PVC instead of creating one
+  existingClaim: ""
+
+# -- Service configuration
+service:
+  # -- Service type
+  type: ClusterIP
+  # -- Service port (mapped to the container's http port 8000)
+  port: 80
+  # -- Service annotations
+  annotations: {}
+
+# -- Ingress configuration
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: spoolman.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: spoolman-tls
+      hosts:
+        - spoolman.example.com
+
+# -- HTTPRoute configuration (Gateway API)
+httpRoute:
+  enabled: false
+  annotations: {}
+  # -- Parent Gateway references
+  parentRefs:
+    - name: gateway
+      namespace: gateway-system
+      # sectionName: https-listener  # Optional: specific listener on the Gateway
+  # -- Hostnames for the route
+  hostnames:
+    - spoolman.example.com
+  # -- Routing rules
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+
+# -- Prometheus metrics configuration
+metrics:
+  # -- Enable periodic collection of spool/filament Prometheus gauges (sets
+  # SPOOLMAN_METRICS_ENABLED). The /metrics endpoint is always served regardless
+  # of this flag; disabling it only omits the spool/filament gauges.
+  enabled: false
+  # -- ServiceMonitor for the Prometheus Operator
+  serviceMonitor:
+    # -- Create a ServiceMonitor. Requires metrics.enabled and the Prometheus
+    # Operator CRDs to be installed in the cluster.
+    enabled: false
+    # -- Scrape interval
+    interval: 30s
+    # -- Scrape timeout. Must be less than or equal to interval, otherwise the
+    # Prometheus Operator rejects the ServiceMonitor.
+    scrapeTimeout: 10s
+    # -- Metrics path. The chart prepends spoolman.basePath automatically.
+    path: /metrics
+    # -- Extra labels for the ServiceMonitor (e.g. to match a Prometheus selector)
+    labels: {}
+
+# -- Resource limits and requests
+resources:
+  requests:
+    memory: "128Mi"
+    cpu: "50m"
+  limits:
+    memory: "256Mi"
+    cpu: "500m"
+
+# -- Security context for the pod. fsGroup defaults to pgid so the persistent
+# volume is writable by the application group; set fsGroup here to override.
+podSecurityContext:
+  fsGroupChangePolicy: OnRootMismatch
+  seccompProfile:
+    type: RuntimeDefault
+
+# -- Security context for the container.
+# WARNING: the Spoolman image entrypoint starts as root and drops privileges to
+# UID 1000 via gosu. Do NOT set runAsNonRoot: true or runAsUser here or the
+# container will fail to start. Left empty by default on purpose.
+securityContext: {}
+
+# -- Startup probe. Generous failureThreshold to allow database migrations on
+# first start.
+startupProbe:
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 30
+
+# -- Liveness probe configuration
+livenessProbe:
+  initialDelaySeconds: 0
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+
+# -- Readiness probe configuration
+readinessProbe:
+  initialDelaySeconds: 0
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+# -- Service account configuration
+serviceAccount:
+  # -- Specifies whether a service account should be created
+  create: true
+  # -- Annotations to add to the service account
+  annotations: {}
+  # -- The name of the service account to use
+  name: ""
+
+# -- Update strategy. Recreate avoids two pods mounting the same ReadWriteOnce
+# volume during a rollout. With a ReadWriteMany volume and replicaCount > 1,
+# switch to RollingUpdate to avoid downtime on every rollout.
+updateStrategy:
+  type: Recreate
+
+# -- Network Policy configuration
+networkPolicy:
+  # -- Enable NetworkPolicy
+  enabled: false
+  # -- Additional ingress rules. The built-in rule allows the http port from all
+  # namespaces, so the default is permissive; tighten access by adding rules here.
+  ingress: []
+  # -- Additional egress rules. Egress to the external database port is added
+  # automatically when database.type is not sqlite.
+  egress: []
+
+# -- Node selector for pod scheduling
+nodeSelector: {}
+
+# -- Tolerations for pod scheduling
+tolerations: []
+
+# -- Affinity rules for pod scheduling
+affinity: {}
+
+# -- Pod annotations
+podAnnotations: {}
+
+# -- Pod labels
+podLabels: {}
+
+# -- Extra environment variables for the container
+# @default -- []
+extraEnv: []
+# - name: SPOOLMAN_DIR_BACKUPS
+#   value: /home/app/.local/share/spoolman/backups
+
+# -- Init containers to run before the main container
+# @default -- []
+initContainers: []
+
+# -- Extra containers to run alongside Spoolman (sidecars)
+# @default -- []
+extraContainers: []
+
+# -- Extra volumes to add to the pod (raw Kubernetes volume specs)
+# @default -- []
+extraVolumes: []
+
+# -- Extra volume mounts for the container
+# @default -- []
+extraVolumeMounts: []

@@ -9,6 +9,11 @@ body:
       description: Which chart is affected?
       options:
         - cloudflare-tunnel
+        - eclipse-edc
+        - extractedprism
+        - me-site
+        - obico
+        - spoolman
         - system-upgrade-controller
         - transmission
         - vipalived

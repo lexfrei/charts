@@ -1,0 +1,42 @@
+Thank you for installing {{ .Chart.Name }}!
+
+Spoolman filament inventory manager has been deployed.
+
+Release Name: {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+
+To check the status of your deployment:
+
+  kubectl --namespace {{ .Release.Namespace }} get pods -l "app.kubernetes.io/name={{ include "spoolman.name" . }},app.kubernetes.io/instance={{ .Release.Name }}"
+
+{{- if .Values.ingress.enabled }}
+
+Spoolman is accessible at:
+{{- range $host := .Values.ingress.hosts }}
+  {{- range .paths }}
+  - http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
+  {{- end }}
+{{- end }}
+{{- else }}
+
+To access Spoolman, forward the service port:
+
+  kubectl --namespace {{ .Release.Namespace }} port-forward svc/{{ include "spoolman.fullname" . }} 8000:{{ .Values.service.port }}
+
+Then open: http://localhost:8000{{ include "spoolman.basePath" . }}
+{{- end }}
+
+Database:
+{{- if eq .Values.database.type "sqlite" }}
+  SQLite (embedded){{ if .Values.persistence.enabled }}, persisted on a {{ .Values.persistence.size }} volume{{ else }} — WARNING: persistence is disabled, data will be lost on pod restart{{ end }}
+{{- else }}
+  {{ .Values.database.type }} at {{ .Values.database.host }}{{ if .Values.database.port }}:{{ .Values.database.port }}{{ end }}
+{{- end }}
+
+To view logs:
+
+  kubectl --namespace {{ .Release.Namespace }} logs -l "app.kubernetes.io/name={{ include "spoolman.name" . }}" --tail=100 --follow
+
+For more information:
+  - Chart: https://github.com/lexfrei/charts/tree/master/charts/spoolman
+  - Spoolman: https://github.com/Donkie/Spoolman

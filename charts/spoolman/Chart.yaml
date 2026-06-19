@@ -1,0 +1,38 @@
+annotations:
+  artifacthub.io/changes: |-
+    - kind: added
+      description: Initial release of the Spoolman Helm chart
+  artifacthub.io/license: BSD-3-Clause
+  artifacthub.io/links: |
+    - name: Chart Repository
+      url: https://github.com/lexfrei/charts/
+    - name: Spoolman
+      url: https://github.com/Donkie/Spoolman
+  artifacthub.io/signKey: |
+    fingerprint: keyless
+    url: https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master
+apiVersion: v2
+name: spoolman
+description: Spoolman filament spool inventory management for 3D printing, packaged for Kubernetes
+type: application
+version: "0.1.0"
+# renovate: datasource=docker depName=ghcr.io/donkie/spoolman
+appVersion: "0.23.1"
+icon: https://raw.githubusercontent.com/Donkie/Spoolman/master/client/public/pwa-512x512.png
+home: https://github.com/lexfrei/charts/
+keywords:
+  - spoolman
+  - 3d-printing
+  - filament
+  - spool
+  - inventory
+  - helm-chart
+  - kubernetes
+maintainers:
+  - name: lexfrei
+    email: f@lex.la
+    url: https://github.com/lexfrei
+sources:
+  - https://github.com/lexfrei/charts/
+  - https://github.com/Donkie/Spoolman
+kubeVersion: '>=1.19.0-0'
