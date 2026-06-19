@@ -103,7 +103,11 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@v5
         with:
-          version: latest
+          # Pinned: `latest` falls back to a baked-in Helm 3 default when the
+          # setup-helm release lookup flakes, and `helm plugin install --verify`
+          # below is a Helm 4-only flag, so that fallback fails the job.
+          # renovate: datasource=github-releases depName=helm/helm
+          version: v4.2.2
 
       - name: Install cosign
         uses: sigstore/cosign-installer@v4.1.2
