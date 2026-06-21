@@ -1,22 +1,12 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
-  ],
-  "automerge": true,
-  "platformAutomerge": true,
-  "automergeType": "pr",
-  "automergeStrategy": "squash",
-  "ignoreTests": false,
-  "ignoreDeps": [
-    "ghcr.io/lexfrei/edc-connector"
-  ],
+  "extends": ["github>lexfrei/renovate-config"],
+  "gitIgnoredAuthors": ["github-actions[bot]@users.noreply.github.com"],
+  "ignoreDeps": ["ghcr.io/lexfrei/edc-connector"],
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": [
-        "/(^|/)Chart\\.yaml$/"
-      ],
+      "managerFilePatterns": ["/(^|/)Chart\\.yaml$/"],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\\n.*?appVersion: \"(?<currentValue>.*?)\""
       ],
