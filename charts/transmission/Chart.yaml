@@ -1,8 +1,10 @@
 annotations:
   artifacthub.io/category: storage
   artifacthub.io/changes: |-
+    - kind: added
+      description: serviceAccount.automountServiceAccountToken value to control API token automounting
     - kind: changed
-      description: Update linuxserver/transmission docker tag to v4.1.3
+      description: Do not automount the ServiceAccount API token by default, as Transmission does not use the Kubernetes API
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -16,7 +18,7 @@ apiVersion: v2
 name: transmission
 description: Transmission BitTorrent client Helm chart for Kubernetes
 type: application
-version: "1.7.4"
+version: "1.8.0"
 # renovate: datasource=docker depName=linuxserver/transmission
 appVersion: "4.1.3"
 icon: https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/transmission-icon.png
