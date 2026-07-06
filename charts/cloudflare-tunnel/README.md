@@ -1,6 +1,6 @@
 # cloudflare-tunnel
 
-![Version: 0.15.11](https://img.shields.io/badge/Version-0.15.11-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2026.6.1](https://img.shields.io/badge/AppVersion-2026.6.1-informational?style=flat-square)
+![Version: 0.16.0](https://img.shields.io/badge/Version-0.16.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2026.6.1](https://img.shields.io/badge/AppVersion-2026.6.1-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -69,7 +69,7 @@ Before installing the chart, create a tunnel in Cloudflare:
 # Install with inline configuration
 helm install cloudflare-tunnel \
   oci://ghcr.io/lexfrei/charts/cloudflare-tunnel \
-  --version 0.15.11 \
+  --version 0.16.0 \
   --set cloudflare.account=YOUR_ACCOUNT_ID \
   --set cloudflare.tunnelName=YOUR_TUNNEL_NAME \
   --set cloudflare.tunnelId=YOUR_TUNNEL_ID \
@@ -80,7 +80,7 @@ helm install cloudflare-tunnel \
 # Install with values file
 helm install cloudflare-tunnel \
   oci://ghcr.io/lexfrei/charts/cloudflare-tunnel \
-  --version 0.15.11 \
+  --version 0.16.0 \
   --values values.yaml
 ```
 
@@ -90,7 +90,7 @@ This chart is signed with [cosign](https://github.com/sigstore/cosign) using key
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/cloudflare-tunnel:0.15.11 \
+  ghcr.io/lexfrei/charts/cloudflare-tunnel:0.16.0 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -523,6 +523,7 @@ Kubernetes: `>=1.21.0-0`
 | retries | string | `""` | Maximum retries for connection/protocol errors Number of retries cloudflared will attempt for network errors Leave empty to use cloudflared default (5) |
 | securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true}` | Security items for one container. We lock it down |
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account |
+| serviceAccount.automountServiceAccountToken | bool | `false` | Automount the API token for the service account. cloudflared only proxies traffic and does not talk to the Kubernetes API, so this defaults to false; set true only if your deployment needs API access. |
 | serviceAccount.name | string | `""` | The name of the service account to use If not set and create is true, a name is generated using the fullname template |
 | serviceMonitor.enabled | bool | `false` | Enable prometheus Service Monitor |
 | serviceMonitor.interval | string | `""` | Scrape interval for Prometheus |
