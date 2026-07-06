@@ -1,6 +1,6 @@
 # spoolman
 
-![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.23.1](https://img.shields.io/badge/AppVersion-0.23.1-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.23.1](https://img.shields.io/badge/AppVersion-0.23.1-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -36,12 +36,12 @@ This chart is published to GitHub Container Registry (GHCR) as an OCI artifact.
 # Install from GHCR
 helm install spoolman \
   oci://ghcr.io/lexfrei/charts/spoolman \
-  --version 0.1.0
+  --version 0.2.0
 
 # Install with custom values
 helm install spoolman \
   oci://ghcr.io/lexfrei/charts/spoolman \
-  --version 0.1.0 \
+  --version 0.2.0 \
   --values values.yaml
 ```
 
@@ -51,7 +51,7 @@ This chart is signed with [cosign](https://github.com/sigstore/cosign) using key
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/spoolman:0.1.0 \
+  ghcr.io/lexfrei/charts/spoolman:0.2.0 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -130,8 +130,9 @@ The Spoolman image entrypoint starts as `root`, remaps `PUID`/`PGID` and then dr
 | service.annotations | object | `{}` | Service annotations |
 | service.port | int | `80` | Service port (mapped to the container's http port 8000) |
 | service.type | string | `"ClusterIP"` | Service type |
-| serviceAccount | object | `{"annotations":{},"create":true,"name":""}` | Service account configuration |
+| serviceAccount | object | `{"annotations":{},"automountServiceAccountToken":false,"create":true,"name":""}` | Service account configuration |
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account |
+| serviceAccount.automountServiceAccountToken | bool | `false` | Automount the API token for the service account. Spoolman does not talk to the Kubernetes API, so this defaults to false; set true only if your deployment needs API access. |
 | serviceAccount.create | bool | `true` | Specifies whether a service account should be created |
 | serviceAccount.name | string | `""` | The name of the service account to use |
 | spoolman | object | `{"automaticBackup":true,"basePath":"","corsOrigin":"","loggingLevel":""}` | Application-level settings, mapped to SPOOLMAN_* environment variables |
