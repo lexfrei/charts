@@ -1,3 +1,5 @@
+# -- Automount the API token into the pod. me-site serves a static site and does not talk to the Kubernetes API, so this defaults to false; set true only if your deployment needs API access.
+automountServiceAccountToken: false
 replicaCount: 1
 image:
   repository: ghcr.io/lexfrei/me-site

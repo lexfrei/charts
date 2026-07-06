@@ -2,7 +2,7 @@ apiVersion: v2
 name: me-site
 description: A Helm chart for the Me-Site application
 type: application
-version: 0.5.1
+version: 0.6.0
 appVersion: 1.0.0
 maintainers:
   - name: lexfrei
@@ -11,7 +11,7 @@ maintainers:
 annotations:
   artifacthub.io/changes: |-
     - kind: added
-      description: "Add schema validation for annotations (must be string values)"
-    - kind: added
-      description: "Add unit test for default annotations"
+      description: "automountServiceAccountToken value to control API token automounting"
+    - kind: changed
+      description: "Do not automount the ServiceAccount API token by default, as me-site does not use the Kubernetes API"
 kubeVersion: '>=1.19.0-0'
