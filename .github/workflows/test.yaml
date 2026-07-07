@@ -257,3 +257,29 @@ jobs:
             fi
           done
           exit $rc
+
+  # Single aggregate check to require in branch protection instead of a
+  # hand-maintained per-chart list. It gates the whole lint-test matrix (every
+  # chart, and any newly added one) plus the issue-template check, so no chart
+  # can merge red and new charts are covered automatically.
+  all-charts-passed:
+    name: all-charts-passed
+    if: always()
+    needs: [lint-test, validate-issue-templates]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify all chart checks succeeded
+        run: |
+          # A matrix job resolves to 'success' only when every leg passed;
+          # 'skipped' means nothing needed running (e.g. no charts changed).
+          for job in "lint-test:${{ needs.lint-test.result }}" \
+                     "validate-issue-templates:${{ needs.validate-issue-templates.result }}"; do
+            name="${job%%:*}"
+            result="${job##*:}"
+            echo "${name}: ${result}"
+            if [ "${result}" != "success" ] && [ "${result}" != "skipped" ]; then
+              echo "::error::${name} did not pass"
+              exit 1
+            fi
+          done
+          echo "All required chart checks passed."
