@@ -20,8 +20,11 @@ spec:
   {{- end }}
   rules:
     {{- range .Values.httpRoute.rules }}
-    - matches:
-        {{- toYaml .matches | nindent 8 }}
+    -
+      {{- with .matches }}
+      matches:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .filters }}
       filters:
         {{- toYaml . | nindent 8 }}
@@ -29,8 +32,8 @@ spec:
       backendRefs:
         - name: {{ include "obico.fullname" $ }}-web
           port: {{ $.Values.service.web.port }}
-          {{- with .weight }}
-          weight: {{ . }}
+          {{- if not (kindIs "invalid" .weight) }}
+          weight: {{ .weight }}
           {{- end }}
     {{- end }}
 {{- end }}

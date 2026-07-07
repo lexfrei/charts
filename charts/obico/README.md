@@ -1,6 +1,6 @@
 # obico
 
-![Version: 0.2.1](https://img.shields.io/badge/Version-0.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2026.1.20](https://img.shields.io/badge/AppVersion-2026.1.20-informational?style=flat-square)
+![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2026.1.20](https://img.shields.io/badge/AppVersion-2026.1.20-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -29,7 +29,7 @@ The container images are built from obico-server source and published to GHCR ([
 
 ## Images and auto-update
 
-Obico upstream does not publish ready-to-run images, so they are built from source in a separate repository. Both `obico-web` and `obico-ml-api` are built from one obico commit and share a single calendar-version tag (the chart `appVersion`). Renovate watches the image tag and bumps the chart automatically.
+Obico upstream does not publish ready-to-run images, so they are built from source in a separate repository. Three images — `obico-web`, `obico-ml-api-cpu` and `obico-ml-api-gpu` — are built from one obico commit and share a single calendar-version tag (the chart `appVersion`). Renovate watches the image tag and bumps the chart automatically.
 
 ## Maintainers
 
@@ -55,12 +55,12 @@ This chart is published to GitHub Container Registry (GHCR) as an OCI artifact.
 # Install from GHCR
 helm install obico \
   oci://ghcr.io/lexfrei/charts/obico \
-  --version 0.2.1
+  --version 0.3.0
 
 # Install with custom values
 helm install obico \
   oci://ghcr.io/lexfrei/charts/obico \
-  --version 0.2.1 \
+  --version 0.3.0 \
   --values values.yaml
 ```
 
@@ -70,7 +70,7 @@ This chart is signed with [cosign](https://github.com/sigstore/cosign) using key
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/obico:0.2.1 \
+  ghcr.io/lexfrei/charts/obico:0.3.0 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -178,15 +178,24 @@ The web pod runs a single replica because the default SQLite database lives on a
 
 The bundled Redis (`redis.enabled: true`) is a minimal, **unauthenticated** single instance intended for in-cluster use only. Do not expose it outside the cluster. For a hardened or shared Redis, set `redis.enabled: false` and point `redis.externalUrl` at your own instance.
 
-## ML inference image (GPU / CPU)
+## ML inference image (CPU / GPU)
 
-The `ml-api` service currently uses a single image with GPU support baked in — it is built on the upstream CUDA base, so the CUDA / cuDNN runtime libraries ship inside it.
+The `ml-api` service ships as two images built from the same source:
 
-On a node without a GPU it transparently falls back to CPU inference: Obico tries the GPU model first, the CUDA load fails (the NVIDIA driver libraries are not present in the image), and it drops to the CPU path automatically. No configuration is required — it just works, only slower than on a GPU.
+* **CPU (default)** — `obico-ml-api-cpu`, a slim image that runs failure detection on the CPU via ONNX Runtime. No CUDA layers and no NVIDIA toolchain, an order of magnitude smaller than the GPU image (~1 GB vs ~7–8 GB on disk). This is what the chart deploys by default and it runs on any node.
+* **GPU** — `obico-ml-api-gpu`, the CUDA image for NVIDIA GPU inference. Much larger, since the CUDA / cuDNN runtime ships inside it.
 
-On a node with an NVIDIA GPU (device plugin and container runtime configured), schedule `ml-api` there via `nodeSelector` / `tolerations` and an `nvidia.com/gpu` resource limit, and it uses the GPU.
+Most self-hosted deployments run CPU inference and should keep the default. Enable the GPU image only if you have an NVIDIA GPU with the device plugin configured:
 
-The trade-off is size: the CUDA layers make the `ml-api` image large (~3 GB compressed), and on a CPU-only deployment that weight is never exercised. If image size matters for you, open an issue and a slimmer CPU-only image variant will be added. To skip AI failure detection entirely, set `mlApi.enabled: false`.
+```yaml
+mlApi:
+  gpu: true
+  # Adjust for non-NVIDIA / MIG / time-sliced GPUs.
+  gpuResources:
+    nvidia.com/gpu: 1
+```
+
+When `gpu` is true the chart uses the CUDA image and adds `gpuResources` to the container limits, so the scheduler places the pod on a GPU node. To skip AI failure detection entirely, set `mlApi.enabled: false` — but note that Obico still calls the ML API for any printer with detection enabled, so also turn detection off per printer or point `mlApi.externalHost` at an external instance, otherwise those picture uploads will error.
 
 ## Values
 
@@ -208,16 +217,22 @@ The trade-off is size: the CUDA layers make the `ml-api` image large (~3 GB comp
 | httpRoute.hostnames | list | `["obico.example.com"]` | Hostnames for the route |
 | httpRoute.parentRefs | list | `[{"name":"gateway","namespace":"gateway-system"}]` | Parent Gateway references |
 | httpRoute.rules | list | `[{"matches":[{"path":{"type":"PathPrefix","value":"/"}}]}]` | Routing rules |
-| image | object | `{"mlApi":{"pullPolicy":"IfNotPresent","repository":"ghcr.io/lexfrei/obico-ml-api","tag":""},"web":{"pullPolicy":"IfNotPresent","repository":"ghcr.io/lexfrei/obico-web","tag":""}}` | Container images. Built from obico-server source and published to GHCR. Both images share the chart appVersion tag (one obico commit -> one tag). |
-| image.mlApi | object | `{"pullPolicy":"IfNotPresent","repository":"ghcr.io/lexfrei/obico-ml-api","tag":""}` | ML inference API image (failure detection) |
-| image.mlApi.tag | string | `""` | Overrides the image tag whose default is the chart appVersion |
+| image | object | `{"mlApi":{"cpu":{"repository":"ghcr.io/lexfrei/obico-ml-api-cpu","tag":""},"gpu":{"repository":"ghcr.io/lexfrei/obico-ml-api-gpu","tag":""},"pullPolicy":"IfNotPresent"},"web":{"pullPolicy":"IfNotPresent","repository":"ghcr.io/lexfrei/obico-web","tag":""}}` | Container images. Built from obico-server source and published to GHCR; all share the chart appVersion tag (one obico commit -> one tag). |
+| image.mlApi | object | `{"cpu":{"repository":"ghcr.io/lexfrei/obico-ml-api-cpu","tag":""},"gpu":{"repository":"ghcr.io/lexfrei/obico-ml-api-gpu","tag":""},"pullPolicy":"IfNotPresent"}` | ML inference API images. Two variants are published from the same source: a slim CPU-only image (default) and a CUDA image for GPU inference. mlApi.gpu selects which one runs; configure each variant independently. |
+| image.mlApi.cpu | object | `{"repository":"ghcr.io/lexfrei/obico-ml-api-cpu","tag":""}` | CPU-only inference image (slim). Used when mlApi.gpu is false. |
+| image.mlApi.cpu.tag | string | `""` | Overrides the CPU image tag whose default is the chart appVersion |
+| image.mlApi.gpu | object | `{"repository":"ghcr.io/lexfrei/obico-ml-api-gpu","tag":""}` | CUDA inference image (large). Used when mlApi.gpu is true. |
+| image.mlApi.gpu.tag | string | `""` | Overrides the GPU image tag whose default is the chart appVersion |
 | image.web | object | `{"pullPolicy":"IfNotPresent","repository":"ghcr.io/lexfrei/obico-web","tag":""}` | Web application image (Django + Celery) |
 | image.web.tag | string | `""` | Overrides the image tag whose default is the chart appVersion |
 | imagePullSecrets | list | `[]` |  |
 | ingress | object | `{"annotations":{},"className":"","enabled":false,"hosts":[{"host":"obico.example.com","paths":[{"path":"/","pathType":"Prefix"}]}],"tls":[{"hosts":["obico.example.com"],"secretName":"obico-tls"}]}` | Ingress configuration |
-| mlApi | object | `{"command":["gunicorn","--bind=0.0.0.0:3333","--workers=1","--access-logfile=-","wsgi"],"enabled":true,"replicaCount":1,"resources":{"limits":{"cpu":"2","memory":"2Gi"},"requests":{"cpu":"500m","memory":"1Gi"}},"securityContext":{}}` | ML inference API (AI failure detection). Heavy image; can be disabled. |
+| mlApi | object | `{"command":["gunicorn","--bind=0.0.0.0:3333","--workers=1","--access-logfile=-","wsgi"],"enabled":true,"externalHost":"","gpu":false,"gpuResources":{"nvidia.com/gpu":1},"replicaCount":1,"resources":{"limits":{"cpu":"2","memory":"2Gi"},"requests":{"cpu":"500m","memory":"1Gi"}},"securityContext":{}}` | ML inference API (AI failure detection). Can be disabled. |
 | mlApi.command | list | `["gunicorn","--bind=0.0.0.0:3333","--workers=1","--access-logfile=-","wsgi"]` | Command for the gunicorn inference server |
 | mlApi.enabled | bool | `true` | Deploy the ML inference API |
+| mlApi.externalHost | string | `""` | External ML inference API URL (scheme://host:port), used when enabled is false. Obico still calls the ML API for prints that have AI detection on, so if you disable the bundled ml-api, either point this at an external instance or make sure AI detection is off on every printer — otherwise picture uploads that request detection will error. |
+| mlApi.gpu | bool | `false` | Run the CUDA (GPU) inference image instead of the slim CPU default. When true the ml-api container uses image.mlApi.gpu and requests the accelerator from gpuResources; requires an NVIDIA GPU and device plugin on the node. The CPU image works everywhere and is far smaller, so leave this false unless you actually have a GPU. |
+| mlApi.gpuResources | object | `{"nvidia.com/gpu":1}` | Accelerator resources merged into the ml-api container limits when gpu is true. Adjust for non-NVIDIA or MIG / time-sliced GPUs (e.g. nvidia.com/mig-1g.5gb: 1). |
 | mlApi.replicaCount | int | `1` | Number of ml-api replicas |
 | mlApi.resources | object | `{"limits":{"cpu":"2","memory":"2Gi"},"requests":{"cpu":"500m","memory":"1Gi"}}` | Resource requests/limits for the ml-api container |
 | mlApi.securityContext | object | `{}` | Security context for the ml-api container. Left empty (image default = root) because the upstream CUDA-based ml-api image is not validated to run unprivileged (model cache and runtime expect root). Harden here once confirmed it runs as non-root in your environment. |
@@ -267,8 +282,8 @@ The trade-off is size: the CUDA layers make the `ml-api` image large (~3 GB comp
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account |
 | serviceAccount.create | bool | `true` | Specifies whether a service account should be created |
 | serviceAccount.name | string | `""` | The name of the service account to use |
-| tasks | object | `{"command":["celery","-A","config","worker","--beat","-l","info","-c","2","-Q","realtime,celery"],"resources":{"limits":{"cpu":"500m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"256Mi"}}}` | Celery worker (runs in the same pod as the web server) |
-| tasks.command | list | `["celery","-A","config","worker","--beat","-l","info","-c","2","-Q","realtime,celery"]` | Command for the Celery worker with beat scheduler |
+| tasks | object | `{"command":["celery","-A","config","worker","--beat","--schedule","/data/celerybeat-schedule","-l","info","-c","2","-Q","realtime,celery"],"resources":{"limits":{"cpu":"500m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"256Mi"}}}` | Celery worker (runs in the same pod as the web server) |
+| tasks.command | list | `["celery","-A","config","worker","--beat","--schedule","/data/celerybeat-schedule","-l","info","-c","2","-Q","realtime,celery"]` | Command for the Celery worker with the embedded beat scheduler. The beat schedule DB is written under /data (a writable, persistent volume) because the container runs as non-root and the image's /app is not writable; the default (celerybeat-schedule in the working directory) would crash beat. |
 | tasks.resources | object | `{"limits":{"cpu":"500m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"256Mi"}}` | Resource requests/limits for the tasks container |
 | tolerations | list | `[]` |  |
 | web | object | `{"command":["daphne","-b","0.0.0.0","-p","3334","config.routing:application"],"resources":{"limits":{"cpu":"1","memory":"1Gi"},"requests":{"cpu":"250m","memory":"512Mi"}}}` | Web pod configuration (server + tasks containers, plus init containers) |

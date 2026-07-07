@@ -28,21 +28,41 @@
         "mlApi": {
           "type": "object",
           "properties": {
-            "repository": {
-              "type": "string",
-              "description": "ML API image repository"
-            },
             "pullPolicy": {
               "type": "string",
               "enum": ["Always", "IfNotPresent", "Never"],
               "description": "ML API image pull policy"
             },
-            "tag": {
-              "type": "string",
-              "description": "Overrides the ml-api image tag whose default is the chart appVersion"
+            "cpu": {
+              "type": "object",
+              "properties": {
+                "repository": {
+                  "type": "string",
+                  "description": "CPU-only ml-api image repository"
+                },
+                "tag": {
+                  "type": "string",
+                  "description": "Overrides the CPU ml-api image tag whose default is the chart appVersion"
+                }
+              },
+              "required": ["repository"]
+            },
+            "gpu": {
+              "type": "object",
+              "properties": {
+                "repository": {
+                  "type": "string",
+                  "description": "CUDA (GPU) ml-api image repository"
+                },
+                "tag": {
+                  "type": "string",
+                  "description": "Overrides the GPU ml-api image tag whose default is the chart appVersion"
+                }
+              },
+              "required": ["repository"]
             }
           },
-          "required": ["repository", "pullPolicy"]
+          "required": ["pullPolicy", "cpu", "gpu"]
         }
       },
       "required": ["web", "mlApi"]
@@ -181,6 +201,21 @@
         "enabled": {
           "type": "boolean",
           "description": "Deploy the ML inference API"
+        },
+        "externalHost": {
+          "type": "string",
+          "description": "External ML inference API URL, used when enabled is false"
+        },
+        "gpu": {
+          "type": "boolean",
+          "description": "Run the CUDA (GPU) ml-api image and request the accelerator; defaults to the slim CPU image"
+        },
+        "gpuResources": {
+          "type": "object",
+          "additionalProperties": {
+            "type": ["integer", "string"]
+          },
+          "description": "Accelerator resources merged into the ml-api container limits when gpu is true"
         },
         "replicaCount": {
           "type": "integer",

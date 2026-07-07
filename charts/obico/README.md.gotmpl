@@ -31,7 +31,7 @@ The container images are built from obico-server source and published to GHCR ([
 
 ## Images and auto-update
 
-Obico upstream does not publish ready-to-run images, so they are built from source in a separate repository. Both `obico-web` and `obico-ml-api` are built from one obico commit and share a single calendar-version tag (the chart `appVersion`). Renovate watches the image tag and bumps the chart automatically.
+Obico upstream does not publish ready-to-run images, so they are built from source in a separate repository. Three images — `obico-web`, `obico-ml-api-cpu` and `obico-ml-api-gpu` — are built from one obico commit and share a single calendar-version tag (the chart `appVersion`). Renovate watches the image tag and bumps the chart automatically.
 
 {{ template "chart.maintainersSection" . }}
 
@@ -170,15 +170,24 @@ The web pod runs a single replica because the default SQLite database lives on a
 
 The bundled Redis (`redis.enabled: true`) is a minimal, **unauthenticated** single instance intended for in-cluster use only. Do not expose it outside the cluster. For a hardened or shared Redis, set `redis.enabled: false` and point `redis.externalUrl` at your own instance.
 
-## ML inference image (GPU / CPU)
+## ML inference image (CPU / GPU)
 
-The `ml-api` service currently uses a single image with GPU support baked in — it is built on the upstream CUDA base, so the CUDA / cuDNN runtime libraries ship inside it.
+The `ml-api` service ships as two images built from the same source:
 
-On a node without a GPU it transparently falls back to CPU inference: Obico tries the GPU model first, the CUDA load fails (the NVIDIA driver libraries are not present in the image), and it drops to the CPU path automatically. No configuration is required — it just works, only slower than on a GPU.
+* **CPU (default)** — `obico-ml-api-cpu`, a slim image that runs failure detection on the CPU via ONNX Runtime. No CUDA layers and no NVIDIA toolchain, an order of magnitude smaller than the GPU image (~1 GB vs ~7–8 GB on disk). This is what the chart deploys by default and it runs on any node.
+* **GPU** — `obico-ml-api-gpu`, the CUDA image for NVIDIA GPU inference. Much larger, since the CUDA / cuDNN runtime ships inside it.
 
-On a node with an NVIDIA GPU (device plugin and container runtime configured), schedule `ml-api` there via `nodeSelector` / `tolerations` and an `nvidia.com/gpu` resource limit, and it uses the GPU.
+Most self-hosted deployments run CPU inference and should keep the default. Enable the GPU image only if you have an NVIDIA GPU with the device plugin configured:
 
-The trade-off is size: the CUDA layers make the `ml-api` image large (~3 GB compressed), and on a CPU-only deployment that weight is never exercised. If image size matters for you, open an issue and a slimmer CPU-only image variant will be added. To skip AI failure detection entirely, set `mlApi.enabled: false`.
+```yaml
+mlApi:
+  gpu: true
+  # Adjust for non-NVIDIA / MIG / time-sliced GPUs.
+  gpuResources:
+    nvidia.com/gpu: 1
+```
+
+When `gpu` is true the chart uses the CUDA image and adds `gpuResources` to the container limits, so the scheduler places the pod on a GPU node. To skip AI failure detection entirely, set `mlApi.enabled: false` — but note that Obico still calls the ML API for any printer with detection enabled, so also turn detection off per printer or point `mlApi.externalHost` at an external instance, otherwise those picture uploads will error.
 
 {{ template "chart.valuesSection" . }}
 

@@ -45,12 +45,18 @@ tests:
           path: spec.template.spec.initContainers[1].name
           value: migrate
 
-  - it: should run collectstatic as root
+  - it: should run collectstatic as root but drop capabilities and block privilege escalation
     template: deployment-web.yaml
     asserts:
       - equal:
           path: spec.template.spec.initContainers[0].securityContext.runAsUser
           value: 0
+      - equal:
+          path: spec.template.spec.initContainers[0].securityContext.allowPrivilegeEscalation
+          value: false
+      - contains:
+          path: spec.template.spec.initContainers[0].securityContext.capabilities.drop
+          content: ALL
 
   - it: should have server and tasks containers
     template: deployment-web.yaml
@@ -98,6 +104,31 @@ tests:
       - contains:
           path: spec.template.spec.containers[1].command
           content: celery
+
+  - it: should write the celery beat schedule to the writable /data volume
+    # The container runs as non-root and /app is read-only, so beat's default
+    # celerybeat-schedule (in the working directory) would crash the worker.
+    template: deployment-web.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[1].command
+          content: --schedule
+      - contains:
+          path: spec.template.spec.containers[1].command
+          content: /data/celerybeat-schedule
+
+  - it: should mount the static parent before the nested media child on the server
+    # static (/app/static_build, emptyDir) must precede media
+    # (/app/static_build/media, PVC) so the parent mount never shadows the media
+    # PVC — otherwise uploads land in the emptyDir and are lost on restart.
+    template: deployment-web.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[1].mountPath
+          value: /app/static_build
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts[2].mountPath
+          value: /app/static_build/media
 
   - it: should load env from the ConfigMap and Secret
     template: deployment-web.yaml

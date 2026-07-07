@@ -43,10 +43,15 @@ spec:
           image: "{{ .Values.image.web.repository }}:{{ .Values.image.web.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.web.pullPolicy }}
           # Generates static assets into the shared static volume. Runs as root
-          # because the image's /app tree is owned by root.
+          # because the image's /app tree is owned by root, but still drops
+          # capabilities and blocks privilege escalation for defense in depth.
           securityContext:
             runAsUser: 0
             runAsGroup: 0
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           command:
             - python
             - manage.py
@@ -110,16 +115,19 @@ spec:
             failureThreshold: 6
           # static (emptyDir) holds collectstatic output; media (PVC) is mounted
           # nested at static_build/media so user uploads land on the PVC while
-          # static assets stay in the emptyDir. collectstatic writes only static,
-          # so nothing it produces is shadowed by the media PVC. The tasks
-          # container does not serve static and so does not mount it.
+          # static assets stay in the emptyDir. The parent (static) is listed
+          # before the nested child (media) so the media PVC is never shadowed by
+          # the static emptyDir, regardless of how the runtime orders the mounts.
+          # collectstatic writes only static, so nothing it produces is shadowed
+          # by the media PVC. The tasks container does not serve static and so
+          # does not mount it.
           volumeMounts:
             - name: data
               mountPath: /data
-            - name: media
-              mountPath: /app/static_build/media
             - name: static
               mountPath: /app/static_build
+            - name: media
+              mountPath: /app/static_build/media
           resources:
             {{- toYaml .Values.web.resources | nindent 12 }}
         # Celery worker. Intentionally has no liveness probe: it shares this pod

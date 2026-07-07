@@ -3,8 +3,8 @@
 # worker, an ML inference API and Redis. The web and tasks containers share a
 # single pod so they can share the SQLite database on a ReadWriteOnce volume.
 
-# -- Container images. Built from obico-server source and published to GHCR.
-# Both images share the chart appVersion tag (one obico commit -> one tag).
+# -- Container images. Built from obico-server source and published to GHCR;
+# all share the chart appVersion tag (one obico commit -> one tag).
 image:
   # -- Web application image (Django + Celery)
   web:
@@ -12,12 +12,21 @@ image:
     pullPolicy: IfNotPresent
     # -- Overrides the image tag whose default is the chart appVersion
     tag: ""
-  # -- ML inference API image (failure detection)
+  # -- ML inference API images. Two variants are published from the same source:
+  # a slim CPU-only image (default) and a CUDA image for GPU inference.
+  # mlApi.gpu selects which one runs; configure each variant independently.
   mlApi:
-    repository: ghcr.io/lexfrei/obico-ml-api
     pullPolicy: IfNotPresent
-    # -- Overrides the image tag whose default is the chart appVersion
-    tag: ""
+    # -- CPU-only inference image (slim). Used when mlApi.gpu is false.
+    cpu:
+      repository: ghcr.io/lexfrei/obico-ml-api-cpu
+      # -- Overrides the CPU image tag whose default is the chart appVersion
+      tag: ""
+    # -- CUDA inference image (large). Used when mlApi.gpu is true.
+    gpu:
+      repository: ghcr.io/lexfrei/obico-ml-api-gpu
+      # -- Overrides the GPU image tag whose default is the chart appVersion
+      tag: ""
 
 imagePullSecrets: []
 nameOverride: ""
@@ -110,13 +119,18 @@ web:
 
 # -- Celery worker (runs in the same pod as the web server)
 tasks:
-  # -- Command for the Celery worker with beat scheduler
+  # -- Command for the Celery worker with the embedded beat scheduler. The beat
+  # schedule DB is written under /data (a writable, persistent volume) because
+  # the container runs as non-root and the image's /app is not writable; the
+  # default (celerybeat-schedule in the working directory) would crash beat.
   command:
     - celery
     - -A
     - config
     - worker
     - --beat
+    - --schedule
+    - /data/celerybeat-schedule
     - -l
     - info
     - -c
@@ -132,10 +146,26 @@ tasks:
       memory: "512Mi"
       cpu: "500m"
 
-# -- ML inference API (AI failure detection). Heavy image; can be disabled.
+# -- ML inference API (AI failure detection). Can be disabled.
 mlApi:
   # -- Deploy the ML inference API
   enabled: true
+  # -- External ML inference API URL (scheme://host:port), used when enabled is
+  # false. Obico still calls the ML API for prints that have AI detection on, so
+  # if you disable the bundled ml-api, either point this at an external instance
+  # or make sure AI detection is off on every printer — otherwise picture uploads
+  # that request detection will error.
+  externalHost: ""
+  # -- Run the CUDA (GPU) inference image instead of the slim CPU default. When
+  # true the ml-api container uses image.mlApi.gpu and requests the accelerator
+  # from gpuResources; requires an NVIDIA GPU and device plugin on the node. The
+  # CPU image works everywhere and is far smaller, so leave this false unless you
+  # actually have a GPU.
+  gpu: false
+  # -- Accelerator resources merged into the ml-api container limits when gpu is
+  # true. Adjust for non-NVIDIA or MIG / time-sliced GPUs (e.g. nvidia.com/mig-1g.5gb: 1).
+  gpuResources:
+    nvidia.com/gpu: 1
   # -- Number of ml-api replicas
   replicaCount: 1
   # -- Command for the gunicorn inference server
