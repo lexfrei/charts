@@ -14,6 +14,24 @@ resources:
     memory: 50Mi
 containerPort: 8080
 servicePort: 8080
+# -- Liveness probe. me-site serves a static site, so an HTTP GET on / catches a hung or crashed web server and restarts the pod. Set to null/{} to disable.
+livenessProbe:
+  httpGet:
+    path: /
+    port: web
+  initialDelaySeconds: 10
+  periodSeconds: 20
+  timeoutSeconds: 3
+  failureThreshold: 3
+# -- Readiness probe. Removes the pod from the Service endpoints while it cannot serve, so a rolling update never routes to a not-yet-ready pod. Set to null/{} to disable.
+readinessProbe:
+  httpGet:
+    path: /
+    port: web
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 3
+  failureThreshold: 3
 onionService:
   enabled: true
   backends: 1

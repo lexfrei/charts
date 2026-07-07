@@ -1,6 +1,6 @@
 # me-site
 
-![Version: 0.6.0](https://img.shields.io/badge/Version-0.6.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.0.0](https://img.shields.io/badge/AppVersion-1.0.0-informational?style=flat-square)
+![Version: 0.7.0](https://img.shields.io/badge/Version-0.7.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.0.0](https://img.shields.io/badge/AppVersion-1.0.0-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -29,12 +29,12 @@ This chart is published to GitHub Container Registry (GHCR) as an OCI artifact.
 # Install from GHCR
 helm install me-site \
   oci://ghcr.io/lexfrei/charts/me-site \
-  --version 0.6.0
+  --version 0.7.0
 
 # Install with custom values
 helm install me-site \
   oci://ghcr.io/lexfrei/charts/me-site \
-  --version 0.6.0 \
+  --version 0.7.0 \
   --values values.yaml
 ```
 
@@ -44,7 +44,7 @@ This chart is signed with [cosign](https://github.com/sigstore/cosign) using key
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/me-site:0.6.0 \
+  ghcr.io/lexfrei/charts/me-site:0.7.0 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -78,6 +78,7 @@ helm delete me-site
 | ingress.hosts[0].paths[0].path | string | `"/"` |  |
 | ingress.hosts[0].paths[0].pathType | string | `"ImplementationSpecific"` |  |
 | ingress.tls | list | `[]` |  |
+| livenessProbe | object | `{"failureThreshold":3,"httpGet":{"path":"/","port":"web"},"initialDelaySeconds":10,"periodSeconds":20,"timeoutSeconds":3}` | Liveness probe. me-site serves a static site, so an HTTP GET on / catches a hung or crashed web server and restarts the pod. Set to null/{} to disable. |
 | networkPolicy.egress | list | `[]` |  |
 | networkPolicy.enabled | bool | `false` |  |
 | networkPolicy.ingress | list | `[]` |  |
@@ -88,6 +89,7 @@ helm delete me-site
 | podSecurityContext.runAsNonRoot | bool | `true` |  |
 | podSecurityContext.runAsUser | int | `65534` |  |
 | podSecurityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
+| readinessProbe | object | `{"failureThreshold":3,"httpGet":{"path":"/","port":"web"},"initialDelaySeconds":5,"periodSeconds":10,"timeoutSeconds":3}` | Readiness probe. Removes the pod from the Service endpoints while it cannot serve, so a rolling update never routes to a not-yet-ready pod. Set to null/{} to disable. |
 | replicaCount | int | `1` |  |
 | resources.limits.cpu | string | `"100m"` |  |
 | resources.limits.memory | string | `"50Mi"` |  |
