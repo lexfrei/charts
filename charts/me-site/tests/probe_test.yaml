@@ -1,0 +1,28 @@
+suite: probe tests
+templates:
+  - deployment.yaml
+tests:
+  - it: should render liveness and readiness probes by default
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.path
+          value: /
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.port
+          value: web
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.path
+          value: /
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.port
+          value: web
+
+  - it: should omit probes when disabled
+    set:
+      livenessProbe: null
+      readinessProbe: null
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].livenessProbe
+      - notExists:
+          path: spec.template.spec.containers[0].readinessProbe

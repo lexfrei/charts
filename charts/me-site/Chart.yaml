@@ -2,7 +2,7 @@ apiVersion: v2
 name: me-site
 description: A Helm chart for the Me-Site application
 type: application
-version: 0.6.0
+version: 0.7.0
 appVersion: 1.0.0
 maintainers:
   - name: lexfrei
@@ -11,7 +11,5 @@ maintainers:
 annotations:
   artifacthub.io/changes: |-
     - kind: added
-      description: "automountServiceAccountToken value to control API token automounting"
-    - kind: changed
-      description: "Do not automount the ServiceAccount API token by default, as me-site does not use the Kubernetes API"
+      description: "livenessProbe and readinessProbe values, enabled by default with an HTTP GET on /"
 kubeVersion: '>=1.19.0-0'

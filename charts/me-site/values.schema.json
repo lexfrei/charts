@@ -77,6 +77,14 @@
     "servicePort": {
       "type": "integer"
     },
+    "livenessProbe": {
+      "type": ["object", "null"],
+      "description": "Liveness probe for the me-site container. Set to null/{} to disable."
+    },
+    "readinessProbe": {
+      "type": ["object", "null"],
+      "description": "Readiness probe for the me-site container. Set to null/{} to disable."
+    },
     "onionService": {
       "type": "object",
       "properties": {
