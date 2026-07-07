@@ -108,7 +108,7 @@ tests:
       - template: daemonset.yaml
         matchRegex:
           path: spec.template.spec.containers[0].image
-          pattern: ^alpine:.+$
+          pattern: ^ghcr\.io/lexfrei/keepalived:.+$
       - template: daemonset.yaml
         equal:
           path: spec.template.spec.containers[0].imagePullPolicy
@@ -117,12 +117,30 @@ tests:
   - it: should use custom image tag when provided
     set:
       image:
-        tag: "3.20"
+        tag: "1.2.3"
     asserts:
       - template: daemonset.yaml
         equal:
           path: spec.template.spec.containers[0].image
-          value: alpine:3.20
+          value: ghcr.io/lexfrei/keepalived:1.2.3
+
+  - it: should run keepalived directly from the baked image without apk install
+    asserts:
+      # Airgap regression guard: the container must exec keepalived straight from
+      # the prebuilt image, never shell out to `apk add` at startup.
+      - template: daemonset.yaml
+        equal:
+          path: spec.template.spec.containers[0].command
+          value:
+            - keepalived
+            - --dont-fork
+            - --log-console
+            - --log-detail
+            - --dump-conf
+      - template: daemonset.yaml
+        notContains:
+          path: spec.template.spec.containers[0].command
+          content: /bin/sh
 
   - it: should mount config volume
     asserts:
@@ -296,7 +314,7 @@ tests:
       - template: daemonset.yaml
         equal:
           path: spec.template.spec.containers[0].livenessProbe.initialDelaySeconds
-          value: 15
+          value: 5
       - template: daemonset.yaml
         equal:
           path: spec.template.spec.containers[0].livenessProbe.periodSeconds

@@ -52,6 +52,21 @@ tests:
       - matchRegex:
           path: spec.containers[0].command[2]
           pattern: "192.168.1.100/24"
+      # Airgap regression guard: the static pod writes its config and runs
+      # keepalived from the baked image — it must never `apk add` at startup,
+      # and must ensure the config directory exists before the heredoc write.
+      - notMatchRegex:
+          path: spec.containers[0].command[2]
+          pattern: "apk add"
+      - matchRegex:
+          path: spec.containers[0].command[2]
+          pattern: "mkdir -p /etc/keepalived"
+      # exec so keepalived replaces the shell as PID 1 and receives SIGTERM
+      # directly for a clean VIP teardown, regardless of the shell's exec
+      # optimization or the image's shell.
+      - matchRegex:
+          path: spec.containers[0].command[2]
+          pattern: "exec keepalived --dont-fork"
 
   - it: should use hostNetwork
     set:
@@ -86,12 +101,11 @@ tests:
     set:
       static: true
       image:
-        repository: alpine
         tag: "test-tag"
     asserts:
       - equal:
           path: spec.containers[0].image
-          value: alpine:test-tag
+          value: ghcr.io/lexfrei/keepalived:test-tag
 
   - it: should not have ConfigMap volumes
     set:
@@ -267,7 +281,7 @@ tests:
           value: keepalived
       - equal:
           path: spec.containers[0].livenessProbe.initialDelaySeconds
-          value: 15
+          value: 5
       - equal:
           path: spec.containers[0].livenessProbe.periodSeconds
           value: 10

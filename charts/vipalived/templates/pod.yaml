@@ -52,15 +52,19 @@ spec:
     - name: keepalived
       image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
       imagePullPolicy: {{ .Values.image.pullPolicy }}
+      # keepalived is baked into the image. A static pod has no ConfigMap (the
+      # API server isn't up on Day 1), so write the config inline via heredoc,
+      # then exec keepalived. mkdir guards against images that don't ship the
+      # /etc/keepalived directory the heredoc writes into.
       command:
         - /bin/sh
         - -c
         - |
-          apk add --no-cache keepalived
+          mkdir -p /etc/keepalived
           cat > /etc/keepalived/keepalived.conf <<'EOF'
           {{- include "vipalived.keepalivedConfig" . | nindent 10 }}
           EOF
-          keepalived --dont-fork --log-console --log-detail --dump-conf
+          exec keepalived --dont-fork --log-console --log-detail --dump-conf
       {{- with .Values.securityContext }}
       securityContext:
         {{- toYaml . | nindent 8 }}

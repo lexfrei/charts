@@ -32,7 +32,7 @@ helm template vipalived oci://ghcr.io/lexfrei/charts/vipalived \
 
 ## Introduction
 
-This chart deploys keepalived as a DaemonSet on Kubernetes control plane nodes to provide Virtual IP (VIP) functionality for high availability. It uses VRRP (Virtual Router Redundancy Protocol) to manage IP failover between control plane nodes.
+This chart deploys keepalived as a DaemonSet on Kubernetes control plane nodes to provide Virtual IP (VIP) functionality for high availability. It uses VRRP (Virtual Router Redundancy Protocol) to manage IP failover between control plane nodes. keepalived ships in a prebuilt image (`ghcr.io/lexfrei/keepalived`) with nothing installed at container startup, so the chart runs in airgapped environments.
 
 **Target Audience**: This chart is for users who prefer Kubernetes-native solutions with minimal system intrusion, but need a VIP for the kube-apiserver available before CNI initialization. Unlike kube-vip, Cilium, or other solutions that require CNI or complex integrations, this provides a simple, focused solution specifically for control plane VIP management during cluster bootstrap (Day 1) and beyond (Day 2).
 
@@ -227,6 +227,7 @@ tolerations:
 
 ## Important Notes
 
+- **Container image**: keepalived is baked into a prebuilt, multi-arch image (`ghcr.io/lexfrei/keepalived`, built from [lexfrei/images](https://github.com/lexfrei/images/)). Nothing is installed at container startup, so the chart works in airgapped clusters — mirror the image into your registry and point `image.repository` at it.
 - **Host Network**: This chart requires `hostNetwork: true` to function correctly. The VIP must be accessible on the host network.
 - **Security**: The container requires `NET_ADMIN`, `NET_RAW`, and `NET_BROADCAST` capabilities to manage network interfaces and VRRP.
 - **Priority Class**: Uses `system-node-critical` to ensure the DaemonSet is scheduled even under resource pressure.
