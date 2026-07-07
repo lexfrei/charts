@@ -16,10 +16,15 @@ tests:
           value: RELEASE-NAME-spoolman
 
   - it: should use the appVersion as the default image tag
+    # Pin the appVersion locally so a Renovate bump of the real Chart.yaml
+    # appVersion cannot break this test. It verifies the templating (image tag
+    # defaults to the appVersion), not the current version string.
+    chart:
+      appVersion: "9.9.9"
     asserts:
       - equal:
           path: spec.template.spec.containers[0].image
-          value: "ghcr.io/donkie/spoolman:0.24.0"
+          value: "ghcr.io/donkie/spoolman:9.9.9"
 
   - it: should allow overriding the image tag
     set:

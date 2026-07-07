@@ -1,6 +1,6 @@
 # spoolman
 
-![Version: 0.2.1](https://img.shields.io/badge/Version-0.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.24.0](https://img.shields.io/badge/AppVersion-0.24.0-informational?style=flat-square)
+![Version: 0.2.3](https://img.shields.io/badge/Version-0.2.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.24.0](https://img.shields.io/badge/AppVersion-0.24.0-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -36,12 +36,12 @@ This chart is published to GitHub Container Registry (GHCR) as an OCI artifact.
 # Install from GHCR
 helm install spoolman \
   oci://ghcr.io/lexfrei/charts/spoolman \
-  --version 0.2.1
+  --version 0.2.3
 
 # Install with custom values
 helm install spoolman \
   oci://ghcr.io/lexfrei/charts/spoolman \
-  --version 0.2.1 \
+  --version 0.2.3 \
   --values values.yaml
 ```
 
@@ -51,7 +51,7 @@ This chart is signed with [cosign](https://github.com/sigstore/cosign) using key
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/spoolman:0.2.1 \
+  ghcr.io/lexfrei/charts/spoolman:0.2.3 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
