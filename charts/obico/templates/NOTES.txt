@@ -44,7 +44,14 @@ Then open: http://localhost:{{ .Values.service.web.port }}
 {{- end }}
 
 First-run setup:
-  1. Create an admin account by signing up in the web UI (first user is staff).
+  1. Create an admin account (self-service signup is disabled by default):
+
+       kubectl --namespace {{ .Release.Namespace }} exec -it \
+         deploy/{{ include "obico.fullname" . }}-web -c server -- \
+         python manage.py createsuperuser
+
+     To allow open registration instead, set
+     obico.extraEnv.ACCOUNT_ALLOW_SIGN_UP="True".
   2. Configure the public URL under Settings if serving behind a proxy.
 {{- if not .Values.obico.siteUsesHttps }}
   3. When serving over HTTPS, set obico.siteUsesHttps=true and upgrade.

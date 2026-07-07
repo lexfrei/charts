@@ -3,8 +3,22 @@ annotations:
   # Valid kinds for changes: added, changed, deprecated, removed, fixed, security
   # See: https://artifacthub.io/docs/topics/annotations/helm/
   artifacthub.io/changes: |-
+    - kind: added
+      description: mlApi.gpu switch to run the CUDA GPU inference image instead of the default slim CPU image
+    - kind: added
+      description: mlApi.externalHost to keep ML_API_HOST set when the bundled ml-api is disabled
     - kind: changed
-      description: Document that a connection pooler must run in transaction pooling mode (Obico's CONN_MAX_AGE pins idle connections, exhausting a session-mode pool)
+      description: "Split the ml-api image into CPU and GPU variants (image.mlApi.cpu / image.mlApi.gpu); the slim CPU image is now the default (BREAKING: image.mlApi.repository/tag and the obico-ml-api image are replaced by obico-ml-api-cpu / obico-ml-api-gpu)"
+    - kind: fixed
+      description: Write the Celery beat schedule to the writable /data volume so the non-root worker no longer crashes on startup
+    - kind: fixed
+      description: Mount the static emptyDir before the nested media PVC so uploads are not shadowed and lost on restart
+    - kind: fixed
+      description: Reserve room in the fullname helper so component suffixes keep resource names within the 63-char limit for long release names
+    - kind: fixed
+      description: Preserve an explicit HTTPRoute backendRef weight of 0 and omit matches for catch-all rules
+    - kind: security
+      description: Drop capabilities and block privilege escalation on the collectstatic init container
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -20,7 +34,7 @@ apiVersion: v2
 name: obico
 description: Self-hosted Obico server for AI-powered 3D printer monitoring (OctoPrint/Klipper)
 type: application
-version: "0.2.1"
+version: "0.3.0"
 # renovate: datasource=docker depName=ghcr.io/lexfrei/obico-web
 # CalVer derived from the obico-server release commit date (see lexfrei/images).
 appVersion: "2026.1.20"

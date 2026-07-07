@@ -19,11 +19,44 @@ tests:
       - hasDocuments:
           count: 0
 
-  - it: should use the ml-api image
+  - it: should use the slim CPU ml-api image by default
     asserts:
       - matchRegex:
           path: spec.template.spec.containers[0].image
-          pattern: '^ghcr\.io/lexfrei/obico-ml-api:'
+          pattern: '^ghcr\.io/lexfrei/obico-ml-api-cpu:'
+      - notExists:
+          path: spec.template.spec.containers[0].resources.limits["nvidia.com/gpu"]
+
+  - it: should use the CUDA image and request a GPU when gpu is enabled
+    set:
+      mlApi.gpu: true
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: '^ghcr\.io/lexfrei/obico-ml-api-gpu:'
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits["nvidia.com/gpu"]
+          value: 1
+
+  - it: should honor a custom gpu resource name
+    set:
+      mlApi.gpu: true
+      mlApi.gpuResources:
+        nvidia.com/mig-1g.5gb: 2
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits["nvidia.com/mig-1g.5gb"]
+          value: 2
+
+  - it: should keep the name within 63 chars for a long release name
+    # ml-api carries the longest component suffix (-ml-api); the fullname helper
+    # reserves room so the DNS label stays valid even at a max-length release name.
+    release:
+      name: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    asserts:
+      - matchRegex:
+          path: metadata.name
+          pattern: '^.{1,63}$'
 
   - it: should expose port 3333
     asserts:

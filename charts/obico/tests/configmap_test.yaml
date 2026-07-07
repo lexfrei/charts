@@ -170,12 +170,21 @@ tests:
           path: data.CSRF_TRUSTED_ORIGINS
           value: '["https://custom.example.com"]'
 
-  - it: should omit ML_API_HOST when ml-api is disabled
+  - it: should omit ML_API_HOST when ml-api is disabled and no external host is set
     set:
       mlApi.enabled: false
     asserts:
       - notExists:
           path: data.ML_API_HOST
+
+  - it: should point ML_API_HOST at externalHost when ml-api is disabled
+    set:
+      mlApi.enabled: false
+      mlApi.externalHost: http://ml-api.example:3333
+    asserts:
+      - equal:
+          path: data.ML_API_HOST
+          value: http://ml-api.example:3333
 
   - it: should reject CSRF_TRUSTED_ORIGINS in extraEnv
     set:

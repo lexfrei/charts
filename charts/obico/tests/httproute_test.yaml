@@ -136,6 +136,38 @@ tests:
           path: spec.rules[0].backendRefs[0].weight
           value: 100
 
+  - it: should preserve a zero backendRef weight (drain)
+    set:
+      httpRoute.enabled: true
+      httpRoute.rules:
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /
+          weight: 0
+    asserts:
+      - equal:
+          path: spec.rules[0].backendRefs[0].weight
+          value: 0
+
+  - it: should omit matches for a catch-all rule
+    # Gateway API treats an absent matches field as "match all"; rendering
+    # matches: null would fail the HTTPRoute CRD schema (matches must be a list).
+    set:
+      httpRoute.enabled: true
+      httpRoute.rules:
+        - filters:
+            - type: RequestHeaderModifier
+              requestHeaderModifier:
+                add:
+                  - name: X-Test
+                    value: "1"
+    asserts:
+      - notExists:
+          path: spec.rules[0].matches
+      - exists:
+          path: spec.rules[0].backendRefs
+
   - it: should support multiple rules
     set:
       httpRoute.enabled: true
