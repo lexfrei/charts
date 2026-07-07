@@ -186,9 +186,9 @@ questions:
 # Image Configuration
 - variable: image.repository
   label: Image Repository
-  description: Docker image repository
+  description: Prebuilt keepalived image repository (keepalived baked in, airgap-ready)
   type: string
-  default: alpine
+  default: ghcr.io/lexfrei/keepalived
   required: true
   group: "Image Configuration"
 - variable: image.tag

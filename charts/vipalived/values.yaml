@@ -21,8 +21,9 @@ static: false
 automountServiceAccountToken: false
 
 image:
-  # -- Container image repository
-  repository: alpine
+  # -- Container image repository. Prebuilt keepalived image (keepalived baked in,
+  # no install at startup) so the chart works in airgapped clusters.
+  repository: ghcr.io/lexfrei/keepalived
   # -- Image pull policy
   pullPolicy: IfNotPresent
   # -- Container image tag (defaults to chart appVersion if not set)
@@ -165,8 +166,9 @@ livenessProbe:
     command:
       - pgrep
       - keepalived
-  # -- Initial delay before liveness probe starts
-  initialDelaySeconds: 15
+  # -- Initial delay before liveness probe starts.
+  # keepalived is baked into the image and starts immediately (no apk install).
+  initialDelaySeconds: 5
   # -- Period between liveness probe checks
   periodSeconds: 10
   # -- Timeout for liveness probe

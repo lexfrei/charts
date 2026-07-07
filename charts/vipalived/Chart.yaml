@@ -1,14 +1,18 @@
 annotations:
   artifacthub.io/category: networking
   artifacthub.io/changes: |-
-    - kind: added
-      description: automountServiceAccountToken value to control API token automounting
     - kind: changed
-      description: Do not automount the ServiceAccount API token by default, as vipalived does not use the Kubernetes API
+      description: Use a prebuilt keepalived image (ghcr.io/lexfrei/keepalived) instead of installing keepalived with apk at container startup, so the chart works in airgapped clusters
+    - kind: changed
+      description: appVersion now tracks the keepalived version instead of the Alpine base version
+    - kind: fixed
+      description: Static pod mode could not write its config because /etc/keepalived did not exist; the image now creates it and the pod ensures it before writing
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
       url: https://github.com/lexfrei/charts/
+    - name: Container Images
+      url: https://github.com/lexfrei/images/
     - name: Keepalived
       url: https://www.keepalived.org/
   artifacthub.io/signKey: |
@@ -18,9 +22,9 @@ apiVersion: v2
 name: vipalived
 description: Keepalived-based VIP management for Kubernetes control plane high availability
 type: application
-version: 0.8.0
-# renovate: datasource=docker depName=alpine
-appVersion: "3.24"
+version: 0.9.0
+# renovate: datasource=docker depName=ghcr.io/lexfrei/keepalived
+appVersion: "2.3.4"
 keywords:
   - keepalived
   - vrrp

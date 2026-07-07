@@ -58,12 +58,14 @@ spec:
         - name: keepalived
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          # keepalived is baked into the image; exec it directly (config is
+          # mounted from the ConfigMap at /etc/keepalived) so it runs as PID 1.
           command:
-            - /bin/sh
-            - -c
-            - |
-              apk add --no-cache keepalived
-              keepalived --dont-fork --log-console --log-detail --dump-conf
+            - keepalived
+            - --dont-fork
+            - --log-console
+            - --log-detail
+            - --dump-conf
           {{- with .Values.securityContext }}
           securityContext:
             {{- toYaml . | nindent 12 }}

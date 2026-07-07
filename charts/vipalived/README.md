@@ -1,6 +1,6 @@
 # vipalived
 
-![Version: 0.8.0](https://img.shields.io/badge/Version-0.8.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 3.24](https://img.shields.io/badge/AppVersion-3.24-informational?style=flat-square)
+![Version: 0.9.0](https://img.shields.io/badge/Version-0.9.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.3.4](https://img.shields.io/badge/AppVersion-2.3.4-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -16,23 +16,23 @@ Keepalived-based VIP management for Kubernetes control plane high availability
 
 ```bash
 # Day 2: Install with default VIP (172.16.101.101/32) on existing cluster
-helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived --version 0.8.0
+helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived --version 0.9.0
 
 # Day 2: Install with custom VIP address
 helm install my-vipalived oci://ghcr.io/lexfrei/charts/vipalived \
-  --version 0.8.0 \
+  --version 0.9.0 \
   --set keepalived.vrrpInstance.virtualIpAddress=192.168.1.100/24
 
 # Day 1: Generate static pod manifest for cluster bootstrap
 helm template vipalived oci://ghcr.io/lexfrei/charts/vipalived \
-  --version 0.8.0 \
+  --version 0.9.0 \
   --set static=true \
   --set keepalived.vrrpInstance.virtualIpAddress=192.168.1.100/24 > /etc/kubernetes/manifests/vipalived.yaml
 ```
 
 ## Introduction
 
-This chart deploys keepalived as a DaemonSet on Kubernetes control plane nodes to provide Virtual IP (VIP) functionality for high availability. It uses VRRP (Virtual Router Redundancy Protocol) to manage IP failover between control plane nodes.
+This chart deploys keepalived as a DaemonSet on Kubernetes control plane nodes to provide Virtual IP (VIP) functionality for high availability. It uses VRRP (Virtual Router Redundancy Protocol) to manage IP failover between control plane nodes. keepalived ships in a prebuilt image (`ghcr.io/lexfrei/keepalived`) with nothing installed at container startup, so the chart runs in airgapped environments.
 
 **Target Audience**: This chart is for users who prefer Kubernetes-native solutions with minimal system intrusion, but need a VIP for the kube-apiserver available before CNI initialization. Unlike kube-vip, Cilium, or other solutions that require CNI or complex integrations, this provides a simple, focused solution specifically for control plane VIP management during cluster bootstrap (Day 1) and beyond (Day 2).
 
@@ -75,7 +75,7 @@ For **Day 1 cluster bootstrapping**, when you need the VIP available BEFORE the 
 
    ```bash
    helm template vipalived oci://ghcr.io/lexfrei/charts/vipalived \
-     --version 0.8.0 \
+     --version 0.9.0 \
      --set static=true \
      --set keepalived.vrrpInstance.virtualIpAddress=YOUR_VIP_ADDRESS/CIDR \
      --namespace kube-system > vipalived-static-pod.yaml
@@ -152,7 +152,7 @@ All charts published to GHCR are signed using cosign. To verify the chart signat
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/vipalived:0.8.0 \
+  ghcr.io/lexfrei/charts/vipalived:0.9.0 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -166,7 +166,7 @@ cosign verify \
 | fullnameOverride | string | `""` | Override the full name of the chart |
 | hostNetwork | bool | `true` | Enable host network mode (required for VIP functionality) |
 | image.pullPolicy | string | `"IfNotPresent"` | Image pull policy |
-| image.repository | string | `"alpine"` | Container image repository |
+| image.repository | string | `"ghcr.io/lexfrei/keepalived"` | Container image repository. Prebuilt keepalived image (keepalived baked in, no install at startup) so the chart works in airgapped clusters. |
 | image.tag | string | `""` | Container image tag (defaults to chart appVersion if not set) |
 | imagePullSecrets | list | `[]` | Image pull secrets for private registries |
 | keepalived.garp.masterDelay | int | `5` | Delay for gratuitous ARP after master transition |
@@ -186,12 +186,12 @@ cosign verify \
 | keepalived.vrrpInstance.virtualIpAddress | string | `"172.16.101.101/32"` | Virtual IP address with CIDR notation |
 | keepalived.vrrpInstance.virtualRouterId | int | `51` | Virtual router ID (must be unique in the network) |
 | keepalived.vrrpVersion | int | `3` | VRRP protocol version (2 or 3) |
-| livenessProbe | object | `{"enabled":true,"exec":{"command":["pgrep","keepalived"]},"failureThreshold":3,"initialDelaySeconds":15,"periodSeconds":10,"timeoutSeconds":5}` | Liveness probe configuration |
+| livenessProbe | object | `{"enabled":true,"exec":{"command":["pgrep","keepalived"]},"failureThreshold":3,"initialDelaySeconds":5,"periodSeconds":10,"timeoutSeconds":5}` | Liveness probe configuration |
 | livenessProbe.enabled | bool | `true` | Enable liveness probe |
 | livenessProbe.exec | object | `{"command":["pgrep","keepalived"]}` | Exec probe configuration |
 | livenessProbe.exec.command | list | `["pgrep","keepalived"]` | Command to execute for the probe |
 | livenessProbe.failureThreshold | int | `3` | Failure threshold for liveness probe |
-| livenessProbe.initialDelaySeconds | int | `15` | Initial delay before liveness probe starts |
+| livenessProbe.initialDelaySeconds | int | `5` | Initial delay before liveness probe starts. keepalived is baked into the image and starts immediately (no apk install). |
 | livenessProbe.periodSeconds | int | `10` | Period between liveness probe checks |
 | livenessProbe.timeoutSeconds | int | `5` | Timeout for liveness probe |
 | nameOverride | string | `""` | Override the name of the chart |
@@ -294,6 +294,7 @@ tolerations:
 
 ## Important Notes
 
+- **Container image**: keepalived is baked into a prebuilt, multi-arch image (`ghcr.io/lexfrei/keepalived`, built from [lexfrei/images](https://github.com/lexfrei/images/)). Nothing is installed at container startup, so the chart works in airgapped clusters — mirror the image into your registry and point `image.repository` at it.
 - **Host Network**: This chart requires `hostNetwork: true` to function correctly. The VIP must be accessible on the host network.
 - **Security**: The container requires `NET_ADMIN`, `NET_RAW`, and `NET_BROADCAST` capabilities to manage network interfaces and VRRP.
 - **Priority Class**: Uses `system-node-critical` to ensure the DaemonSet is scheduled even under resource pressure.
