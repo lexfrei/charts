@@ -75,6 +75,8 @@ nameOverride: ""
 fullnameOverride: ""
 
 serviceAccount:
+  # -- Automount the API token for the service account. cloudflared only proxies traffic and does not talk to the Kubernetes API, so this defaults to false; set true only if your deployment needs API access.
+  automountServiceAccountToken: false
   # -- Annotations to add to the service account
   annotations: {}
   # -- The name of the service account to use

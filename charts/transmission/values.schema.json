@@ -488,6 +488,10 @@
           "type": "boolean",
           "description": "Specifies whether a service account should be created"
         },
+        "automountServiceAccountToken": {
+          "type": "boolean",
+          "description": "Automount the API token for the service account. Transmission does not talk to the Kubernetes API, so this defaults to false; set true only if your deployment needs API access."
+        },
         "annotations": {
           "type": "object",
           "additionalProperties": {

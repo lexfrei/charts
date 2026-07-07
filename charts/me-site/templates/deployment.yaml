@@ -16,6 +16,7 @@ spec:
       labels:
         app: me-site
     spec:
+      automountServiceAccountToken: {{ .Values.automountServiceAccountToken }}
       {{- with .Values.podSecurityContext }}
       securityContext:
         {{- toYaml . | nindent 8 }}

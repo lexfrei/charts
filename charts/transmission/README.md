@@ -1,6 +1,6 @@
 # transmission
 
-![Version: 1.7.4](https://img.shields.io/badge/Version-1.7.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.1.3](https://img.shields.io/badge/AppVersion-4.1.3-informational?style=flat-square)
+![Version: 1.8.0](https://img.shields.io/badge/Version-1.8.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.1.3](https://img.shields.io/badge/AppVersion-4.1.3-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -38,12 +38,12 @@ This chart is published to GitHub Container Registry (GHCR) as an OCI artifact.
 # Install from GHCR
 helm install transmission \
   oci://ghcr.io/lexfrei/charts/transmission \
-  --version 1.7.4
+  --version 1.8.0
 
 # Install with custom values
 helm install transmission \
   oci://ghcr.io/lexfrei/charts/transmission \
-  --version 1.7.4 \
+  --version 1.8.0 \
   --values values.yaml
 ```
 
@@ -53,7 +53,7 @@ This chart is signed with [cosign](https://github.com/sigstore/cosign) using key
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/transmission:1.7.4 \
+  ghcr.io/lexfrei/charts/transmission:1.8.0 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -136,8 +136,9 @@ helm delete transmission
 | service.web.annotations | object | `{}` | Annotations for Web UI service |
 | service.web.port | int | `9091` | HTTP port |
 | service.web.type | string | `"ClusterIP"` | Service type for Web UI |
-| serviceAccount | object | `{"annotations":{},"create":true,"name":""}` | Service account configuration |
+| serviceAccount | object | `{"annotations":{},"automountServiceAccountToken":false,"create":true,"name":""}` | Service account configuration |
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account |
+| serviceAccount.automountServiceAccountToken | bool | `false` | Automount the API token for the service account. Transmission does not talk to the Kubernetes API, so this defaults to false; set true only if your deployment needs API access. |
 | serviceAccount.create | bool | `true` | Specifies whether a service account should be created |
 | serviceAccount.name | string | `""` | The name of the service account to use |
 | terminationGracePeriodSeconds | string | Kubernetes default (30 seconds) | Duration in seconds the pod needs to terminate gracefully |

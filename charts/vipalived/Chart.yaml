@@ -1,8 +1,10 @@
 annotations:
   artifacthub.io/category: networking
   artifacthub.io/changes: |-
+    - kind: added
+      description: automountServiceAccountToken value to control API token automounting
     - kind: changed
-      description: Update alpine docker tag to v3.24
+      description: Do not automount the ServiceAccount API token by default, as vipalived does not use the Kubernetes API
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -16,7 +18,7 @@ apiVersion: v2
 name: vipalived
 description: Keepalived-based VIP management for Kubernetes control plane high availability
 type: application
-version: 0.7.1
+version: 0.8.0
 # renovate: datasource=docker depName=alpine
 appVersion: "3.24"
 keywords:

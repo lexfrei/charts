@@ -1,0 +1,17 @@
+suite: automount service account token tests
+templates:
+  - deployment.yaml
+tests:
+  - it: should disable automount by default
+    asserts:
+      - equal:
+          path: spec.template.spec.automountServiceAccountToken
+          value: false
+
+  - it: should honour automount override
+    set:
+      automountServiceAccountToken: true
+    asserts:
+      - equal:
+          path: spec.template.spec.automountServiceAccountToken
+          value: true

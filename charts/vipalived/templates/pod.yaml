@@ -14,6 +14,7 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
+  automountServiceAccountToken: {{ .Values.automountServiceAccountToken }}
   hostNetwork: {{ .Values.hostNetwork }}
   {{- with .Values.imagePullSecrets }}
   imagePullSecrets:

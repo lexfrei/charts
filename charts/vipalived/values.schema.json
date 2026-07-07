@@ -20,6 +20,11 @@
       "description": "Enable static pod mode for Day 1 cluster bootstrap. When true, renders a Pod manifest instead of DaemonSet with embedded configuration.",
       "default": false
     },
+    "automountServiceAccountToken": {
+      "type": "boolean",
+      "description": "Automount the API token into the pod. vipalived manages a VIP via keepalived and does not talk to the Kubernetes API, so this defaults to false; set true only if your deployment needs API access.",
+      "default": false
+    },
     "image": {
       "type": "object",
       "properties": {

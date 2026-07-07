@@ -29,6 +29,7 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
+      automountServiceAccountToken: {{ .Values.automountServiceAccountToken }}
       hostNetwork: {{ .Values.hostNetwork }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
