@@ -1,0 +1,35 @@
+suite: automount service account token tests
+templates:
+  - daemonset.yaml
+  - pod.yaml
+  - configmap.yaml
+tests:
+  - it: should disable automount on the DaemonSet by default
+    asserts:
+      - template: daemonset.yaml
+        equal:
+          path: spec.template.spec.automountServiceAccountToken
+          value: false
+
+  - it: should honour automount override on the DaemonSet
+    set:
+      automountServiceAccountToken: true
+    asserts:
+      - template: daemonset.yaml
+        equal:
+          path: spec.template.spec.automountServiceAccountToken
+          value: true
+
+  - it: should disable automount on the static Pod by default
+    set:
+      static: true
+      keepalived:
+        routerId: test-router
+        vrrpVersion: 3
+        vrrpInstance:
+          virtualIpAddress: 192.168.1.100/24
+    asserts:
+      - template: pod.yaml
+        equal:
+          path: spec.automountServiceAccountToken
+          value: false

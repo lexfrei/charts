@@ -17,6 +17,9 @@ namespace: kube-system
 # For Day 2 operations (existing cluster), keep this false (default).
 static: false
 
+# -- Automount the API token into the pod. vipalived manages a VIP via keepalived and does not talk to the Kubernetes API, so this defaults to false; set true only if your deployment needs API access.
+automountServiceAccountToken: false
+
 image:
   # -- Container image repository
   repository: alpine
