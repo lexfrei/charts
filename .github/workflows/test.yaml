@@ -87,7 +87,7 @@ jobs:
           # setup-helm release lookup flakes, and `helm plugin install --verify`
           # below is a Helm 4-only flag, so that fallback fails the job.
           # renovate: datasource=github-releases depName=helm/helm
-          version: 'v4.2.2'
+          version: 'v4.2.3'
 
       - name: Set up Python
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
