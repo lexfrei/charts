@@ -3,10 +3,8 @@ annotations:
   # Valid kinds for changes: added, changed, deprecated, removed, fixed, security
   # See: https://artifacthub.io/docs/topics/annotations/helm/
   artifacthub.io/changes: |-
-    - kind: added
-      description: serviceAccount.automountServiceAccountToken value to control API token automounting
     - kind: changed
-      description: Do not automount the ServiceAccount API token by default, as cloudflared does not use the Kubernetes API
+      description: Update cloudflare/cloudflared docker tag to v2026.7.1
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -20,7 +18,7 @@ apiVersion: v2
 name: cloudflare-tunnel
 description: Creation of a cloudflared deployment - a reverse tunnel for an environment
 type: application
-version: "0.16.0"
+version: "0.16.1"
 kubeVersion: ">=1.21.0-0"
 # renovate: datasource=docker depName=cloudflare/cloudflared
 appVersion: "2026.7.1"
