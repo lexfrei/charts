@@ -23,7 +23,7 @@ type: application
 version: "0.16.0"
 kubeVersion: ">=1.21.0-0"
 # renovate: datasource=docker depName=cloudflare/cloudflared
-appVersion: "2026.6.1"
+appVersion: "2026.7.1"
 icon: https://avatars.githubusercontent.com/u/314135
 home: https://github.com/lexfrei/charts/
 keywords:
