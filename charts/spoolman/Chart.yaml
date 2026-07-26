@@ -17,7 +17,7 @@ description: Spoolman filament spool inventory management for 3D printing, packa
 type: application
 version: "0.2.3"
 # renovate: datasource=docker depName=ghcr.io/donkie/spoolman
-appVersion: "0.24.0"
+appVersion: "0.25.0"
 icon: https://raw.githubusercontent.com/Donkie/Spoolman/master/client/public/pwa-512x512.png
 home: https://github.com/lexfrei/charts/
 keywords:
