@@ -267,8 +267,11 @@ jobs:
     if: always()
     needs: [lint-test, validate-issue-templates]
     runs-on: ubuntu-latest
+    permissions:
+      statuses: write
     steps:
       - name: Verify all chart checks succeeded
+        id: verify
         run: |
           # A matrix job resolves to 'success' only when every leg passed;
           # 'skipped' means nothing needed running (e.g. no charts changed).
@@ -283,3 +286,29 @@ jobs:
             fi
           done
           echo "All required chart checks passed."
+
+      # A dispatched run executes on the default branch, so the check run this
+      # job produces is attached to master rather than to the commit under test
+      # — and this is the context branch protection requires. Without an
+      # explicit status the PR waits on a check that will never report: the
+      # per-chart statuses go green and the merge box stays blocked forever.
+      # That is the whole reason the bot's own commits deadlock the PR they fix.
+      - name: Publish the aggregate status to the dispatched commit
+        if: always() && github.event_name == 'repository_dispatch'
+        run: |
+          if [ "${{ steps.verify.outcome }}" = "success" ]; then
+            state=success
+            description="All required chart checks passed"
+          else
+            state=failure
+            description="Some chart checks failed"
+          fi
+
+          gh api "repos/${{ github.repository }}/statuses/${{ github.event.client_payload.sha }}" \
+            --method POST \
+            --field state="$state" \
+            --field context="all-charts-passed" \
+            --field description="$description" \
+            --field target_url="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
