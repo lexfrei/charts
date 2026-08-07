@@ -1,7 +1,7 @@
 annotations:
   artifacthub.io/changes: |-
     - kind: changed
-      description: Update ghcr.io/donkie/spoolman docker tag to v0.26.0
+      description: Update ghcr.io/donkie/spoolman docker tag to v0.26.1
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -15,9 +15,9 @@ apiVersion: v2
 name: spoolman
 description: Spoolman filament spool inventory management for 3D printing, packaged for Kubernetes
 type: application
-version: "0.2.5"
+version: "0.2.6"
 # renovate: datasource=docker depName=ghcr.io/donkie/spoolman
-appVersion: "0.26.0"
+appVersion: "0.26.1"
 icon: https://raw.githubusercontent.com/Donkie/Spoolman/master/client/public/pwa-512x512.png
 home: https://github.com/lexfrei/charts/
 keywords:
