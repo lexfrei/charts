@@ -1,0 +1,87 @@
+suite: test podmonitor
+templates:
+  - podmonitor.yaml
+tests:
+  - it: should not render PodMonitor by default
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should not render PodMonitor when only metrics are enabled
+    set:
+      metrics:
+        enabled: true
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should not render PodMonitor when metrics are disabled
+    set:
+      metrics:
+        podMonitor:
+          enabled: true
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should render PodMonitor scraping the metrics port
+    set:
+      metrics:
+        enabled: true
+        podMonitor:
+          enabled: true
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: PodMonitor
+      - isAPIVersion:
+          of: monitoring.coreos.com/v1
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-extractedprism
+      - equal:
+          path: spec.selector.matchLabels["app.kubernetes.io/name"]
+          value: extractedprism
+      - equal:
+          path: spec.selector.matchLabels["app.kubernetes.io/instance"]
+          value: RELEASE-NAME
+      - equal:
+          path: spec.podMetricsEndpoints[0].port
+          value: metrics
+      - equal:
+          path: spec.podMetricsEndpoints[0].path
+          value: /metrics
+      - notExists:
+          path: spec.podMetricsEndpoints[0].interval
+
+  - it: should apply PodMonitor interval and labels
+    set:
+      metrics:
+        enabled: true
+        podMonitor:
+          enabled: true
+          interval: "15s"
+          labels:
+            release: kube-prometheus-stack
+    asserts:
+      - equal:
+          path: spec.podMetricsEndpoints[0].interval
+          value: 15s
+      - equal:
+          path: metadata.labels.release
+          value: kube-prometheus-stack
+      - equal:
+          path: metadata.labels["app.kubernetes.io/name"]
+          value: extractedprism
+
+  - it: should reject a non-duration PodMonitor interval
+    set:
+      metrics:
+        enabled: true
+        podMonitor:
+          enabled: true
+          interval: "often"
+    asserts:
+      - failedTemplate:
+          errorPattern: "interval"

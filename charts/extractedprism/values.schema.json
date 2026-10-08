@@ -58,7 +58,7 @@
     },
     "healthBindAddress": {
       "type": "string",
-      "description": "Address to bind the health HTTP server (defaults to bindAddress if empty)"
+      "description": "Address to bind the health HTTP server (empty means bindAddress, or the node IP when metrics.enabled is true)"
     },
     "healthInterval": {
       "type": "string",
@@ -79,6 +79,38 @@
       "type": "string",
       "pattern": "^[0-9]+(s|m|h)$",
       "description": "Maximum time since last heartbeat before liveness fails"
+    },
+    "drainTimeout": {
+      "type": "string",
+      "pattern": "^[0-9]+(s|m|h)$",
+      "description": "Time to wait for connections to a removed endpoint to drain before force-closing them"
+    },
+    "metrics": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Bind the health server to the node IP and expose the health port as the metrics container port"
+        },
+        "podMonitor": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Create a Prometheus Operator PodMonitor"
+            },
+            "interval": {
+              "type": "string",
+              "pattern": "^$|^[0-9]+(s|m|h)$",
+              "description": "Scrape interval"
+            },
+            "labels": {
+              "type": "object",
+              "description": "Additional labels for the PodMonitor"
+            }
+          }
+        }
+      }
     },
     "enableDiscovery": {
       "type": "boolean",

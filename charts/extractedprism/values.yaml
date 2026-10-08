@@ -33,7 +33,8 @@ bindPort: 7445
 # -- Port for the HTTP health check server
 healthPort: 7446
 
-# -- Address to bind the health HTTP server (defaults to bindAddress if empty).
+# -- Address to bind the health HTTP server. Empty means bindAddress, or the
+# node IP when metrics.enabled is true.
 # Useful when the LB should stay on 127.0.0.1 but health probes need to be
 # reachable from outside (e.g., "0.0.0.0").
 healthBindAddress: ""
@@ -49,6 +50,23 @@ livenessInterval: "5s"
 
 # -- Maximum time since last heartbeat before liveness fails
 livenessThreshold: "15s"
+
+# -- Time to wait for connections to a removed endpoint to drain before
+# force-closing them ("0s" closes immediately)
+drainTimeout: "30s"
+
+metrics:
+  # -- Bind the health server (with the /metrics endpoint) to the node IP and
+  # expose the health port as the named "metrics" container port. Requires
+  # hostNetwork unless healthBindAddress is set explicitly.
+  enabled: false
+  podMonitor:
+    # -- Create a Prometheus Operator PodMonitor scraping the metrics port
+    enabled: false
+    # -- Scrape interval (e.g. "30s")
+    interval: ""
+    # -- Additional labels for the PodMonitor
+    labels: {}
 
 # -- Enable Kubernetes endpoint discovery (watches EndpointSlice API).
 # When true, dynamically discovers API server endpoints in addition to static ones.

@@ -60,3 +60,16 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Render a probe, dropping httpGet.host when dropHost is true. In that mode the
+health server binds to the node IP, so probes must rely on the default target
+(the pod IP, which is the node IP under hostNetwork).
+*/}}
+{{- define "extractedprism.probe" -}}
+{{- $probe := deepCopy .probe -}}
+{{- if and .dropHost (hasKey $probe "httpGet") -}}
+{{- $_ := unset $probe.httpGet "host" -}}
+{{- end -}}
+{{- toYaml $probe -}}
+{{- end -}}

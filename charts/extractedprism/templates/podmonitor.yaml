@@ -1,0 +1,23 @@
+{{- $metrics := .Values.metrics | default dict }}
+{{- if and $metrics.enabled ($metrics.podMonitor | default dict).enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ include "extractedprism.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "extractedprism.labels" . | nindent 4 }}
+    {{- with .Values.metrics.podMonitor.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "extractedprism.selectorLabels" . | nindent 6 }}
+  podMetricsEndpoints:
+    - port: metrics
+      path: /metrics
+      {{- with .Values.metrics.podMonitor.interval }}
+      interval: {{ . | quote }}
+      {{- end }}
+{{- end }}
