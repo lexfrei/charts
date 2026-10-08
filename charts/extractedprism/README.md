@@ -1,6 +1,6 @@
 # extractedprism
 
-![Version: 0.2.2](https://img.shields.io/badge/Version-0.2.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.4.1](https://img.shields.io/badge/AppVersion-v0.4.1-informational?style=flat-square)
+![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.4.1](https://img.shields.io/badge/AppVersion-v0.4.1-informational?style=flat-square)
 
 ## Status
 
@@ -25,7 +25,7 @@ extractedprism is a per-node TCP load balancer for Kubernetes API server high av
 
 ```bash
 helm install extractedprism oci://ghcr.io/lexfrei/charts/extractedprism \
-  --version 0.2.2 \
+  --version 0.3.0 \
   --set endpoints="10.0.0.1:6443,10.0.0.2:6443,10.0.0.3:6443"
 ```
 
@@ -53,7 +53,7 @@ helm uninstall extractedprism
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/extractedprism:0.2.2 \
+  ghcr.io/lexfrei/charts/extractedprism:0.3.0 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -66,10 +66,11 @@ cosign verify \
 | bindAddress | string | `"127.0.0.1"` | Address to bind the TCP load balancer listener |
 | bindPort | int | `7445` | Port for the TCP load balancer listener |
 | dnsPolicy | string | `"ClusterFirstWithHostNet"` | DNS policy (ClusterFirstWithHostNet required when hostNetwork is true) |
+| drainTimeout | string | `"30s"` | Time to wait for connections to a removed endpoint to drain before force-closing them ("0s" closes immediately) |
 | enableDiscovery | bool | `true` | Enable Kubernetes endpoint discovery (watches EndpointSlice API). When true, dynamically discovers API server endpoints in addition to static ones. |
 | endpoints | string | `""` | Comma-separated list of control plane endpoints (host:port). Required. These are the static bootstrap endpoints used before Kubernetes API discovery is available (e.g., before CNI starts). |
 | fullnameOverride | string | `""` | Override the full name of the chart |
-| healthBindAddress | string | `""` | Address to bind the health HTTP server (defaults to bindAddress if empty). Useful when the LB should stay on 127.0.0.1 but health probes need to be reachable from outside (e.g., "0.0.0.0"). |
+| healthBindAddress | string | `""` | Address to bind the health HTTP server. Empty means bindAddress, or the node IP when metrics.enabled is true. Useful when the LB should stay on 127.0.0.1 but health probes need to be reachable from outside (e.g., "0.0.0.0"). |
 | healthInterval | string | `"20s"` | Interval between upstream health checks |
 | healthPort | int | `7446` | Port for the HTTP health check server |
 | healthTimeout | string | `"15s"` | Timeout for each upstream health check |
@@ -82,6 +83,10 @@ cosign verify \
 | livenessProbe | object | `{"failureThreshold":3,"httpGet":{"host":"127.0.0.1","path":"/healthz","port":7446},"initialDelaySeconds":10,"periodSeconds":10,"timeoutSeconds":5}` | Liveness probe configuration |
 | livenessThreshold | string | `"15s"` | Maximum time since last heartbeat before liveness fails |
 | logLevel | string | `"info"` | Log level (debug, info, warn, error, dpanic, panic, fatal) |
+| metrics.enabled | bool | `false` | Bind the health server (with the /metrics endpoint) to the node IP and expose the health port as the named "metrics" container port. Requires hostNetwork unless healthBindAddress is set explicitly. |
+| metrics.podMonitor.enabled | bool | `false` | Create a Prometheus Operator PodMonitor scraping the metrics port |
+| metrics.podMonitor.interval | string | `""` | Scrape interval (e.g. "30s") |
+| metrics.podMonitor.labels | object | `{}` | Additional labels for the PodMonitor |
 | nameOverride | string | `""` | Override the name of the chart |
 | nodeSelector | object | `{}` | Node selector for pod assignment |
 | podAnnotations | object | `{}` | Annotations for pods |
@@ -106,7 +111,7 @@ extractedprism runs as a DaemonSet with `hostNetwork: true` on every node. Each 
 2. Loads static endpoints from `--endpoints` flag (available immediately at boot)
 3. Optionally watches Kubernetes EndpointSlice API for dynamic API server discovery
 4. Health-checks all upstreams and routes only to healthy ones
-5. Exposes `/healthz` (liveness) and `/readyz` (readiness) on port 7446
+5. Exposes `/healthz` (liveness), `/readyz` (readiness) and Prometheus metrics at `/metrics` on port 7446
 
 Configure kubelet on each node to use `https://127.0.0.1:7445` as the API server address.
 
