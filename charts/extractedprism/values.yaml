@@ -52,8 +52,17 @@ livenessInterval: "5s"
 livenessThreshold: "15s"
 
 # -- Time to wait for connections to a removed endpoint to drain before
-# force-closing them ("0s" closes immediately)
-drainTimeout: "30s"
+# force-closing them ("0s" closes immediately). Unset passes no flag, so
+# the extractedprism default applies
+# @default -- unset
+drainTimeout: null
+
+# -- How new connections pick an upstream: "random" (uniform among healthy,
+# non-draining upstreams) or "latency" (prefer the lowest-latency group of
+# upstreams, measured by health check connect time). Unset passes no flag, so
+# the extractedprism default applies
+# @default -- unset
+upstreamSelection: null
 
 metrics:
   # -- Bind the health server (with the /metrics endpoint) to the node IP and

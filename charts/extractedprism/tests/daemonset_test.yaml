@@ -341,14 +341,11 @@ tests:
           path: spec.template.spec.containers[0].resources.limits.memory
           value: 128Mi
 
-  - it: should pass default drain timeout
+  - it: should not pass drain timeout when the value is unset
     asserts:
-      - contains:
+      - notContains:
           path: spec.template.spec.containers[0].args
           content: "--drain-timeout"
-      - contains:
-          path: spec.template.spec.containers[0].args
-          content: "30s"
 
   - it: should pass custom drain timeout
     set:
@@ -366,19 +363,19 @@ tests:
       drainTimeout: "0s"
     asserts:
       - equal:
-          path: spec.template.spec.containers[0].args[17]
-          value: "0s"
-
-  - it: should fall back to the default drain timeout when the value is absent
-    set:
-      drainTimeout: null
-    asserts:
-      - equal:
           path: spec.template.spec.containers[0].args[16]
           value: "--drain-timeout"
       - equal:
           path: spec.template.spec.containers[0].args[17]
-          value: "30s"
+          value: "0s"
+
+  - it: should not pass drain timeout when the value is null
+    set:
+      drainTimeout: null
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[0].args
+          content: "--drain-timeout"
 
   - it: should reject a non-duration drain timeout
     set:
@@ -386,3 +383,68 @@ tests:
     asserts:
       - failedTemplate:
           errorPattern: "drainTimeout"
+
+  - it: should not pass upstream selection when the value is unset
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[0].args
+          content: "--upstream-selection"
+
+  - it: should not pass upstream selection when the value is null
+    set:
+      upstreamSelection: null
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[0].args
+          content: "--upstream-selection"
+
+  - it: should pass latency upstream selection when set
+    set:
+      upstreamSelection: latency
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].args[16]
+          value: "--upstream-selection"
+      - equal:
+          path: spec.template.spec.containers[0].args[17]
+          value: "latency"
+
+  - it: should pass random upstream selection when set explicitly
+    set:
+      upstreamSelection: random
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].args[16]
+          value: "--upstream-selection"
+      - equal:
+          path: spec.template.spec.containers[0].args[17]
+          value: "random"
+
+  - it: should reject an unknown upstream selection
+    set:
+      upstreamSelection: fastest
+    asserts:
+      - failedTemplate:
+          errorPattern: "upstreamSelection"
+
+  - it: should reject an empty upstream selection
+    set:
+      upstreamSelection: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: "upstreamSelection"
+
+  - it: should pass drain timeout before upstream selection when both are set
+    set:
+      drainTimeout: "2m"
+      upstreamSelection: latency
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].args[16]
+          value: "--drain-timeout"
+      - equal:
+          path: spec.template.spec.containers[0].args[18]
+          value: "--upstream-selection"
+      - equal:
+          path: spec.template.spec.containers[0].args[19]
+          value: "latency"

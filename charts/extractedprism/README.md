@@ -1,6 +1,6 @@
 # extractedprism
 
-![Version: 0.3.1](https://img.shields.io/badge/Version-0.3.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.5.0](https://img.shields.io/badge/AppVersion-v0.5.0-informational?style=flat-square)
+![Version: 0.4.0](https://img.shields.io/badge/Version-0.4.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.5.0](https://img.shields.io/badge/AppVersion-v0.5.0-informational?style=flat-square)
 
 ## Status
 
@@ -25,7 +25,7 @@ extractedprism is a per-node TCP load balancer for Kubernetes API server high av
 
 ```bash
 helm install extractedprism oci://ghcr.io/lexfrei/charts/extractedprism \
-  --version 0.3.1 \
+  --version 0.4.0 \
   --set endpoints="10.0.0.1:6443,10.0.0.2:6443,10.0.0.3:6443"
 ```
 
@@ -53,7 +53,7 @@ helm uninstall extractedprism
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/extractedprism:0.3.1 \
+  ghcr.io/lexfrei/charts/extractedprism:0.4.0 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -66,7 +66,7 @@ cosign verify \
 | bindAddress | string | `"127.0.0.1"` | Address to bind the TCP load balancer listener |
 | bindPort | int | `7445` | Port for the TCP load balancer listener |
 | dnsPolicy | string | `"ClusterFirstWithHostNet"` | DNS policy (ClusterFirstWithHostNet required when hostNetwork is true) |
-| drainTimeout | string | `"30s"` | Time to wait for connections to a removed endpoint to drain before force-closing them ("0s" closes immediately) |
+| drainTimeout | string | unset | Time to wait for connections to a removed endpoint to drain before force-closing them ("0s" closes immediately). Unset passes no flag, so the extractedprism default applies |
 | enableDiscovery | bool | `true` | Enable Kubernetes endpoint discovery (watches EndpointSlice API). When true, dynamically discovers API server endpoints in addition to static ones. |
 | endpoints | string | `""` | Comma-separated list of control plane endpoints (host:port). Required. These are the static bootstrap endpoints used before Kubernetes API discovery is available (e.g., before CNI starts). |
 | fullnameOverride | string | `""` | Override the full name of the chart |
@@ -102,6 +102,7 @@ cosign verify \
 | tolerations | list | `[{"operator":"Exists"}]` | Tolerations for pod assignment. Uses catch-all toleration by default because extractedprism is critical infrastructure that MUST run on every node regardless of any taints. |
 | updateStrategy.maxUnavailable | int | `1` | Maximum number of unavailable pods during update |
 | updateStrategy.type | string | `"RollingUpdate"` | Update strategy type |
+| upstreamSelection | string | unset | How new connections pick an upstream: "random" (uniform among healthy, non-draining upstreams) or "latency" (prefer the lowest-latency group of upstreams, measured by health check connect time). Unset passes no flag, so the extractedprism default applies |
 
 ## Architecture
 
