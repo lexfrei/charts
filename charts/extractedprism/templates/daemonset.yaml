@@ -87,6 +87,10 @@ spec:
             - {{ .Values.livenessThreshold | quote }}
             - "--drain-timeout"
             - {{ .Values.drainTimeout | default "30s" | quote }}
+            {{- with .Values.upstreamSelection }}
+            - "--upstream-selection"
+            - {{ . | quote }}
+            {{- end }}
             - "--enable-discovery={{ .Values.enableDiscovery }}"
             - "--log-level"
             - {{ .Values.logLevel | quote }}

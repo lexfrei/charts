@@ -85,6 +85,11 @@
       "pattern": "^[0-9]+(s|m|h)$",
       "description": "Time to wait for connections to a removed endpoint to drain before force-closing them"
     },
+    "upstreamSelection": {
+      "type": ["string", "null"],
+      "enum": ["random", "latency", null],
+      "description": "How new connections pick an upstream; unset passes no flag"
+    },
     "metrics": {
       "type": "object",
       "properties": {

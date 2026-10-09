@@ -386,3 +386,53 @@ tests:
     asserts:
       - failedTemplate:
           errorPattern: "drainTimeout"
+
+  - it: should not pass upstream selection when the value is unset
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[0].args
+          content: "--upstream-selection"
+
+  - it: should not pass upstream selection when the value is null
+    set:
+      upstreamSelection: null
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[0].args
+          content: "--upstream-selection"
+
+  - it: should pass latency upstream selection when set
+    set:
+      upstreamSelection: latency
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].args[18]
+          value: "--upstream-selection"
+      - equal:
+          path: spec.template.spec.containers[0].args[19]
+          value: "latency"
+
+  - it: should pass random upstream selection when set explicitly
+    set:
+      upstreamSelection: random
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].args[18]
+          value: "--upstream-selection"
+      - equal:
+          path: spec.template.spec.containers[0].args[19]
+          value: "random"
+
+  - it: should reject an unknown upstream selection
+    set:
+      upstreamSelection: fastest
+    asserts:
+      - failedTemplate:
+          errorPattern: "upstreamSelection"
+
+  - it: should reject an empty upstream selection
+    set:
+      upstreamSelection: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: "upstreamSelection"

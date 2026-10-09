@@ -1,8 +1,8 @@
 annotations:
   artifacthub.io/category: networking
   artifacthub.io/changes: |-
-    - kind: changed
-      description: Update dependency lexfrei/extractedprism to v0.5.0
+    - kind: added
+      description: Add upstreamSelection value for the --upstream-selection flag (opt-in latency-aware upstream selection); unset by default, so the extractedprism default applies
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -18,7 +18,7 @@ home: https://github.com/lexfrei/charts/
 name: extractedprism
 description: Per-node TCP load balancer for Kubernetes API server high availability
 type: application
-version: 0.3.1
+version: 0.4.0
 # renovate: datasource=github-releases depName=lexfrei/extractedprism
 appVersion: "v0.5.0"
 keywords:
