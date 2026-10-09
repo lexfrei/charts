@@ -1,0 +1,140 @@
+suite: test metrics exposure
+templates:
+  - daemonset.yaml
+tests:
+  - it: should keep health server on loopback when metrics are disabled
+    asserts:
+      - isNull:
+          path: spec.template.spec.containers[0].env
+      - isNull:
+          path: spec.template.spec.containers[0].ports
+      - notContains:
+          path: spec.template.spec.containers[0].args
+          content: "--health-bind-address=$(HOST_IP)"
+      - notContains:
+          path: spec.template.spec.containers[0].args
+          content: "--health-bind-address"
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.host
+          value: "127.0.0.1"
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.host
+          value: "127.0.0.1"
+
+  - it: should bind health server to the node IP when metrics are enabled
+    set:
+      metrics:
+        enabled: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: HOST_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.hostIP
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "--health-bind-address=$(HOST_IP)"
+      - notContains:
+          path: spec.template.spec.containers[0].args
+          content: "--health-bind-address"
+
+  - it: should drop probe host when health server binds to the node IP
+    set:
+      metrics:
+        enabled: true
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.host
+      - notExists:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.host
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.path
+          value: /readyz
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.port
+          value: 7446
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.path
+          value: /healthz
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.periodSeconds
+          value: 10
+
+  - it: should expose the health port as the metrics container port
+    set:
+      metrics:
+        enabled: true
+      healthPort: 9446
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].ports
+          content:
+            name: metrics
+            containerPort: 9446
+            protocol: TCP
+
+  - it: should prefer explicit healthBindAddress over the node IP
+    set:
+      metrics:
+        enabled: true
+      healthBindAddress: "192.0.2.10"
+      readinessProbe:
+        httpGet:
+          host: "192.0.2.10"
+      livenessProbe:
+        httpGet:
+          host: "192.0.2.10"
+    asserts:
+      - isNull:
+          path: spec.template.spec.containers[0].env
+      - notContains:
+          path: spec.template.spec.containers[0].args
+          content: "--health-bind-address=$(HOST_IP)"
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "192.0.2.10"
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.host
+          value: "192.0.2.10"
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.host
+          value: "192.0.2.10"
+      - contains:
+          path: spec.template.spec.containers[0].ports
+          content:
+            name: metrics
+            containerPort: 7446
+            protocol: TCP
+
+  - it: should refuse node IP binding without hostNetwork
+    set:
+      metrics:
+        enabled: true
+      hostNetwork: false
+    asserts:
+      - failedTemplate:
+          errorPattern: "metrics.enabled requires hostNetwork"
+
+  - it: should allow metrics without hostNetwork when healthBindAddress is set
+    set:
+      metrics:
+        enabled: true
+      hostNetwork: false
+      healthBindAddress: "0.0.0.0"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "0.0.0.0"
+
+  - it: should render without metrics keys from an older values file
+    set:
+      metrics: null
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isNull:
+          path: spec.template.spec.containers[0].env
+      - isNull:
+          path: spec.template.spec.containers[0].ports

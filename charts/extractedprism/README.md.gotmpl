@@ -68,7 +68,7 @@ extractedprism runs as a DaemonSet with `hostNetwork: true` on every node. Each 
 2. Loads static endpoints from `--endpoints` flag (available immediately at boot)
 3. Optionally watches Kubernetes EndpointSlice API for dynamic API server discovery
 4. Health-checks all upstreams and routes only to healthy ones
-5. Exposes `/healthz` (liveness) and `/readyz` (readiness) on port 7446
+5. Exposes `/healthz` (liveness), `/readyz` (readiness) and Prometheus metrics at `/metrics` on port 7446
 
 Configure kubelet on each node to use `https://127.0.0.1:7445` as the API server address.
 

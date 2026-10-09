@@ -1,3 +1,8 @@
+{{- $metrics := .Values.metrics }}
+{{- if and $metrics.enabled (not .Values.hostNetwork) (not .Values.healthBindAddress) }}
+{{- fail "metrics.enabled requires hostNetwork when healthBindAddress is empty: the health server cannot bind the node IP from inside a pod network" }}
+{{- end }}
+{{- $dropProbeHost := and $metrics.enabled (not .Values.healthBindAddress) }}
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -69,6 +74,8 @@ spec:
             {{- if .Values.healthBindAddress }}
             - "--health-bind-address"
             - {{ .Values.healthBindAddress | quote }}
+            {{- else if $metrics.enabled }}
+            - "--health-bind-address=$(HOST_IP)"
             {{- end }}
             - "--health-interval"
             - {{ .Values.healthInterval | quote }}
@@ -78,20 +85,35 @@ spec:
             - {{ .Values.livenessInterval | quote }}
             - "--liveness-threshold"
             - {{ .Values.livenessThreshold | quote }}
+            - "--drain-timeout"
+            - {{ .Values.drainTimeout | default "30s" | quote }}
             - "--enable-discovery={{ .Values.enableDiscovery }}"
             - "--log-level"
             - {{ .Values.logLevel | quote }}
+          {{- if and $metrics.enabled (not .Values.healthBindAddress) }}
+          env:
+            - name: HOST_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+          {{- end }}
+          {{- if $metrics.enabled }}
+          ports:
+            - name: metrics
+              containerPort: {{ .Values.healthPort }}
+              protocol: TCP
+          {{- end }}
           {{- with .Values.securityContext }}
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           {{- with .Values.readinessProbe }}
           readinessProbe:
-            {{- toYaml . | nindent 12 }}
+            {{- include "extractedprism.probe" (dict "probe" . "dropHost" $dropProbeHost) | nindent 12 }}
           {{- end }}
           {{- with .Values.livenessProbe }}
           livenessProbe:
-            {{- toYaml . | nindent 12 }}
+            {{- include "extractedprism.probe" (dict "probe" . "dropHost" $dropProbeHost) | nindent 12 }}
           {{- end }}
           {{- with .Values.resources }}
           resources:

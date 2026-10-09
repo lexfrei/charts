@@ -340,3 +340,49 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].resources.limits.memory
           value: 128Mi
+
+  - it: should pass default drain timeout
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "--drain-timeout"
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "30s"
+
+  - it: should pass custom drain timeout
+    set:
+      drainTimeout: "2m"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].args[16]
+          value: "--drain-timeout"
+      - equal:
+          path: spec.template.spec.containers[0].args[17]
+          value: "2m"
+
+  - it: should accept zero drain timeout
+    set:
+      drainTimeout: "0s"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].args[17]
+          value: "0s"
+
+  - it: should fall back to the default drain timeout when the value is absent
+    set:
+      drainTimeout: null
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].args[16]
+          value: "--drain-timeout"
+      - equal:
+          path: spec.template.spec.containers[0].args[17]
+          value: "30s"
+
+  - it: should reject a non-duration drain timeout
+    set:
+      drainTimeout: "soon"
+    asserts:
+      - failedTemplate:
+          errorPattern: "drainTimeout"
