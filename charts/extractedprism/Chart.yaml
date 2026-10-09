@@ -1,12 +1,8 @@
 annotations:
   artifacthub.io/category: networking
   artifacthub.io/changes: |-
-    - kind: added
-      description: Add drainTimeout value for the --drain-timeout flag (connection draining on endpoint removal)
-    - kind: added
-      description: Add metrics.enabled to bind the health server to the node IP and expose the named metrics port
-    - kind: added
-      description: Add metrics.podMonitor for Prometheus Operator PodMonitor support
+    - kind: changed
+      description: Update dependency lexfrei/extractedprism to v0.5.0
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -22,7 +18,7 @@ home: https://github.com/lexfrei/charts/
 name: extractedprism
 description: Per-node TCP load balancer for Kubernetes API server high availability
 type: application
-version: 0.3.0
+version: 0.3.1
 # renovate: datasource=github-releases depName=lexfrei/extractedprism
 appVersion: "v0.5.0"
 keywords:
