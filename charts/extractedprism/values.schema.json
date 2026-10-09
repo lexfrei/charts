@@ -81,9 +81,9 @@
       "description": "Maximum time since last heartbeat before liveness fails"
     },
     "drainTimeout": {
-      "type": "string",
+      "type": ["string", "null"],
       "pattern": "^[0-9]+(s|m|h)$",
-      "description": "Time to wait for connections to a removed endpoint to drain before force-closing them"
+      "description": "Time to wait for connections to a removed endpoint to drain before force-closing them; unset passes no flag"
     },
     "upstreamSelection": {
       "type": ["string", "null"],
