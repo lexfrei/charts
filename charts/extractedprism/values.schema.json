@@ -90,6 +90,11 @@
       "enum": ["random", "latency", null],
       "description": "How new connections pick an upstream; unset passes no flag"
     },
+    "healthCheck": {
+      "type": ["string", "null"],
+      "enum": ["tcp", "readyz", null],
+      "description": "Upstream health check; readyz authenticates with the ServiceAccount token; unset passes no flag"
+    },
     "metrics": {
       "type": "object",
       "properties": {

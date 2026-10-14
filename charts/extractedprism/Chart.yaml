@@ -3,6 +3,8 @@ annotations:
   artifacthub.io/changes: |-
     - kind: changed
       description: Update dependency lexfrei/extractedprism to v0.6.0
+    - kind: added
+      description: Add healthCheck value for the --health-check flag; readyz authenticates the probe with the pod's ServiceAccount token and CA, unset by default, so the extractedprism default applies
   artifacthub.io/license: BSD-3-Clause
   artifacthub.io/links: |
     - name: Chart Repository
@@ -18,7 +20,7 @@ home: https://github.com/lexfrei/charts/
 name: extractedprism
 description: Per-node TCP load balancer for Kubernetes API server high availability
 type: application
-version: 0.4.1
+version: 0.5.0
 # renovate: datasource=github-releases depName=lexfrei/extractedprism
 appVersion: "v0.6.0"
 keywords:

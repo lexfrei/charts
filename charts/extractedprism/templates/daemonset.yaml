@@ -93,6 +93,13 @@ spec:
             - "--upstream-selection"
             - {{ . | quote }}
             {{- end }}
+            {{- with .Values.healthCheck }}
+            - "--health-check={{ . }}"
+            {{- if eq . "readyz" }}
+            - "--health-check-ca-file=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+            - "--health-check-token-file=/var/run/secrets/kubernetes.io/serviceaccount/token"
+            {{- end }}
+            {{- end }}
             - "--enable-discovery={{ .Values.enableDiscovery }}"
             - "--log-level"
             - {{ .Values.logLevel | quote }}

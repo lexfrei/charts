@@ -64,6 +64,13 @@ drainTimeout: null
 # @default -- unset
 upstreamSelection: null
 
+# -- Upstream health check: "tcp" (connect only) or "readyz" (prefer upstreams
+# answering 200 on GET /readyz). With "readyz" the probe authenticates with
+# the pod's ServiceAccount token and verifies upstreams against its CA. Unset
+# passes no flag, so the extractedprism default applies
+# @default -- unset
+healthCheck: null
+
 metrics:
   # -- Bind the health server (with the /metrics endpoint) to the node IP and
   # expose the health port as the named "metrics" container port. Requires
