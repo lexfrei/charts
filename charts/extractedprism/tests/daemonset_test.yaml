@@ -448,3 +448,65 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].args[19]
           value: "latency"
+
+  - it: should not pass a health check mode when the value is unset
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[0].args
+          content: "--health-check=tcp"
+      - notContains:
+          path: spec.template.spec.containers[0].args
+          content: "--health-check=readyz"
+
+  - it: should pass the tcp health check without readyz credentials
+    set:
+      healthCheck: tcp
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "--health-check=tcp"
+      - notContains:
+          path: spec.template.spec.containers[0].args
+          content: "--health-check-ca-file=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+      - notContains:
+          path: spec.template.spec.containers[0].args
+          content: "--health-check-token-file=/var/run/secrets/kubernetes.io/serviceaccount/token"
+
+  - it: should authenticate the readyz probe with the ServiceAccount token and CA
+    set:
+      healthCheck: readyz
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "--health-check=readyz"
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "--health-check-ca-file=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+      - contains:
+          path: spec.template.spec.containers[0].args
+          content: "--health-check-token-file=/var/run/secrets/kubernetes.io/serviceaccount/token"
+
+  - it: should keep the non-root security context with readyz
+    set:
+      healthCheck: readyz
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.runAsUser
+          value: 65534
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.runAsNonRoot
+          value: true
+
+  - it: should reject an unknown health check mode
+    set:
+      healthCheck: http
+    asserts:
+      - failedTemplate:
+          errorPattern: "healthCheck"
+
+  - it: should reject an empty health check mode
+    set:
+      healthCheck: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: "healthCheck"

@@ -1,6 +1,6 @@
 # extractedprism
 
-![Version: 0.4.1](https://img.shields.io/badge/Version-0.4.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.6.0](https://img.shields.io/badge/AppVersion-v0.6.0-informational?style=flat-square)
+![Version: 0.5.0](https://img.shields.io/badge/Version-0.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.6.0](https://img.shields.io/badge/AppVersion-v0.6.0-informational?style=flat-square)
 
 ## Status
 
@@ -25,7 +25,7 @@ extractedprism is a per-node TCP load balancer for Kubernetes API server high av
 
 ```bash
 helm install extractedprism oci://ghcr.io/lexfrei/charts/extractedprism \
-  --version 0.4.1 \
+  --version 0.5.0 \
   --set endpoints="10.0.0.1:6443,10.0.0.2:6443,10.0.0.3:6443"
 ```
 
@@ -53,7 +53,7 @@ helm uninstall extractedprism
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/extractedprism:0.4.1 \
+  ghcr.io/lexfrei/charts/extractedprism:0.5.0 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
@@ -71,6 +71,7 @@ cosign verify \
 | endpoints | string | `""` | Comma-separated list of control plane endpoints (host:port). Required. These are the static bootstrap endpoints used before Kubernetes API discovery is available (e.g., before CNI starts). |
 | fullnameOverride | string | `""` | Override the full name of the chart |
 | healthBindAddress | string | `""` | Address to bind the health HTTP server. Empty means bindAddress, or the node IP when metrics.enabled is true. Useful when the LB should stay on 127.0.0.1 but health probes need to be reachable from outside (e.g., "0.0.0.0"). |
+| healthCheck | string | unset | Upstream health check: "tcp" (connect only) or "readyz" (prefer upstreams answering 200 on GET /readyz). With "readyz" the probe authenticates with the pod's ServiceAccount token and verifies upstreams against its CA. Unset passes no flag, so the extractedprism default applies |
 | healthInterval | string | `"20s"` | Interval between upstream health checks |
 | healthPort | int | `7446` | Port for the HTTP health check server |
 | healthTimeout | string | `"15s"` | Timeout for each upstream health check |
