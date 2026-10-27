@@ -1,6 +1,6 @@
 # cloudflare-tunnel
 
-![Version: 0.16.12](https://img.shields.io/badge/Version-0.16.12-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2026.10.4](https://img.shields.io/badge/AppVersion-2026.10.4-informational?style=flat-square)
+![Version: 0.16.13](https://img.shields.io/badge/Version-0.16.13-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2026.10.5](https://img.shields.io/badge/AppVersion-2026.10.5-informational?style=flat-square)
 
 ## 📊 Status & Metrics
 
@@ -69,7 +69,7 @@ Before installing the chart, create a tunnel in Cloudflare:
 # Install with inline configuration
 helm install cloudflare-tunnel \
   oci://ghcr.io/lexfrei/charts/cloudflare-tunnel \
-  --version 0.16.12 \
+  --version 0.16.13 \
   --set cloudflare.account=YOUR_ACCOUNT_ID \
   --set cloudflare.tunnelName=YOUR_TUNNEL_NAME \
   --set cloudflare.tunnelId=YOUR_TUNNEL_ID \
@@ -80,7 +80,7 @@ helm install cloudflare-tunnel \
 # Install with values file
 helm install cloudflare-tunnel \
   oci://ghcr.io/lexfrei/charts/cloudflare-tunnel \
-  --version 0.16.12 \
+  --version 0.16.13 \
   --values values.yaml
 ```
 
@@ -90,7 +90,7 @@ This chart is signed with [cosign](https://github.com/sigstore/cosign) using key
 
 ```bash
 cosign verify \
-  ghcr.io/lexfrei/charts/cloudflare-tunnel:0.16.12 \
+  ghcr.io/lexfrei/charts/cloudflare-tunnel:0.16.13 \
   --certificate-identity "https://github.com/lexfrei/charts/.github/workflows/publish-oci.yaml@refs/heads/master" \
   --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 ```
