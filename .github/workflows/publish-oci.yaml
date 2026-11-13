@@ -107,7 +107,7 @@ jobs:
           # setup-helm release lookup flakes, and `helm plugin install --verify`
           # below is a Helm 4-only flag, so that fallback fails the job.
           # renovate: datasource=github-releases depName=helm/helm
-          version: v4.3.1
+          version: v4.3.2
 
       - name: Install cosign
         uses: sigstore/cosign-installer@756fe2d284c7292c4e9b62c8a28f1e5629c59532 # v4.1.3
